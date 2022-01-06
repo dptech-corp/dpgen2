@@ -4,7 +4,7 @@ from dflow.python import (
     OPIOSign,
     Artifact
 )
-from typing import Tuple, List
+from typing import Tuple, List, Set
 from pathlib import Path
 
 class RunDPTrain(OP):
@@ -27,7 +27,7 @@ class RunDPTrain(OP):
         })
 
 
-class MockRunDPTrain(OP):
+class MockRunDPTrain(RunDPTrain):
     @OP.exec_sign_check
     def execute(
             self,

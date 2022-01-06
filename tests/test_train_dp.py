@@ -46,16 +46,16 @@ class TestTrainDp(unittest.TestCase):
         
         tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
         for ii in tmp_init_data:
-            ii.mkdir(exists_ok=True)
+            ii.mkdir(exist_ok=True, parents=True)
             (ii/'a').write_text('data a')
-            (ii/'b').write_text('data a')
+            (ii/'b').write_text('data b')
         self.init_data = upload_artifact(tmp_init_data)
 
         tmp_iter_data = [Path('iter_data/foo'), Path('iter_data/bar')]
         for ii in tmp_iter_data:
-            ii.mkdir(exists_ok=True)
+            ii.mkdir(exist_ok=True, parents=True)
             (ii/'a').write_text('data a')
-            (ii/'b').write_text('data a')
+            (ii/'b').write_text('data b')
         self.iter_data = upload_artifact(tmp_iter_data)
 
         self.template_script = { 'seed' : 1024, 'data': [] }
@@ -63,6 +63,7 @@ class TestTrainDp(unittest.TestCase):
 
     def test_train(self):
         steps = steps_train(
+            "train-steps",
             self.numb_models,
             self.template_script,
             self.init_model,
@@ -71,6 +72,14 @@ class TestTrainDp(unittest.TestCase):
             MockPrepDPTrain,
             MockRunDPTrain,
         )
-        wf = Workflow(name="vasp", steps=steps)
+        wf = Workflow(name="dp-train", steps=steps)
         wf.submit()
         
+        while wf.query_status() in ["Pending", "Running"]:
+            time.sleep(4)
+
+        assert(wf.query_status() == "Succeeded")
+        step = wf.query_step(name="dp-train")[0]
+        assert(step.phase == "Succeeded")
+        download_artifact(step.outputs.artifacts["outcar"])
+        download_artifact(step.outputs.artifacts["log"])

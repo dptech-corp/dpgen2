@@ -21,6 +21,9 @@ from dflow.python import(
     Slices,
 )
 
+from dpgen2.op.run_dp_train import MockRunDPTrain
+from dpgen2.op.prep_dp_train import MockPrepDPTrain
+
 from typing import Set, List
 from pathlib import Path
 
@@ -54,28 +57,36 @@ class CollectResult(OP):
 
 
 def steps_train(
+        name : str,
         numb_models : int,
         template_script : Artifact(Path),
-        init_model : Artifact(List[Path]),
+        init_models : Artifact(List[Path]),
         init_data : Artifact(Set[Path]),
         iter_data : Artifact(Set[Path]),
         make_train_op : OP,
         run_train_op : OP,
-        prefix = '',
-        suffix = '',
 ):
-    train_steps = Steps(name=prefix+"train-steps"+suffix,
+    train_steps = Steps(name=name,
                         inputs=Inputs(
                             parameters={
                                 "numb_models": InputParameter(type=int),
                                 "template_script" : InputParameter(),
-                                "init_model" : InputArtifact(),
+                            },
+                            artifacts={
+                                "init_models" : InputArtifact(),
                                 "init_data" : InputArtifact(),
                                 "iter_data" : InputArtifact(),
-                            })
+                            },
+                        ),
+                        outputs=Outputs(
+                            artifacts={
+                                "models": OutputArtifact(),
+                                "logs": OutputArtifact(),
+                                "lcurves": OutputArtifact(),
+                            }),
                         )
 
-    make_train = Step(prefix + 'make-train' + suffix,
+    make_train = Step('make-train',
                       template=PythonOPTemplate(
                           make_train_op,
                           image="dflow:v1.0",
@@ -83,22 +94,22 @@ def steps_train(
                               "train_scripts": None
                           }),
                       parameters={
-                          "numb_models": train_steps.inputs.parameters['numb_vasp'],
+                          "numb_models": train_steps.inputs.parameters['numb_models'],
                           "template_script": train_steps.inputs.parameters['template_script'],
                       },
                       artifacts={
                       },
                       )
     train_steps.add(make_train)
-    
-    run_train = Step(prefix + 'run-train' + suffix,
+
+    run_train = Step('run-train',
                      template=PythonOPTemplate(
                          run_train_op,
                          image="dflow:v1.0",
                          slices = Slices(
                              "{{item}}",
-                             input_parameters = ["task_subdir"],
-                             input_artifact = ["train_scripts"],
+                             input_parameter = ["task_subdir"],
+                             input_artifact = ["train_script"],
                              output_artifact = ["model", "lcurve", "log"],
                          )
                      ),
@@ -107,7 +118,7 @@ def steps_train(
                      },
                      artifacts={
                          'train_script' : make_train.outputs.artifacts['train_scripts'],
-                         "init_model" : train_steps.inputs.artifacts['init_model'],
+                         "init_model" : train_steps.inputs.artifacts['init_models'],
                          "init_data": train_steps.inputs.artifacts['init_data'],
                          "iter_data": train_steps.inputs.artifacts['iter_data'],
                      },
