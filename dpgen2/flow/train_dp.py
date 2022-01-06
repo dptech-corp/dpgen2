@@ -115,6 +115,10 @@ def steps_train(
                      )
     train_steps.add(run_train)
 
+    train_steps.outputs.artifacts["models"]._from = run_train.outputs.artifacts["model"]
+    train_steps.outputs.artifacts["logs"]._from = run_train.outputs.artifacts["log"]
+    train_steps.outputs.artifacts["lcurves"]._from = run_train.outputs.artifacts["lcurve"]
+
     return train_steps
 
 
