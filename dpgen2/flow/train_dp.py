@@ -10,15 +10,15 @@ from dflow import (
     Steps,
     upload_artifact,
     download_artifact,
-    S3Artifact,
-    argo_range
+    argo_range,
 )
 from dflow.python import(
     PythonOPTemplate,
     OP,
     OPIO,
     OPIOSign,
-    Artifact
+    Artifact,
+    Slices,
 )
 
 from typing import Set, List
@@ -64,7 +64,7 @@ def steps_train(
         prefix = '',
         suffix = '',
 ):
-    train_steps = Steps(name="vasp-steps",
+    train_steps = Steps(name=prefix+"train-steps"+suffix,
                         inputs=Inputs(
                             parameters={
                                 "numb_models": InputParameter(type=int),
@@ -87,30 +87,24 @@ def steps_train(
                           "template_script": train_steps.inputs.parameters['template_script'],
                       },
                       artifacts={
-                          "init_data": train_steps.inputs.artifacts['init_data'],
-                          "iter_data": train_steps.inputs.artifacts['iter_data'],
                       },
                       )
     train_steps.add(make_train)
     
     run_train = Step(prefix + 'run-train' + suffix,
                      template=PythonOPTemplate(
-                         RunVasp,
+                         run_train_op,
                          image="dflow:v1.0",
-                         input_artifact_slices={
-                             "train_scripts": "{{item}}",
-                             "init_model": "{{item}}"
-                         },
-                         output_artifact_save={
-                             "model": artifact,
-                             "lcurve": artifact,
-                             "log": artifact,
-                         },
-                         output_artifact_archive={
-                             "model": None,
-                             "lcurve": None,
-                             "log": None,
-                         }),
+                         slices = Slices(
+                             "{{item}}",
+                             input_parameters = ["task_subdir"],
+                             input_artifact = ["train_scripts"],
+                             output_artifact = ["model", "lcurve", "log"],
+                         )
+                     ),
+                     parameters={
+                         "task_subdir" : make_train.outputs.parameters["task_subdirs"],
+                     },
                      artifacts={
                          'train_script' : make_train.outputs.artifacts['train_scripts'],
                          "init_model" : train_steps.inputs.artifacts['init_model'],
