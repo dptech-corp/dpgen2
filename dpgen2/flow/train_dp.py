@@ -58,11 +58,11 @@ class CollectResult(OP):
 
 def steps_train(
         name : str,
-        numb_models : int,
-        template_script : Artifact(Path),
-        init_models : Artifact(List[Path]),
-        init_data : Artifact(Set[Path]),
-        iter_data : Artifact(Set[Path]),
+        # numb_models : int,
+        # template_script : Artifact(Path),
+        # init_models : Artifact(List[Path]),
+        # init_data : Artifact(Set[Path]),
+        # iter_data : Artifact(Set[Path]),
         make_train_op : OP,
         run_train_op : OP,
 ):

@@ -4,6 +4,8 @@ from dflow.python import (
     OPIOSign,
     Artifact
 )
+
+import json
 from typing import Tuple, List
 from pathlib import Path
 
@@ -37,7 +39,8 @@ class MockPrepDPTrain(PrepDPTrain):
         for ii in range(numb_models):
             jtmp = template
             jtmp['seed'] = ii
-            subdir = Path(f'task.{ii:4d}') 
+            subdir = Path(f'task.{ii:04d}') 
+            subdir.mkdir(exist_ok=True, parents=True)
             fname = subdir / 'input.json'
             with open(fname, 'w') as fp:
                 json.dump(jtmp, fp, indent = 4)

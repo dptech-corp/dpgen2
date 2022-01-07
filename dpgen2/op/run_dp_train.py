@@ -4,6 +4,7 @@ from dflow.python import (
     OPIOSign,
     Artifact
 )
+import os, json
 from typing import Tuple, List, Set
 from pathlib import Path
 
@@ -34,43 +35,56 @@ class MockRunDPTrain(RunDPTrain):
             ip : OPIO,
     ) -> OPIO:
         script = ip['train_script']
-        init_model = ip['init_model']
+        work_dir = Path(ip['task_subdir'])
+        init_model = Path(ip['init_model'])
         init_data = ip['init_data']
         iter_data = ip['iter_data']
-        work_dir = Path(ip['task_subdir'])
+
+        script = Path(script).resolve()
+        init_model = init_model.resolve()
+        init_model_str = str(init_model)
+        init_data = [ii.resolve() for ii in init_data]
+        iter_data = [ii.resolve() for ii in iter_data]
+        init_data_str = [str(ii) for ii in init_data]
+        iter_data_str = [str(ii) for ii in iter_data]
 
         with open(script) as fp:
             jtmp = json.load(fp)        
         data = []
-        for ii in init_data:
+        for ii in sorted(init_data_str):
             data.append(ii)
-        for ii in iter_data:
+        for ii in sorted(iter_data_str):
             data.append(ii)
         jtmp['data'] = data
-        with open(script) as fp:
+        with open(script, 'w') as fp:
             json.dump(jtmp, fp, indent=4)
 
         cwd = os.getcwd()
-        work_dir.mkdir()
+        work_dir.mkdir(exist_ok=True, parents=True)
         os.chdir(work_dir)
         
         model = Path('model.pb')
         lcurve = Path('lcurve.out')
         log = Path('log')
 
-        assert(init_model.exists())
-        log.write_text(f'init model {str(init_model)} OK')
-        for ii in script['data']:
-            assert(ii.exists())
-            assert((ii in init_data) or (ii in iter_data))
-            log.write_text('data {str(ii)} OK')
+        assert(init_model.exists())        
+        with log.open("w") as f:
+            f.write(f'init_model {str(init_model)} OK\n')
+        for ii in jtmp['data']:
+            assert(Path(ii).exists())
+            assert((ii in init_data_str) or (ii in iter_data_str))
+            with log.open("a") as f:
+                f.write(f'data {str(ii)} OK\n')
         assert(script.exists())
-        log.write_text('script {str(script)} OK')
+        with log.open("a") as f:
+            f.write(f'script {str(script)} OK\n')
 
-        model.write('read from init model: ')
-        model.write(init_model.read_text())
-        lcurve.write('read from train_script')
-        lcurve.write(script.read_text())        
+        with model.open("w") as f:
+            f.write('read from init model: \n')
+            f.write(init_model.read_text() + '\n')
+        with lcurve.open("w") as f:
+            f.write('read from train_script: \n')
+            f.write(script.read_text() + '\n')
 
         os.chdir(cwd)
         
