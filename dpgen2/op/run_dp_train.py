@@ -22,6 +22,7 @@ class RunDPTrain(OP):
     @classmethod
     def get_output_sign(cls):
         return OPIOSign({
+            "script" : Artifact(Path),
             "model" : Artifact(Path),
             "lcurve" : Artifact(Path),
             "log" : Artifact(Path),
@@ -62,7 +63,11 @@ class MockRunDPTrain(RunDPTrain):
         cwd = os.getcwd()
         work_dir.mkdir(exist_ok=True, parents=True)
         os.chdir(work_dir)
-        
+
+        oscript = Path('input.json')
+        if not oscript.exists():
+            from shutil import copyfile
+            copyfile(script, oscript)
         model = Path('model.pb')
         lcurve = Path('lcurve.out')
         log = Path('log')
@@ -89,6 +94,7 @@ class MockRunDPTrain(RunDPTrain):
         os.chdir(cwd)
         
         return OPIO({
+            'script' : work_dir/oscript,
             'model' : work_dir/model,
             'lcurve' : work_dir/lcurve,
             'log' : work_dir/log

@@ -43,26 +43,36 @@ def _check_log(
         init_model,
         init_data,
         iter_data,
+        only_check_name = False
 ):
     with open(fname) as fp:
-        lines = fp.read().strip().split('\n')
+        lines_ = fp.read().strip().split('\n')    
+    if only_check_name:
+        lines = []
+        for ii in lines_:
+            ww = ii.split(' ')
+            ww[1] = str(Path(ww[1]).name)
+            lines.append(' '.join(ww))
+    else:
+        lines = lines_
+    revised_fname = lambda ff : Path(ff).name if only_check_name else Path(ff)
     tcase.assertEqual(
         lines[0].split(' '),
-        ['init_model', str(Path(path)/init_model), 'OK']
+        ['init_model', str(revised_fname(Path(path)/init_model)), 'OK']
     )
-    for ii in range(2):
+    for ii in range(2):        
         tcase.assertEqual(
             lines[1+ii].split(' '),
-            ['data', str(Path(path)/sorted(list(init_data))[ii]), 'OK']
+            ['data', str(revised_fname(Path(path)/sorted(list(init_data))[ii])), 'OK']
         )
     for ii in range(2):
         tcase.assertEqual(
             lines[3+ii].split(' '),
-            ['data', str(Path(path)/sorted(list(iter_data))[ii]), 'OK']
+            ['data', str(revised_fname(Path(path)/sorted(list(iter_data))[ii])), 'OK']
         )
     tcase.assertEqual(
         lines[5].split(' '),
-        ['script', str(Path(path)/script), 'OK']
+        ['script', str(revised_fname(Path(path)/script)), 'OK']
     )
     
 
@@ -101,10 +111,11 @@ def check_run_train_dp_output(
         init_model,
         init_data,
         iter_data,
+        only_check_name = False,
 ):
     cwd = os.getcwd()
     os.chdir(work_dir)    
-    _check_log(tcase, "log", cwd, script, init_model, init_data, iter_data)
+    _check_log(tcase, "log", cwd, script, init_model, init_data, iter_data, only_check_name = only_check_name)
     _check_model(tcase, "model.pb", cwd, init_model)
     _check_lcurve(tcase, "lcurve.out", cwd, script)
     os.chdir(cwd)
@@ -163,12 +174,13 @@ class TestMockRunDPTrain(unittest.TestCase):
         self.task_subdirs = ['task.0000', 'task.0001', 'task.0002']
         self.train_scripts = [Path('task.0000/input.json'), Path('task.0001/input.json'), Path('task.0002/input.json')]
         
-        Path(self.task_subdirs[0]).mkdir(exist_ok=True, parents=True)
-        Path(self.train_scripts[0]).write_text('{}')
+        for ii in range(3):
+            Path(self.task_subdirs[ii]).mkdir(exist_ok=True, parents=True)
+            Path(self.train_scripts[ii]).write_text('{}')
 
 
     def tearDown(self):
-        for ii in ['init_data', 'iter_data', self.task_subdirs[0]]:
+        for ii in ['init_data', 'iter_data' ] + self.task_subdirs:
             if Path(ii).exists():
                 shutil.rmtree(str(ii))
         for ii in self.init_models:
@@ -176,26 +188,29 @@ class TestMockRunDPTrain(unittest.TestCase):
                 os.remove(ii)
 
     def test(self):
-        run = MockRunDPTrain()
-        ip = OPIO({
-            "task_subdir": self.task_subdirs[0],
-            "train_script": self.train_scripts[0],
-            "init_model" : self.init_models[0],
-            "init_data" : self.init_data,
-            "iter_data" : self.iter_data,            
-        })
-        op = run.execute(ip)
-        self.assertEqual(op["model"], Path('task.0000/model.pb'))
-        self.assertEqual(op["log"], Path('task.0000/log'))
-        self.assertEqual(op["lcurve"], Path('task.0000/lcurve.out'))
-        check_run_train_dp_output(
-            self, 
-            self.task_subdirs[0], 
-            self.train_scripts[0], 
-            self.init_models[0], 
-            self.init_data, 
-            self.iter_data
-        )
+        for ii in range(3):
+            run = MockRunDPTrain()
+            ip = OPIO({
+                "task_subdir": self.task_subdirs[ii],
+                "train_script": self.train_scripts[ii],
+                "init_model" : self.init_models[ii],
+                "init_data" : self.init_data,
+                "iter_data" : self.iter_data,            
+            })
+            op = run.execute(ip)
+            self.assertEqual(op["script"], Path(f'task.{ii:04d}/input.json'))
+            self.assertTrue(op["script"].is_file())
+            self.assertEqual(op["model"], Path(f'task.{ii:04d}/model.pb'))
+            self.assertEqual(op["log"], Path(f'task.{ii:04d}/log'))
+            self.assertEqual(op["lcurve"], Path(f'task.{ii:04d}/lcurve.out'))
+            check_run_train_dp_output(
+                self, 
+                self.task_subdirs[ii], 
+                self.train_scripts[ii], 
+                self.init_models[ii], 
+                self.init_data, 
+                self.iter_data
+            )
 
 
 class TestTrainDp(unittest.TestCase):
@@ -208,6 +223,7 @@ class TestTrainDp(unittest.TestCase):
             ff.write_text(f'This is model {ii}')
             tmp_models.append(ff)
         self.init_models = upload_artifact(tmp_models)
+        self.str_init_models = tmp_models
         
         tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
         for ii in tmp_init_data:
@@ -215,6 +231,7 @@ class TestTrainDp(unittest.TestCase):
             (ii/'a').write_text('data a')
             (ii/'b').write_text('data b')
         self.init_data = upload_artifact(tmp_init_data)
+        self.path_init_data = set(tmp_init_data)
 
         tmp_iter_data = [Path('iter_data/foo'), Path('iter_data/bar')]
         for ii in tmp_iter_data:
@@ -222,8 +239,25 @@ class TestTrainDp(unittest.TestCase):
             (ii/'a').write_text('data a')
             (ii/'b').write_text('data b')
         self.iter_data = upload_artifact(tmp_iter_data)
+        self.path_iter_data = set(tmp_iter_data)
 
         self.template_script = { 'seed' : 1024, 'data': [] }
+
+        self.task_subdirs = ['task.0000', 'task.0001', 'task.0002']
+        self.train_scripts = [
+            Path('task.0000/input.json'), 
+            Path('task.0001/input.json'), 
+            Path('task.0002/input.json'),
+        ]
+
+
+    def tearDown(self):
+        for ii in ['init_data', 'iter_data' ] + self.task_subdirs:
+            if Path(ii).exists():
+                shutil.rmtree(str(ii))
+        for ii in self.str_init_models:
+            if Path(ii).exists():
+                os.remove(ii)
 
 
     def test_train(self):
@@ -257,9 +291,24 @@ class TestTrainDp(unittest.TestCase):
         while wf.query_status() in ["Pending", "Running"]:
             time.sleep(4)
 
-        assert(wf.query_status() == "Succeeded")
+        self.assertEqual(wf.query_status(), "Succeeded")
         step = wf.query_step(name="train-step")[0]
-        assert(step.phase == "Succeeded")
+        self.assertEqual(step.phase, "Succeeded")
 
-        download_artifact(step.outputs.artifacts["outcar"])
-        download_artifact(step.outputs.artifacts["log"])
+        download_artifact(step.outputs.artifacts["scripts"])
+        download_artifact(step.outputs.artifacts["models"])
+        download_artifact(step.outputs.artifacts["logs"])
+        download_artifact(step.outputs.artifacts["lcurves"])
+
+        for ii in range(3):
+            check_run_train_dp_output(
+                self, 
+                self.task_subdirs[ii], 
+                self.train_scripts[ii], 
+                self.str_init_models[ii], 
+                self.path_init_data, 
+                self.path_iter_data,
+                only_check_name = True
+            )
+
+        

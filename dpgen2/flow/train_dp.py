@@ -80,6 +80,7 @@ def steps_train(
                         ),
                         outputs=Outputs(
                             artifacts={
+                                "scripts": OutputArtifact(),
                                 "models": OutputArtifact(),
                                 "logs": OutputArtifact(),
                                 "lcurves": OutputArtifact(),
@@ -109,8 +110,8 @@ def steps_train(
                          slices = Slices(
                              "{{item}}",
                              input_parameter = ["task_subdir"],
-                             input_artifact = ["train_script"],
-                             output_artifact = ["model", "lcurve", "log"],
+                             input_artifact = ["train_script", "init_model"],
+                             output_artifact = ["model", "lcurve", "log", "script"],
                          )
                      ),
                      parameters={
@@ -126,6 +127,7 @@ def steps_train(
                      )
     train_steps.add(run_train)
 
+    train_steps.outputs.artifacts["scripts"]._from = run_train.outputs.artifacts["script"]
     train_steps.outputs.artifacts["models"]._from = run_train.outputs.artifacts["model"]
     train_steps.outputs.artifacts["logs"]._from = run_train.outputs.artifacts["log"]
     train_steps.outputs.artifacts["lcurves"]._from = run_train.outputs.artifacts["lcurve"]
