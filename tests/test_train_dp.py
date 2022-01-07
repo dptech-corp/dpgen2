@@ -263,11 +263,6 @@ class TestTrainDp(unittest.TestCase):
     def test_train(self):
         steps = steps_train(
             "train-steps",
-            # self.numb_models,
-            # self.template_script,
-            # self.init_models,
-            # self.init_data,
-            # self.iter_data, 
             MockPrepDPTrain,
             MockRunDPTrain,
         )
