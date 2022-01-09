@@ -27,42 +27,10 @@ from dpgen2.op.prep_dp_train import MockPrepDPTrain
 from typing import Set, List
 from pathlib import Path
 
-class CollectResult(OP):
-    @classmethod
-    def get_input_sign(cls):
-        return OPIOSign({
-            'numb_models': int,
-            'outcar' : Artifact(Path)
-        })
-
-    @classmethod
-    def get_output_sign(cls):
-        return OPIOSign({
-            'outcar' : Artifact(List[Path]),
-        })
-
-    @OP.exec_sign_check
-    def execute(
-            self,
-            op_in : OPIO,
-    ) -> OPIO:
-        numb_vasp = op_in['numb_vasp']
-        olist = []
-        for ii in range(numb_vasp):
-            ofile = op_in['outcar'] / f'task.{ii:04d}' / 'OUTCAR'
-            olist.append(ofile)
-        return OPIO({
-            'outcar': olist
-        })
 
 
 def steps_train(
         name : str,
-        # numb_models : int,
-        # template_script : Artifact(Path),
-        # init_models : Artifact(List[Path]),
-        # init_data : Artifact(Set[Path]),
-        # iter_data : Artifact(Set[Path]),
         make_train_op : OP,
         run_train_op : OP,
 ):
@@ -93,7 +61,9 @@ def steps_train(
                           image="dflow:v1.0",
                           output_artifact_archive={
                               "train_scripts": None
-                          }),
+                          },
+                          # python_packages = "..//dpgen2",
+                      ),
                       parameters={
                           "numb_models": train_steps.inputs.parameters['numb_models'],
                           "template_script": train_steps.inputs.parameters['template_script'],
@@ -112,7 +82,8 @@ def steps_train(
                              input_parameter = ["task_subdir"],
                              input_artifact = ["train_script", "init_model"],
                              output_artifact = ["model", "lcurve", "log", "script"],
-                         )
+                         ),
+                         # python_packages = "..//dpgen2",
                      ),
                      parameters={
                          "task_subdir" : make_train.outputs.parameters["task_subdirs"],
@@ -123,7 +94,7 @@ def steps_train(
                          "init_data": train_steps.inputs.artifacts['init_data'],
                          "iter_data": train_steps.inputs.artifacts['iter_data'],
                      },
-                     with_param=argo_range(train_steps.inputs.parameters["numb_models"])
+                     with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
                      )
     train_steps.add(run_train)
 
