@@ -25,7 +25,7 @@ from dflow.python import (
     Artifact
 )
 
-import time, shutil, json
+import time, shutil, json, jsonpickle
 from typing import Set, List
 from pathlib import Path
 
@@ -233,12 +233,6 @@ class TestPrepRunLmp(unittest.TestCase):
         download_artifact(step.outputs.artifacts["trajs"])
         download_artifact(step.outputs.artifacts["logs"])
 
-        print(step.outputs.parameters['task_names'])
-
-        for ii in range(self.ngrp * self.ntask_per_grp):
-            task_name = f'task.{ii:06d}'
-            self.check_run_lmp_output(task_name, self.model_list)
-
-        for ii in step.outputs.parameters['task_names'].value:
+        for ii in jsonpickle.decode(step.outputs.parameters['task_names'].value):
             self.check_run_lmp_output(ii, self.model_list)
             

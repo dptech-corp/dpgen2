@@ -25,9 +25,9 @@ from typing import Set, List
 from pathlib import Path
 
 
-def steps_train(
+def prep_run_dp_train(
         name : str,
-        make_train_op : OP,
+        prep_train_op : OP,
         run_train_op : OP,
 ):
     train_steps = Steps(name=name,
@@ -51,12 +51,12 @@ def steps_train(
                             }),
                         )
 
-    make_train = Step('make-train',
+    prep_train = Step('prep-train',
                       template=PythonOPTemplate(
-                          make_train_op,
+                          prep_train_op,
                           image="dflow:v1.0",
                           output_artifact_archive={
-                              "train_scripts": None
+                              "task_paths": None
                           },
                           # python_packages = "..//dpgen2",
                       ),
@@ -67,7 +67,7 @@ def steps_train(
                       artifacts={
                       },
                       )
-    train_steps.add(make_train)
+    train_steps.add(prep_train)
 
     run_train = Step('run-train',
                      template=PythonOPTemplate(
@@ -75,17 +75,17 @@ def steps_train(
                          image="dflow:v1.0",
                          slices = Slices(
                              "{{item}}",
-                             input_parameter = ["task_subdir"],
-                             input_artifact = ["train_script", "init_model"],
+                             input_parameter = ["task_name"],
+                             input_artifact = ["task_path", "init_model"],
                              output_artifact = ["model", "lcurve", "log", "script"],
                          ),
                          # python_packages = "..//dpgen2",
                      ),
                      parameters={
-                         "task_subdir" : make_train.outputs.parameters["task_subdirs"],
+                         "task_name" : prep_train.outputs.parameters["task_names"],
                      },
                      artifacts={
-                         'train_script' : make_train.outputs.artifacts['train_scripts'],
+                         'task_path' : prep_train.outputs.artifacts['task_paths'],
                          "init_model" : train_steps.inputs.artifacts['init_models'],
                          "init_data": train_steps.inputs.artifacts['init_data'],
                          "iter_data": train_steps.inputs.artifacts['iter_data'],

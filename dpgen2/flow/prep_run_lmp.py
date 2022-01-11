@@ -59,7 +59,7 @@ def prep_run_lmp(
             output_artifact_archive={
                 "task_paths": None
             },
-            python_packages = "..//dpgen2",
+            # python_packages = "..//dpgen2",
         ),
         parameters={
             "lmp_task_grps": prep_run_steps.inputs.parameters['lmp_task_grps'],
@@ -80,7 +80,7 @@ def prep_run_lmp(
                 input_artifact = ["task_path"],
                 output_artifact = ["log", "traj", "model_devi"],
             ),
-            python_packages = "..//dpgen2",
+            # python_packages = "..//dpgen2",
         ),
         parameters={
             "task_name" : prep_lmp.outputs.parameters["task_names"],
