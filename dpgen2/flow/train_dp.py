@@ -21,12 +21,8 @@ from dflow.python import(
     Slices,
 )
 
-from dpgen2.op.run_dp_train import MockRunDPTrain
-from dpgen2.op.prep_dp_train import MockPrepDPTrain
-
 from typing import Set, List
 from pathlib import Path
-
 
 
 def steps_train(
