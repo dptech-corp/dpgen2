@@ -60,7 +60,7 @@ def prep_run_dp_train(
             output_artifact_archive={
                 "task_paths": None
             },
-            # python_packages = "..//dpgen2",
+            python_packages = "..//dpgen2",
         ),
         parameters={
             "numb_models": train_steps.inputs.parameters['numb_models'],
@@ -82,7 +82,7 @@ def prep_run_dp_train(
                 input_artifact = ["task_path", "init_model"],
                 output_artifact = ["model", "lcurve", "log", "script"],
             ),
-            # python_packages = "..//dpgen2",
+            python_packages = "..//dpgen2",
         ),
         parameters={
             "task_name" : prep_train.outputs.parameters["task_names"],

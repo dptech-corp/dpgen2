@@ -11,6 +11,8 @@ from dflow import (
     upload_artifact,
     download_artifact,
     argo_range,
+    argo_len,
+    argo_sequence,
 )
 from dflow.python import(
     PythonOPTemplate,
@@ -59,7 +61,7 @@ def prep_run_lmp(
             output_artifact_archive={
                 "task_paths": None
             },
-            # python_packages = "..//dpgen2",
+            python_packages = "..//dpgen2",
         ),
         parameters={
             "lmp_task_grps": prep_run_steps.inputs.parameters['lmp_task_grps'],
@@ -80,7 +82,7 @@ def prep_run_lmp(
                 input_artifact = ["task_path"],
                 output_artifact = ["log", "traj", "model_devi"],
             ),
-            # python_packages = "..//dpgen2",
+            python_packages = "..//dpgen2",
         ),
         parameters={
             "task_name" : prep_lmp.outputs.parameters["task_names"],
@@ -89,8 +91,8 @@ def prep_run_lmp(
             'task_path' : prep_lmp.outputs.artifacts['task_paths'],
             "models" : prep_run_steps.inputs.artifacts['models'],
         },
-        # with_param=argo_range(prep_run_steps.inputs.parameters["numb_models"]),
-        with_param = argo_range(6),
+        # with_sequence=argo_sequence(argo_len(prep_run_steps.outputs.parameters["task_names"])),
+        with_param=argo_range(argo_len(prep_run_steps.outputs.parameters["task_names"])),
     )
     prep_run_steps.add(run_lmp)
 
