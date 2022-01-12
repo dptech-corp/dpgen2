@@ -91,8 +91,8 @@ def prep_run_lmp(
             'task_path' : prep_lmp.outputs.artifacts['task_paths'],
             "models" : prep_run_steps.inputs.artifacts['models'],
         },
-        # with_sequence=argo_sequence(argo_len(prep_run_steps.outputs.parameters["task_names"])),
-        with_param=argo_range(argo_len(prep_run_steps.outputs.parameters["task_names"])),
+        # with_sequence=argo_sequence(argo_len(prep_lmp.outputs.parameters["task_names"])),
+        with_param=argo_range(argo_len(prep_lmp.outputs.parameters["task_names"])),
     )
     prep_run_steps.add(run_lmp)
 
