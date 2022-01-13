@@ -8,7 +8,7 @@ from dflow.python import (
 import json
 from typing import Tuple, List
 from pathlib import Path
-from .lmp_task_group import LmpTaskGroup
+from dpgen2.utils.lmp_task_group import LmpTaskGroup
 
 class PrepLmp(OP):
     @classmethod

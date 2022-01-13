@@ -38,7 +38,7 @@ except ModuleNotFoundError:
 from dpgen2.op.prep_lmp import PrepLmpTaskGroup
 from dpgen2.op.run_lmp import RunLmp
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
-from dpgen2.op.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 
 upload_packages.append(__file__)
 
