@@ -14,10 +14,11 @@ class CollectData(OP):
         return OPIOSign({
             "name" : str,
             "labeled_data" : Artifact(List[Path]),
+            "iter_data" : Artifact(Set[Path]),
         })
 
     @classmethod
     def get_output_sign(cls):
         return OPIOSign({
-            "labeled_data" : Artifact(Path),
+            "iter_data" : Artifact(Set[Path]),
         })

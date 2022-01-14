@@ -261,16 +261,26 @@ class MockedCollectData(CollectData):
     ) -> OPIO:
         name = ip['name']
         labeled_data = ip['labeled_data']
+        iter_data = ip['iter_data']
 
+        new_iter_data = set()
+        # copy iter_data
+        for ii in iter_data:
+            iiname = ii.name
+            shutil.copytree(ii, iiname)
+            new_iter_data.add(Path(iiname))
+
+        # collect labled data
         name = Path(name)
         name.mkdir(exist_ok=True, parents=True)
         
         for ii in labeled_data:
             iiname = ii.name
             shutil.copytree(ii, name/iiname)
+        new_iter_data.add(name)
         
         return OPIO({
-            "labeled_data" : name,
+            "iter_data" : new_iter_data,
         })
 
 
