@@ -29,35 +29,14 @@ from dflow.python import (
 import time, shutil, json, jsonpickle
 from typing import Set, List
 from pathlib import Path
-
 try:
     from context import dpgen2
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.op.collect_data import CollectData
-
-upload_packages.append(__file__)
-
-class MockedCollectData(CollectData):
-    @OP.exec_sign_check
-    def execute(
-            self,
-            ip : OPIO,
-    ) -> OPIO:
-        name = ip['name']
-        labeled_data = ip['labeled_data']
-
-        name = Path(name)
-        name.mkdir(exist_ok=True, parents=True)
-        
-        for ii in labeled_data:
-            iiname = ii.name
-            shutil.copytree(ii, name/iiname)
-        
-        return OPIO({
-            "labeled_data" : name,
-        })
+from mocked_ops import (
+    MockedCollectData,
+)
 
 
 class TestMockedCollectData(unittest.TestCase):

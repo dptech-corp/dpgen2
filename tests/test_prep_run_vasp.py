@@ -23,91 +23,22 @@ from dflow.python import (
     OPIO,
     OPIOSign,
     Artifact,
-    upload_packages,
 )
 
 import time, shutil, json, jsonpickle
 from typing import Set, List
 from pathlib import Path
-
 try:
     from context import dpgen2
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.op.prep_vasp import PrepVasp
-from dpgen2.op.run_vasp import RunVasp
 from dpgen2.flow.prep_run_fp import prep_run_fp
-
-upload_packages.append(__file__)
-
-class MockedPrepVasp(PrepVasp):
-    @OP.exec_sign_check
-    def execute(
-            self,
-            ip : OPIO,
-    ) -> OPIO:
-        confs = ip['confs']
-        incar_temp = ip['incar_temp']
-        potcars = ip['potcars']
-        
-        nconfs = len(confs)
-        task_paths = []
-
-        for ii in range(nconfs):
-            task_path = Path(f'task.{ii:06d}')
-            task_path.mkdir(exist_ok=True, parents=True)
-            from shutil import copyfile
-            copyfile(confs[ii], task_path/'POSCAR')
-            (task_path/'INCAR').write_text(incar_temp)
-            task_paths.append(task_path)
-
-        task_names = [str(ii) for ii in task_paths]
-        return OPIO({
-            'task_names' : task_names,
-            'task_paths' : task_paths,
-        })
-
-
-class MockedRunVasp(RunVasp):
-    @OP.exec_sign_check
-    def execute(
-            self,
-            ip : OPIO,
-    ) -> OPIO:
-        task_name = ip['task_name']
-        task_path = ip['task_path']
-
-        work_dir = Path(task_name)
-
-        cwd = os.getcwd()
-        work_dir.mkdir(exist_ok=True, parents=True)
-        os.chdir(work_dir)
-
-        import glob
-        ifiles = glob.glob(str(task_path / '*'))
-        for ii in ifiles:
-            if not Path(Path(ii).name).exists():
-                Path(Path(ii).name).symlink_to(ii)
-        
-        log = Path('log')
-        labeled_data = Path('labeled_data')
-        
-        fc = []
-        for ii in ['POSCAR', 'INCAR']:
-             fc.append(Path(ii).read_text())
-        log.write_text('\n'.join(fc))
-        labeled_data.write_text(f'labeled_data of {task_name}')
-
-        os.chdir(cwd)
-
-        return OPIO({
-            'log' : work_dir/log,
-            'labeled_data' : work_dir/labeled_data,
-        })
-        
-
-
+from mocked_ops import (
+    MockedPrepVasp,
+    MockedRunVasp,
+)
+from dpgen2.fp.vasp import VaspInputs
 
 def check_vasp_tasks(tcase, ntasks):
     cc = 0
@@ -148,8 +79,11 @@ class TestPrepVaspTaskGroup(unittest.TestCase):
         op = MockedPrepVasp()
         out = op.execute( OPIO({
             'confs' : self.confs,
-            'incar_temp' : self.incar,
-            'potcars' : {'foo': 'bar'},
+            'inputs' : \
+            VaspInputs(
+                self.incar,
+                {'foo': 'bar'}
+            ),
         }) )
         tdirs = check_vasp_tasks(self, self.ntasks)
         tdirs = [str(ii) for ii in tdirs]
@@ -246,8 +180,11 @@ class TestPrepRunVasp(unittest.TestCase):
             'prep-run-step', 
             template = steps,
             parameters = {
-                "incar_temp" : self.incar,
-                "potcars" : {'foo' : 'bar'},
+                'inputs' : \
+                VaspInputs(
+                    self.incar,
+                    {'foo': 'bar'}
+                ),
             },
             artifacts = {
                 "confs" : self.confs,

@@ -7,14 +7,14 @@ from dflow.python import (
 import os, json
 from typing import Tuple, List, Set, Dict
 from pathlib import Path
+from dpgen2.fp.vasp import VaspInputs
 
 class PrepVasp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
+            "inputs": VaspInputs,
             "confs" : Artifact(List[Path]),
-            "incar_temp": str,
-            "potcars": Dict[str, str],
         })
 
     @classmethod

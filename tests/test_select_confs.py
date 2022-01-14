@@ -23,92 +23,21 @@ from dflow.python import (
     OPIO,
     OPIOSign,
     Artifact,
-    upload_packages,
 )
 
 import time, shutil, json, jsonpickle
 from typing import Set, List, Tuple
 from pathlib import Path
-
 try:
     from context import dpgen2
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.op.select_confs import SelectConfs
-from dpgen2.utils.conf_selector import ConfSelector
-from dpgen2.utils.conf_filter import ConfFilter
-from dpgen2.utils.exploration_report import ExplorationReport
-
-upload_packages.append(__file__)
-
-class MockedExplorationReport(ExplorationReport):
-    def __init__(self):
-        pass
-
-    def converged (
-            self, 
-    ) -> bool :
-        return True
-
-    def failed_ratio (
-            self, 
-            tag = None,
-    ) -> float :
-        return 0.
-
-    def accurate_ratio (
-            self,
-            tag = None,
-    ) -> float :
-        return 1.
-
-    def candidate_ratio (
-            self,
-            tag = None,
-    ) -> float :
-        return 0.
-
-    def update_trust_levels (
-            self,
-    ) -> Tuple[float] :
-        return (0.1, 0.2, 0.1, 0.2)
-
-
-class MockedConfSelector(ConfSelector):
-    def select (
-            self,
-            trajs : List[Path],
-            model_devis : List[Path],
-            conf_filters : List[ConfFilter] = [],
-            traj_fmt : str = 'deepmd/npy',
-            type_map : List[str] = None,
-    ) -> List[ Path ] :
-        confs = []
-        fname = Path('conf.0')
-        fname.write_text('conf of conf.0')
-        confs.append(fname)
-        fname = Path('conf.1')
-        fname.write_text('conf of conf.1')
-        confs.append(fname)
-        return confs
-
-class MockedSelectConfs(SelectConfs):
-    @OP.exec_sign_check
-    def execute(
-            self,
-            ip : OPIO,
-    ) -> OPIO:
-        conf_selector = ip['conf_selector']
-        trajs = ip['trajs']
-        model_devis = ip['model_devis']
-        confs = conf_selector.select(trajs, model_devis)
-        report = MockedExplorationReport()
-
-        return OPIO({
-            "report" : report,
-            "confs" : confs,
-        })
+from mocked_ops import (
+    MockedSelectConfs,
+    MockedConfSelector,
+    MockedExplorationReport,
+)
 
 
 class TestMockedSelectConfs(unittest.TestCase):

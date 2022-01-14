@@ -36,8 +36,7 @@ def prep_run_fp(
         name=name,
         inputs=Inputs(
             parameters={
-                "incar_temp": InputParameter(type=str),
-                "potcars" : InputParameter(),
+                "inputs": InputParameter(),
             },
             artifacts={
                 "confs" : InputArtifact()
@@ -64,8 +63,7 @@ def prep_run_fp(
             python_packages = "..//dpgen2",
         ),
         parameters={
-            "incar_temp": prep_run_steps.inputs.parameters['incar_temp'],
-            "potcars": prep_run_steps.inputs.parameters['potcars'],
+            "inputs": prep_run_steps.inputs.parameters['inputs'],
         },
         artifacts={
             "confs" : prep_run_steps.inputs.artifacts['confs'],
