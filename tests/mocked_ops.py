@@ -237,13 +237,15 @@ class MockedRunVasp(RunVasp):
                 Path(Path(ii).name).symlink_to(ii)
         
         log = Path('log')
-        labeled_data = Path('labeled_data')
+        # labeled_data = Path('labeled_data')
+        labeled_data = Path('data_'+task_name)
         
         fc = []
         for ii in ['POSCAR', 'INCAR']:
              fc.append(Path(ii).read_text())
         log.write_text('\n'.join(fc))
-        labeled_data.write_text(f'labeled_data of {task_name}')
+        labeled_data.mkdir(exist_ok=True, parents=True)
+        (labeled_data / 'data').write_text(f'labeled_data of {task_name}')
 
         os.chdir(cwd)
 

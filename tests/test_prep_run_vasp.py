@@ -112,7 +112,7 @@ class TestMockedRunVasp(unittest.TestCase):
         for ii in ['POSCAR', 'INCAR']:
             fc.append(Path(ii).read_text())    
         self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'labeled_data of {task_name}', Path('labeled_data').read_text())
+        self.assertEqual(f'labeled_data of {task_name}', (Path('data_'+task_name) / 'data').read_text())
         os.chdir(cwd)
 
     def tearDown(self):
@@ -131,9 +131,9 @@ class TestMockedRunVasp(unittest.TestCase):
             op = MockedRunVasp()
             out = op.execute(ip)
             self.assertEqual(out['log'] , Path(f'task.{ii:06d}')/'log')
-            self.assertEqual(out['labeled_data'] , Path(f'task.{ii:06d}')/'labeled_data')
+            self.assertEqual(out['labeled_data'] , Path(f'task.{ii:06d}')/('data_'+f'task.{ii:06d}'))
             self.assertTrue(out['log'].is_file())
-            self.assertTrue(out['labeled_data'].is_file())
+            self.assertTrue(out['labeled_data'].is_dir())
             self.check_run_lmp_output(self.task_list_str[ii])
 
 
@@ -167,7 +167,8 @@ class TestPrepRunVasp(unittest.TestCase):
         fc.append(f'conf {ii}')
         fc.append(f'incar template')
         self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'labeled_data of {task_name}', Path('labeled_data').read_text())
+        self.assertEqual(f'labeled_data of {task_name}', (Path('data_'+task_name) / 'data').read_text())
+        # self.assertEqual(f'labeled_data of {task_name}', Path('labeled_data').read_text())
         os.chdir(cwd)
 
     def test(self):
