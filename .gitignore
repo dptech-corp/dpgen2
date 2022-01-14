@@ -40,3 +40,4 @@ dbconfig.json
 .vscode/*
 .idea/*
 _build
+dpgen2/_version.py
