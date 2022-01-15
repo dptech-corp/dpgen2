@@ -26,7 +26,7 @@ from dpgen2.op.collect_data import CollectData
 from dpgen2.op.select_confs import SelectConfs
 from dpgen2.utils.conf_selector import ConfSelector
 from dpgen2.utils.conf_filter import ConfFilter
-from dpgen2.utils.exploration_report import ExplorationReport
+from dpgen2.exploration.report import ExplorationReport
 
 class MockedPrepDPTrain(PrepDPTrain):
     @OP.exec_sign_check

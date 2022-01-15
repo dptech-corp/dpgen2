@@ -9,7 +9,7 @@ from typing import Tuple, List, Set
 from pathlib import Path
 from dpgen2.utils.conf_selector import ConfSelector
 from dpgen2.utils.conf_filter import ConfFilter
-from dpgen2.utils.exploration_report import ExplorationReport
+from dpgen2.exploration.report import ExplorationReport
 
 class SelectConfs(OP):
     @classmethod
