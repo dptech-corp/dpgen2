@@ -1,4 +1,4 @@
-import itertools
+import itertools, random
 from dpgen2.utils.lmp_task_group import LmpTaskGroup
 from abc import (
     ABC,
@@ -27,10 +27,44 @@ class ExplorationGroup(ABC):
 
 class CPTGroup(ExplorationGroup):
     def __init__(
+            self, 
+    ):
+        self.conf_set = False
+        self.md_set = False
+
+    def set_conf(
+            self,
+            conf_list,
+            n_sample = None,
+            random_sample = False,
+    ):
+        self.conf_list = conf_list
+        if n_sample is None:
+            self.n_sample = len(self.conf_list)
+        else:
+            self.n_sample = n_sample
+        self.random_sample = random_sample
+        self.conf_queue = []
+        self.conf_set = True
+
+    def _sample_confs(
+            self,
+    ):
+        confs = []
+        for ii in range(self.n_sample):
+            if len(self.conf_queue) == 0:
+                add_list = self.conf_list.copy()
+                if self.random_sample:
+                    random.shuffle(add_list)
+                self.conf_queue += add_list
+            confs.append(self.conf_queue.pop(0))
+        return confs
+                
+
+    def set_md(
             self,
             numb_models,
             mass_map,
-            confs : List[str],
             temps : List[float],
             press : List[float] = None,
             ens : str = 'npt',
@@ -50,7 +84,6 @@ class CPTGroup(ExplorationGroup):
     ):
         self.graphs = [model_name_pattern % ii for ii in range(numb_models)]
         self.mass_map = mass_map
-        self.confs = confs
         self.temps = temps
         self.press = press if press is not None else [None]
         self.ens = ens
@@ -67,6 +100,7 @@ class CPTGroup(ExplorationGroup):
         self.relative_v_epsilon = relative_v_epsilon
         self.ele_temp_f = ele_temp_f
         self.ele_temp_a = ele_temp_a
+        self.md_set = True
 
     def _make_lmp_task(
             self,
@@ -109,7 +143,12 @@ class CPTGroup(ExplorationGroup):
     def make_lmp_task_group(
             self,
     )->LmpTaskGroup:
+        if not self.conf_set:
+            raise RuntimeError('confs are not set')
+        if not self.md_set:
+            raise RuntimeError('MD settings are not set')
         group = LmpTaskGroup()
-        for cc,tt,pp in itertools.product(self.confs, self.temps, self.press):
+        confs = self._sample_confs()
+        for cc,tt,pp in itertools.product(confs, self.temps, self.press):
             group.add_task(self._make_lmp_task(cc, tt, pp))
         return group
