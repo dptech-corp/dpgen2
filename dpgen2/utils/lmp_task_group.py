@@ -47,7 +47,20 @@ class LmpTaskGroup(Sequence):
     def add_task(self, task):
         self.task_list.append(task)
         return self
-    
+
+    def add_group(
+            self,
+            group,
+    ):
+        self._task_list = self._task_list + group._task_list
+        return self
+
+    def __add__(
+            self,
+            group,
+    ):        
+        return self.add_group(group)
+
 
 class FooTask(LmpTask):
     def __init__(

@@ -327,44 +327,68 @@ class TestCPTGroup(unittest.TestCase):
             )
 
 
-# class TestCPTStage(unittest.TestCase):
-#     # def setUp(self):
-#     #     self.mock_random = Mock()
+class TestCPTStage(unittest.TestCase):
+    # def setUp(self):
+    #     self.mock_random = Mock()
 
-#     @patch('dpgen2.exploration.lmp.lmp_input.random')
-#     def test(self, mock_random):
-#         mock_random.randrange.return_value = 1110
-#         self.confs = ['foo', 'bar']
-#         self.tt = [100, 200]
-#         self.pp = [1, 10, 100]
-#         self.numb_model = 3
-#         self.mass_map = [10, 20]
+    @patch('dpgen2.exploration.lmp.lmp_input.random')
+    def test(self, mock_random):
+        mock_random.randrange.return_value = 1110
+        self.numb_model = 3
+        self.mass_map = [10, 20]
 
-#         cpt_group_p = CPTGroup()
-#         cpt_group_p.set_md(
-#             self.numb_model, 
-#             self.mass_map,
-#             self.tt,
-#             self.pp,
-#         )
-#         cpt_group_p.set_conf(
-#             self.confs,
-#         )
+        cpt_group_p = CPTGroup()
+        cpt_group_p.set_md(
+            self.numb_model,
+            self.mass_map,
+            [100.],
+            [1., 10.],
+        )
+        cpt_group_p.set_conf(
+            ['foo'],
+        )
 
-#         cpt_group_t = CPTGroup()
-#         cpt_group_t.set_md(
-#             self.numb_model, 
-#             self.mass_map,
-#             self.tt,
-#             ens = 'nvt',
-#         )
-#         cpt_group_t.set_conf(
-#             self.confs,
-#         )
+        cpt_group_t = CPTGroup()
+        cpt_group_t.set_md(
+            self.numb_model, 
+            self.mass_map,
+            [200., 300.],
+            ens = 'nvt',
+        )
+        cpt_group_t.set_conf(
+            ['bar'],
+        )
 
-#         stage = ExplorationStage()
-#         stage.add_group(cpt_group_p).add_group(cpt_group_t)
+        stage = ExplorationStage()
+        stage.add_group(cpt_group_p).add_group(cpt_group_t)
 
-#         task_group = stage.make_lmp_task_group()
+        task_group = stage.make_lmp_task_group()
         
+        ngroup = len(task_group)
+        self.assertEqual(ngroup, 4)
+
+        ii = 0
+        self.assertEqual(task_group[ii].files()[lmp_conf_name], 'foo')
+        self.assertEqual(
+            task_group[ii].files()[lmp_input_name], 
+            in_template_npt % (100., 1.),
+        )
+        ii+=1
+        self.assertEqual(task_group[ii].files()[lmp_conf_name], 'foo')
+        self.assertEqual(
+            task_group[ii].files()[lmp_input_name], 
+            in_template_npt % (100., 10.),
+        )
+        ii+=1
+        self.assertEqual(task_group[ii].files()[lmp_conf_name], 'bar')
+        self.assertEqual(
+            task_group[ii].files()[lmp_input_name], 
+            in_template_nvt % (200.),
+        )
+        ii+=1
+        self.assertEqual(task_group[ii].files()[lmp_conf_name], 'bar')
+        self.assertEqual(
+            task_group[ii].files()[lmp_input_name], 
+            in_template_nvt % (300.),
+        )
     

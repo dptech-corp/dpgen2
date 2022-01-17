@@ -34,10 +34,25 @@ class CPTGroup(ExplorationGroup):
 
     def set_conf(
             self,
-            conf_list,
-            n_sample = None,
-            random_sample = False,
+            conf_list : str,
+            n_sample : int = None,
+            random_sample : bool = False,
     ):
+        """
+        Set the configurations of exploration
+
+        Parameters
+        ----------
+        conf_list       str
+                        A list of file contents
+        n_sample        int
+                        Number of samples drawn from the conf list each time 
+                        `make_lmp_task_group` is called. If set to `None`, 
+                        `n_sample` is set to length of the conf_list.
+        random_sample   bool
+                        If true the confs are randomly sampled, otherwise are
+                        consecutively sampled from the conf_list
+        """
         self.conf_list = conf_list
         if n_sample is None:
             self.n_sample = len(self.conf_list)
@@ -46,20 +61,6 @@ class CPTGroup(ExplorationGroup):
         self.random_sample = random_sample
         self.conf_queue = []
         self.conf_set = True
-
-    def _sample_confs(
-            self,
-    ):
-        confs = []
-        for ii in range(self.n_sample):
-            if len(self.conf_queue) == 0:
-                add_list = self.conf_list.copy()
-                if self.random_sample:
-                    random.shuffle(add_list)
-                self.conf_queue += add_list
-            confs.append(self.conf_queue.pop(0))
-        return confs
-                
 
     def set_md(
             self,
@@ -82,6 +83,9 @@ class CPTGroup(ExplorationGroup):
             ele_temp_f : float = None,
             ele_temp_a : float = None,
     ):
+        """
+        Set MD parameters
+        """
         self.graphs = [model_name_pattern % ii for ii in range(numb_models)]
         self.mass_map = mass_map
         self.temps = temps
@@ -102,6 +106,32 @@ class CPTGroup(ExplorationGroup):
         self.ele_temp_a = ele_temp_a
         self.md_set = True
 
+    def make_lmp_task_group(
+            self,
+    )->LmpTaskGroup:
+        if not self.conf_set:
+            raise RuntimeError('confs are not set')
+        if not self.md_set:
+            raise RuntimeError('MD settings are not set')
+        group = LmpTaskGroup()
+        confs = self._sample_confs()
+        for cc,tt,pp in itertools.product(confs, self.temps, self.press):
+            group.add_task(self._make_lmp_task(cc, tt, pp))
+        return group
+
+    def _sample_confs(
+            self,
+    ):
+        confs = []
+        for ii in range(self.n_sample):
+            if len(self.conf_queue) == 0:
+                add_list = self.conf_list.copy()
+                if self.random_sample:
+                    random.shuffle(add_list)
+                self.conf_queue += add_list
+            confs.append(self.conf_queue.pop(0))
+        return confs
+                
     def _make_lmp_task(
             self,
             conf : str,
@@ -140,15 +170,3 @@ class CPTGroup(ExplorationGroup):
             )
         return task
 
-    def make_lmp_task_group(
-            self,
-    )->LmpTaskGroup:
-        if not self.conf_set:
-            raise RuntimeError('confs are not set')
-        if not self.md_set:
-            raise RuntimeError('MD settings are not set')
-        group = LmpTaskGroup()
-        confs = self._sample_confs()
-        for cc,tt,pp in itertools.product(confs, self.temps, self.press):
-            group.add_task(self._make_lmp_task(cc, tt, pp))
-        return group
