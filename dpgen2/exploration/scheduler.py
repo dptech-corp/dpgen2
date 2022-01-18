@@ -75,6 +75,7 @@ class ExplorationScheduler():
         self.stage_schedulers = []
         self.stage_reports = [[]]
         self.cur_stage = 0
+        self.iteration = -1
         
     def add_stage_scheduler(
             self,
@@ -83,15 +84,18 @@ class ExplorationScheduler():
         self.stage_schedulers.append(stage_scheduler)
         return self
 
-    def get_cur_stage(self):
+    def get_stage(self):
         return self.cur_stage
+
+    def get_iteration(self):
+        return self.iteration
 
     def plan_next_iteration(
             self,
             report : ExplorationReport = None,
             confs : List[Path] = None,
     ) -> Tuple[bool, LmpTaskGroup, ConfSelector] :
-        
+
         try:
             converged, lmp_task_grp, conf_selector = \
                 self.stage_schedulers[self.cur_stage].plan_next_iteration(
@@ -113,4 +117,6 @@ class ExplorationScheduler():
                 # all stages converged
                 return True, None, None,
         else :
+            self.iteration += 1
             return converged, lmp_task_grp, conf_selector
+
