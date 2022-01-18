@@ -36,7 +36,7 @@ def prep_run_lmp(
         name=name,
         inputs=Inputs(
             parameters={
-                "lmp_task_grps": InputParameter(type=int),
+                "lmp_task_grp": InputParameter(type=int),
             },
             artifacts={
                 "models" : InputArtifact()
@@ -64,7 +64,7 @@ def prep_run_lmp(
             python_packages = "..//dpgen2",
         ),
         parameters={
-            "lmp_task_grps": prep_run_steps.inputs.parameters['lmp_task_grps'],
+            "lmp_task_grp": prep_run_steps.inputs.parameters['lmp_task_grp'],
         },
         artifacts={
         },

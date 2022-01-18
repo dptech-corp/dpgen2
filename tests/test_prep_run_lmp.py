@@ -42,17 +42,15 @@ from mocked_ops import (
 
 
 def make_task_group_list(ngrp, ntask_per_grp):
-    tgrp_list = []
+    tgrp = LmpTaskGroup()
     for ii in range(ngrp):
-        tgrp = LmpTaskGroup()
         for jj in range(ntask_per_grp):
             tt = LmpTask()
             tt\
                 .add_file('conf.lmp', f'group{ii} task{jj} conf')\
                 .add_file('in.lammps', f'group{ii} task{jj} input')
             tgrp.add_task(tt)
-        tgrp_list.append(tgrp)
-    return tgrp_list
+    return tgrp
 
 
 def check_lmp_tasks(tcase, ngrp, ntask_per_grp):
@@ -88,7 +86,7 @@ class TestPrepLmpTaskGroup(unittest.TestCase):
     def test(self):
         op = PrepLmpTaskGroup()
         out = op.execute( OPIO({
-            'lmp_task_grps' : self.task_group_list,
+            'lmp_task_grp' : self.task_group_list,
         }) )
         tdirs = check_lmp_tasks(self, self.ngrp, self.ntask_per_grp)
         tdirs = [str(ii) for ii in tdirs]
@@ -216,7 +214,7 @@ class TestPrepRunLmp(unittest.TestCase):
             'prep-run-step', 
             template = steps,
             parameters = {
-                "lmp_task_grps" : self.task_group_list,
+                "lmp_task_grp" : self.task_group_list,
             },
             artifacts = {
                 "models" : self.models,

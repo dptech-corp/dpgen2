@@ -41,7 +41,7 @@ def block_cl(
                 "type_map" : InputParameter(),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
-                "lmp_task_grps" : InputParameter(),
+                "lmp_task_grp" : InputParameter(),
                 "conf_selector" : InputParameter(),
                 "conf_filters" : InputParameter(),
                 "fp_inputs" : InputParameter(),
@@ -59,6 +59,7 @@ def block_cl(
             artifacts={
                 "models": OutputArtifact(),
                 "iter_data" : OutputArtifact(),
+                "trajs" : OutputArtifact(),
             },
         ),
     )
@@ -82,7 +83,7 @@ def block_cl(
         name = name + '-prep-run-lmp',
         template = prep_run_lmp_op,
         parameters={
-            "lmp_task_grps": block_steps.inputs.parameters['lmp_task_grps'],
+            "lmp_task_grp": block_steps.inputs.parameters['lmp_task_grp'],
         },
         artifacts={
             "models" : prep_run_dp_train.outputs.artifacts['models'],
@@ -151,5 +152,7 @@ def block_cl(
         prep_run_dp_train.outputs.artifacts["models"]
     block_steps.outputs.artifacts["iter_data"]._from = \
         collect_data.outputs.artifacts["iter_data"]
+    block_steps.outputs.artifacts["trajs"]._from = \
+        prep_run_lmp.outputs.artifacts["trajs"]
 
     return block_steps

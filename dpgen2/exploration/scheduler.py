@@ -46,7 +46,7 @@ class ConstTrustLevelStageScheduler(StageScheduler):
             self,
             hist_reports : List[ExplorationReport] = [],
             report : ExplorationReport = None,
-            confs : List[Path] = None,
+            trajs : List[Path] = None,
     ) -> Tuple[bool, LmpTaskGroup, TrustLevelConfSelector] :
         if report is None:
             converged = False
@@ -93,7 +93,7 @@ class ExplorationScheduler():
     def plan_next_iteration(
             self,
             report : ExplorationReport = None,
-            confs : List[Path] = None,
+            trajs : List[Path] = None,
     ) -> Tuple[bool, LmpTaskGroup, ConfSelector] :
 
         try:
@@ -101,7 +101,7 @@ class ExplorationScheduler():
                 self.stage_schedulers[self.cur_stage].plan_next_iteration(
                     self.stage_reports[self.cur_stage],
                     report,
-                    confs,
+                    trajs,
                 )
             self.stage_reports[self.cur_stage].append(report)
         except FatalError as e:

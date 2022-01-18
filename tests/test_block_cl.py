@@ -55,17 +55,15 @@ from mocked_ops import (
 )
 
 def make_task_group_list(ngrp, ntask_per_grp):
-    tgrp_list = []
+    tgrp = LmpTaskGroup()
     for ii in range(ngrp):
-        tgrp = LmpTaskGroup()
         for jj in range(ntask_per_grp):
             tt = LmpTask()
             tt\
                 .add_file('conf.lmp', f'group{ii} task{jj} conf')\
                 .add_file('in.lammps', f'group{ii} task{jj} input')
             tgrp.add_task(tt)
-        tgrp_list.append(tgrp)
-    return tgrp_list
+    return tgrp
 
 
 class TestBlockCL(unittest.TestCase):
@@ -161,7 +159,7 @@ class TestBlockCL(unittest.TestCase):
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
-                "lmp_task_grps" : self.task_group_list,
+                "lmp_task_grp" : self.task_group_list,
                 "conf_selector" : self.conf_selector,
                 "conf_filters" : self.conf_filters,
                 'fp_inputs' : self.vasp_inputs,

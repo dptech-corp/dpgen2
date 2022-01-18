@@ -14,7 +14,7 @@ class PrepLmp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
-            "lmp_task_grps": List[LmpTaskGroup],
+            "lmp_task_grp": LmpTaskGroup,
         })
 
     @classmethod
@@ -39,15 +39,14 @@ class PrepLmpTaskGroup(PrepLmp):
             self,
             ip : OPIO,
     ) -> OPIO:
-        lmp_task_grps = ip['lmp_task_grps']
+        lmp_task_grp = ip['lmp_task_grp']
         cc = 0
         task_paths = []
-        for gg in lmp_task_grps:
-            for tt in gg:
-                ff = tt.files()
-                tname = mk_task_from_files(cc, ff)
-                task_paths.append(tname)
-                cc += 1
+        for tt in lmp_task_grp:
+            ff = tt.files()
+            tname = mk_task_from_files(cc, ff)
+            task_paths.append(tname)
+            cc += 1
         task_names = [str(ii) for ii in task_paths]
         return OPIO({
             'task_names' : task_names,
