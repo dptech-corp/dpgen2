@@ -171,7 +171,7 @@ class TestBlockCL(unittest.TestCase):
             },
         )
         
-        wf = Workflow(name="dpgen")
+        wf = Workflow(name="block")
         wf.add(block_step)
         wf.submit()
         
@@ -205,6 +205,6 @@ class TestBlockCL(unittest.TestCase):
             self.assertEqual(flines[1], f"This is init model {ii}")
         
         # check report
-        self.assertEqual(report.accurate_ratio(), 1.)
-        self.assertEqual(report.failed_ratio(), 0.)
-        self.assertEqual(report.candidate_ratio(), 0.)
+        self.assertEqual(report.accurate_ratio(), .8)
+        self.assertEqual(report.failed_ratio(), 0.1)
+        self.assertEqual(report.candidate_ratio(), 0.1)

@@ -21,45 +21,13 @@ from dpgen2.exploration.report import ExplorationReport
 from dpgen2.utils.lmp_task_group import LmpTaskGroup
 from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.utils.conf_selector import TrustLevelConfSelector
-
-class MockedLmpTaskGroup(LmpTaskGroup):
-    pass
-
-class MockedLmpTaskGroup1(LmpTaskGroup):
-    pass
-
-class MockedStage(ExplorationStage):
-    def make_lmp_task_group(self):
-        return MockedLmpTaskGroup()
-
-class MockedStage1(ExplorationStage):
-    def make_lmp_task_group(self):
-        return MockedLmpTaskGroup1()
-
-class MockedExplorationReport(ExplorationReport):
-    def __init__(self):
-        self.failed = 1.
-        self.accurate = 0.
-        self.candidate = 0.
-
-    def failed_ratio (
-            self, 
-            tag = None,
-    ) -> float :
-        return self.failed
-
-    def accurate_ratio (
-            self,
-            tag = None,
-    ) -> float :
-        return self.accurate
-
-    def candidate_ratio (
-            self,
-            tag = None,
-    ) -> float :
-        return self.candidate
-
+from mocked_ops import (
+    MockedExplorationReport,
+    MockedLmpTaskGroup,
+    MockedLmpTaskGroup1,
+    MockedStage,
+    MockedStage1,
+)
 
 class TestConstTrustLevelStageScheduler(unittest.TestCase):
     def test_success(self):

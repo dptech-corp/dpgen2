@@ -27,7 +27,9 @@ from dpgen2.op.select_confs import SelectConfs
 from dpgen2.utils.conf_selector import ConfSelector
 from dpgen2.utils.conf_filter import ConfFilter
 from dpgen2.utils.trust_level import TrustLevel
+from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.exploration.report import ExplorationReport
+from dpgen2.exploration.stage import ExplorationStage
 
 class MockedPrepDPTrain(PrepDPTrain):
     @OP.exec_sign_check
@@ -289,25 +291,58 @@ class MockedCollectData(CollectData):
 
 class MockedExplorationReport(ExplorationReport):
     def __init__(self):
-        pass
+        self.failed = .1
+        self.candidate = .1
+        self.accurate = .8
 
     def failed_ratio (
             self, 
             tag = None,
     ) -> float :
-        return 0.
+        return self.failed
 
     def accurate_ratio (
             self,
             tag = None,
     ) -> float :
-        return 1.
+        return self.accurate
 
     def candidate_ratio (
             self,
             tag = None,
     ) -> float :
-        return 0.
+        return self.candidate
+
+
+class MockedLmpTaskGroup(LmpTaskGroup):
+    def __init__(self):
+        super().__init__()
+        ntask = 2
+        for jj in range(ntask):
+            tt = LmpTask()
+            tt\
+                .add_file('conf.lmp', f'mocked conf {jj}')\
+                .add_file('in.lammps', f'mocked input {jj}')
+            self.add_task(tt)
+
+class MockedLmpTaskGroup1(LmpTaskGroup):
+    def __init__(self):
+        super().__init__()
+        ntask = 2
+        for jj in range(ntask):
+            tt = LmpTask()
+            tt\
+                .add_file('conf.lmp', f'mocked 1 conf {jj}')\
+                .add_file('in.lammps', f'mocked 1 input {jj}')
+            self.add_task(tt)
+
+class MockedStage(ExplorationStage):
+    def make_lmp_task_group(self):
+        return MockedLmpTaskGroup()
+
+class MockedStage1(ExplorationStage):
+    def make_lmp_task_group(self):
+        return MockedLmpTaskGroup1()
 
 
 class MockedConfSelector(ConfSelector):
