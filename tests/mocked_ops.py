@@ -26,6 +26,7 @@ from dpgen2.op.collect_data import CollectData
 from dpgen2.op.select_confs import SelectConfs
 from dpgen2.utils.conf_selector import ConfSelector
 from dpgen2.utils.conf_filter import ConfFilter
+from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.exploration.report import ExplorationReport
 
 class MockedPrepDPTrain(PrepDPTrain):
@@ -290,11 +291,6 @@ class MockedExplorationReport(ExplorationReport):
     def __init__(self):
         pass
 
-    def converged (
-            self, 
-    ) -> bool :
-        return True
-
     def failed_ratio (
             self, 
             tag = None,
@@ -313,11 +309,6 @@ class MockedExplorationReport(ExplorationReport):
     ) -> float :
         return 0.
 
-    def update_trust_levels (
-            self,
-    ) -> Tuple[float] :
-        return (0.1, 0.2, 0.1, 0.2)
-
 
 class MockedConfSelector(ConfSelector):
     def select (
@@ -327,7 +318,7 @@ class MockedConfSelector(ConfSelector):
             conf_filters : List[ConfFilter] = [],
             traj_fmt : str = 'deepmd/npy',
             type_map : List[str] = None,
-    ) -> List[ Path ] :
+    ) -> Tuple[List[ Path ], TrustLevel] :
         confs = []
         fname = Path('conf.0')
         fname.write_text('conf of conf.0')
@@ -335,7 +326,7 @@ class MockedConfSelector(ConfSelector):
         fname = Path('conf.1')
         fname.write_text('conf of conf.1')
         confs.append(fname)
-        return confs
+        return confs, None
 
 class MockedSelectConfs(SelectConfs):
     @OP.exec_sign_check
@@ -346,7 +337,7 @@ class MockedSelectConfs(SelectConfs):
         conf_selector = ip['conf_selector']
         trajs = ip['trajs']
         model_devis = ip['model_devis']
-        confs = conf_selector.select(trajs, model_devis)
+        confs, _ = conf_selector.select(trajs, model_devis)
         report = MockedExplorationReport()
 
         return OPIO({

@@ -6,12 +6,6 @@ class ExplorationReport(ABC):
         pass
 
     @abstractmethod
-    def converged (
-            self, 
-    ) -> bool :
-        pass
-
-    @abstractmethod
     def failed_ratio (
             self, 
             tag = None,
@@ -30,12 +24,6 @@ class ExplorationReport(ABC):
             self,
             tag = None,
     ) -> float :
-        pass
-
-    @abstractmethod
-    def update_trust_levels (
-            self,
-    ) -> Tuple[float] :
         pass
 
 
