@@ -13,6 +13,7 @@ from dflow import (
     argo_range,
     argo_len,
     argo_sequence,
+    if_expression,
 )
 from dflow.python import(
     PythonOPTemplate,
@@ -124,15 +125,15 @@ def loop (
                 "iter_data" : InputArtifact(),
             },
         ),
-        # outputs=Outputs(
-        #     parameters={
-        #         "exploration_scheduler": OutputParameter(),
-        #     },
-        #     artifacts={
-        #         "models": OutputArtifact(),
-        #         "iter_data" : OutputArtifact(),
-        #     },
-        # ),
+        outputs=Outputs(
+            parameters={
+                "exploration_scheduler": OutputParameter(),
+            },
+            artifacts={
+                "models": OutputArtifact(),
+                "iter_data" : OutputArtifact(),
+            },
+        ),
     )
     
     # suffix = steps.inputs.parameters["name_suffix"].value
@@ -191,7 +192,7 @@ def loop (
     )
     steps.add(id_step)
 
-    next_steps = Step(
+    next_step = Step(
         name = name+'-next',
         template = steps,
         parameters={
@@ -212,7 +213,26 @@ def loop (
         },
         when = "%s == false" % (scheduler_step.outputs.parameters['converged']),
     )
-    steps.add(next_steps)    
+    steps.add(next_step)    
+
+    steps.outputs.parameters['exploration_scheduler'].value_from_expression = \
+        if_expression(
+            _if = (scheduler_step.outputs.parameters['converged'] == True),
+            _then = scheduler_step.outputs.parameters['exploration_scheduler'],
+            _else = next_step.outputs.parameters['exploration_scheduler'],
+        )
+    steps.outputs.artifacts['models'].from_expression = \
+        if_expression(
+            _if = (scheduler_step.outputs.parameters['converged'] == True),
+            _then = block_step.outputs.artifacts['models'],
+            _else = next_step.outputs.artifacts['models'],
+        )
+    steps.outputs.artifacts['iter_data'].from_expression = \
+        if_expression(
+            _if = (scheduler_step.outputs.parameters['converged'] == True),
+            _then = block_step.outputs.artifacts['iter_data'],
+            _else = next_step.outputs.artifacts['iter_data'],
+        )
 
     return steps
 
@@ -236,6 +256,15 @@ def dpgen(
                 "init_models" : InputArtifact(),
                 "init_data" : InputArtifact(),
                 "iter_data" : InputArtifact(),
+            },
+        ),
+        outputs=Outputs(
+            parameters={
+                "exploration_scheduler": OutputParameter(),
+            },
+            artifacts={
+                "models": OutputArtifact(),
+                "iter_data" : OutputArtifact(),
             },
         ),
     )
@@ -293,6 +322,13 @@ def dpgen(
         },
     )
     steps.add(loop_step)
+
+    steps.outputs.parameters["exploration_scheduler"].value_from_parameter = \
+        loop_step.outputs.parameters["exploration_scheduler"]
+    steps.outputs.artifacts["models"] = \
+        loop_step.outputs.artifacts["models"]
+    steps.outputs.artifacts["iter_data"] = \
+        loop_step.outputs.artifacts["iter_data"]
     
     return steps
 
