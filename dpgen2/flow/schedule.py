@@ -60,7 +60,7 @@ class SchedulerWrapper(OP):
         scheduler = ip['exploration_scheduler']
         report = ip['exploration_report']
         trajs = ip['trajs']
-        
+
         conv, lmp_task_grp, selector = scheduler.plan_next_iteration(report, trajs)
         
         return OPIO({
@@ -70,7 +70,34 @@ class SchedulerWrapper(OP):
             "conf_selector" : selector,
         })
 
-    
+
+class MakeBlockId(OP):
+    @classmethod
+    def get_input_sign(cls):
+        return OPIOSign({
+            "exploration_scheduler" : ExplorationScheduler,
+        })
+
+    @classmethod
+    def get_output_sign(cls):
+        return OPIOSign({
+            "block_id" : str,
+        })
+
+    @OP.exec_sign_check
+    def execute(
+            self,
+            ip : OPIO,
+    ) -> OPIO:
+        scheduler = ip['exploration_scheduler']
+        
+        stage = scheduler.get_stage()
+        iteration = scheduler.get_iteration()
+
+        return OPIO({
+            "block_id" : f'iter-{iteration:06d}',
+        })
+
 
 
 def loop (
@@ -81,7 +108,7 @@ def loop (
         name = name,
         inputs = Inputs(
             parameters={
-                "name_suffix" : InputParameter(),
+                "block_id" : InputParameter(),
                 "type_map" : InputParameter(),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
@@ -107,14 +134,15 @@ def loop (
         #     },
         # ),
     )
-
+    
     # suffix = steps.inputs.parameters["name_suffix"].value
     suffix=''
 
     block_step = Step(
-        name + suffix,
+        name = name + suffix + '-block',
         template = block_op,
         parameters={
+            "block_id" : steps.inputs.parameters["block_id"],
             "type_map" : steps.inputs.parameters["type_map"],
             "numb_models" : steps.inputs.parameters["numb_models"],
             "template_script" : steps.inputs.parameters["template_script"],
@@ -125,8 +153,8 @@ def loop (
         },
         artifacts={
             "init_models": steps.inputs.artifacts["init_models"],
-            "init_data": steps.inputs.artifacts["init_models"],
-            "iter_data": steps.inputs.artifacts["init_models"],
+            "init_data": steps.inputs.artifacts["init_data"],
+            "iter_data": steps.inputs.artifacts["iter_data"],
         },
     )
     steps.add(block_step)
@@ -148,17 +176,26 @@ def loop (
     )
     steps.add(scheduler_step)
 
-    # scheduler = jsonpickle.decode(scheduler_step.outputs.parameters['exploration_scheduler'].value)
-    # converged = jsonpickle.decode(scheduler_step.outputs.parameters['converged'].value)
-    # stage = scheduler.get_stage()
-    # iteration = scheduler.get_iteration()
-    # suffix = f'-stage-{stage}-iter-{iter}'
+    id_step = Step(
+        name = name + '-make-block-id',
+        template=PythonOPTemplate(
+            MakeBlockId,
+            image="dflow:v1.0",
+            python_packages = "..//dpgen2",
+        ),
+        parameters={
+            "exploration_scheduler": scheduler_step.outputs.parameters['exploration_scheduler'],
+        },
+        artifacts={
+        },
+    )
+    steps.add(id_step)
 
     next_steps = Step(
-        name,
+        name = name+'-next',
         template = steps,
         parameters={
-            "name_suffix" : suffix,
+            "block_id" : id_step.outputs.parameters['block_id'],
             "type_map" : steps.inputs.parameters["type_map"],
             "numb_models" : steps.inputs.parameters["numb_models"],
             "template_script" : steps.inputs.parameters["template_script"],
@@ -173,7 +210,7 @@ def loop (
             "init_data" : steps.inputs.artifacts['init_data'],
             "iter_data" : block_step.outputs.artifacts['iter_data'],
         },
-        when = "{{%s}} == false" % (scheduler_step.outputs.parameters['converged']),
+        when = "%s == false" % (scheduler_step.outputs.parameters['converged']),
     )
     steps.add(next_steps)    
 
@@ -188,7 +225,6 @@ def dpgen(
         name = name,
         inputs = Inputs(
             parameters={
-                "name_suffix" : InputParameter(),
                 "type_map" : InputParameter(),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
@@ -205,7 +241,7 @@ def dpgen(
     )
 
     scheduler_step = Step(
-        name = name + '-stage-0-iter-0' + '-scheduler',
+        name = name + '-scheduler',
         template=PythonOPTemplate(
             SchedulerWrapper,
             image="dflow:v1.0",
@@ -221,18 +257,26 @@ def dpgen(
     )
     steps.add(scheduler_step)
 
-    # scheduler = jsonpickle.decode(scheduler_step.outputs.parameters['exploration_scheduler'])
-    # converged = jsonpickle.decode(scheduler_step.outputs.parameters['converged'])
-    # stage = scheduler.get_stage()
-    # iteration = scheduler.get_iteration()
-    # suffix = f'-stage-{stage}-iter-{iter}'
-    suffix = ''
-    
+    id_step = Step(
+        name = name + '-make-block-id',
+        template=PythonOPTemplate(
+            MakeBlockId,
+            image="dflow:v1.0",
+            python_packages = "..//dpgen2",
+        ),
+        parameters={
+            "exploration_scheduler": scheduler_step.outputs.parameters['exploration_scheduler'],
+        },
+        artifacts={
+        },
+    )
+    steps.add(id_step)
+
     loop_step = Step(
-        name = name,
+        name = 'loop-step',
         template = loop_op,
         parameters = {
-            "name_suffix" : suffix,
+            "block_id" : id_step.outputs.parameters['block_id'],
             "type_map" : steps.inputs.parameters['type_map'],
             "numb_models" : steps.inputs.parameters['numb_models'],
             "template_script" : steps.inputs.parameters['template_script'],
@@ -244,8 +288,8 @@ def dpgen(
         },
         artifacts={
             "init_models": steps.inputs.artifacts["init_models"],
-            "init_data": steps.inputs.artifacts["init_models"],
-            "iter_data": steps.inputs.artifacts["init_models"],
+            "init_data": steps.inputs.artifacts["init_data"],
+            "iter_data": steps.inputs.artifacts["iter_data"],
         },
     )
     steps.add(loop_step)

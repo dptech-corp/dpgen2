@@ -38,6 +38,7 @@ def block_cl(
         name = name,
         inputs = Inputs(
             parameters={
+                "block_id" : InputParameter(),
                 "type_map" : InputParameter(),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
@@ -137,7 +138,7 @@ def block_cl(
             python_packages = "..//dpgen2",
         ),
         parameters={
-            "name": name,
+            "name": block_steps.inputs.parameters["block_id"],
         },
         artifacts={
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
