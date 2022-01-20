@@ -27,6 +27,9 @@ from dpgen2.constants import (
     lmp_traj_name,
     lmp_log_name,
     lmp_model_devi_name,
+    vasp_task_pattern,
+    vasp_conf_name,
+    vasp_input_name,
 )
 from dpgen2.op.run_dp_train import RunDPTrain
 from dpgen2.op.prep_dp_train import PrepDPTrain
@@ -47,6 +50,8 @@ from dpgen2.exploration.scheduler import ConstTrustLevelStageScheduler
 mocked_template_script = { 'seed' : 1024, 'data': [] }
 mocked_numb_models = 3
 mocked_numb_lmp_tasks = 6
+mocked_numb_select = 2
+mocked_incar_template = 'incar template'
 
 def make_mocked_init_models(numb_models):
     tmp_models = []
@@ -205,7 +210,8 @@ class MockedRunLmp(RunLmp):
             assert(ip['models'][ii].is_file())
             assert("model" in str(ip['models'][ii]))
             assert(".pb" in str(ip['models'][ii]))
-
+        assert((task_path/lmp_conf_name).is_file())
+        assert((task_path/lmp_input_name).is_file())
         
         task_path = task_path.resolve()
         models = [ii.resolve() for ii in models]
@@ -240,8 +246,12 @@ class MockedRunLmp(RunLmp):
         for ii in [lmp_conf_name, lmp_input_name] + [ii.name for ii in models]:
              fc.append(Path(ii).read_text())
         log.write_text('\n'.join(fc))
-        traj.write_text(f'traj of {task_name}')
         model_devi.write_text(f'model_devi of {task_name}')
+        traj_out = []
+        traj_out.append(f'traj of {task_name}')
+        traj_out.append(Path(lmp_conf_name).read_text())
+        traj_out.append(Path(lmp_input_name).read_text())
+        traj.write_text('\n'.join(traj_out))
 
         os.chdir(cwd)
 
@@ -265,19 +275,22 @@ class MockedPrepVasp(PrepVasp):
         incar_temp = vasp_input.incar_temp
         potcars = vasp_input.potcars
 
+        for ii in confs:
+            assert(ii.is_file())
+        assert(vasp_input.incar_temp == mocked_incar_template)
+
         nconfs = len(confs)
         task_paths = []
 
         for ii in range(nconfs):
-            task_path = Path(f'task.{ii:06d}')
+            task_path = Path(vasp_task_pattern % ii)
             task_path.mkdir(exist_ok=True, parents=True)
             from shutil import copyfile
-            copyfile(confs[ii], task_path/'POSCAR')
-            (task_path/'INCAR').write_text(incar_temp)
+            copyfile(confs[ii], task_path/vasp_conf_name)
+            (task_path/vasp_input_name).write_text(incar_temp)
             task_paths.append(task_path)
 
         task_names = [str(ii) for ii in task_paths]
-        print('prep vasp: ', task_names, task_paths)
         return OPIO({
             'task_names' : task_names,
             'task_paths' : task_paths,
@@ -292,6 +305,13 @@ class MockedRunVasp(RunVasp):
     ) -> OPIO:
         task_name = ip['task_name']
         task_path = ip['task_path']
+
+        assert(ip['task_path'].is_dir())
+        assert(re.match('task.[0-9][0-9][0-9][0-9][0-9][0-9]', ip['task_name']))
+        task_id = int(ip['task_name'].split('.')[1])
+        assert(ip['task_name'] in str(ip['task_path']))
+        assert((ip['task_path']/vasp_conf_name).is_file())
+        assert((ip['task_path']/vasp_input_name).is_file())
 
         work_dir = Path(task_name)
 
@@ -310,12 +330,15 @@ class MockedRunVasp(RunVasp):
         labeled_data = Path('data_'+task_name)
         
         fc = []
-        for ii in ['POSCAR', 'INCAR']:
+        for ii in [vasp_conf_name, vasp_input_name]:
              fc.append(Path(ii).read_text())
         log.write_text('\n'.join(fc))
-        print('run vasp output to dir ', labeled_data)
         labeled_data.mkdir(exist_ok=True, parents=True)
-        (labeled_data / 'data').write_text(f'labeled_data of {task_name}')
+
+        fc = []
+        fc.append(f'labeled_data of {task_name}')
+        fc.append(Path(vasp_conf_name).read_text())
+        (labeled_data / 'data').write_text('\n'.join(fc))
 
         os.chdir(cwd)
 
@@ -334,14 +357,11 @@ class MockedCollectData(CollectData):
         name = ip['name']
         labeled_data = ip['labeled_data']
         iter_data = ip['iter_data']
-        print('collect data: labeled_data', labeled_data)
-        print('collect data: iter_data', iter_data)
 
         new_iter_data = set()
         # copy iter_data
         for ii in iter_data:
             iiname = ii.name
-            print('collect data: copy iter data', ii, iiname)
             shutil.copytree(ii, iiname)
             new_iter_data.add(Path(iiname))
 
@@ -351,7 +371,6 @@ class MockedCollectData(CollectData):
         
         for ii in labeled_data:
             iiname = ii.name
-            print('collect data: copy labeled data', ii, name/iiname)
             shutil.copytree(ii, name/iiname)
         new_iter_data.add(name)
         
@@ -432,13 +451,27 @@ class MockedConfSelector(ConfSelector):
             type_map : List[str] = None,
     ) -> Tuple[List[ Path ], TrustLevel] :
         confs = []
-        fname = Path('conf.0')
-        fname.write_text('conf of conf.0')
-        confs.append(fname)
-        fname = Path('conf.1')
-        fname.write_text('conf of conf.1')
-        confs.append(fname)
+        if len(trajs) == mocked_numb_lmp_tasks:
+            # get output from prep_run_lmp
+            for ii in range(mocked_numb_select):
+                ftraj = trajs[ii].read_text().strip().split('\n')
+                fcont = []
+                fcont.append(f'select conf.{ii}')
+                fcont.append(ftraj[1])
+                fcont.append(ftraj[2])
+                fname = Path(f'conf.{ii}')
+                fname.write_text('\n'.join(fcont))
+                confs.append(fname)
+        else:
+            # for the case of artificial input. trajs of length 2
+            fname = Path('conf.0')
+            fname.write_text('conf of conf.0')
+            confs.append(fname)
+            fname = Path('conf.1')
+            fname.write_text('conf of conf.1')
+            confs.append(fname)
         return confs, self.trust_level
+
 
 class MockedSelectConfs(SelectConfs):
     @OP.exec_sign_check
@@ -451,6 +484,12 @@ class MockedSelectConfs(SelectConfs):
         model_devis = ip['model_devis']
         confs, _ = conf_selector.select(trajs, model_devis)
         report = MockedExplorationReport()
+
+        # get lmp output. check if all trajs and model devis are files
+        if len(trajs) == mocked_numb_lmp_tasks:
+            for ii in range(mocked_numb_lmp_tasks):
+                assert(trajs[ii].is_file())
+                assert(model_devis[ii].is_file())
 
         return OPIO({
             "report" : report,

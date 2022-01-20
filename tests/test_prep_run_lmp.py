@@ -136,7 +136,7 @@ class TestMockedRunLmp(unittest.TestCase):
         for ii in [lmp_conf_name, lmp_input_name] + [ii.name for ii in models]:
             fc.append(Path(ii).read_text())    
         self.assertEqual(fc, Path(lmp_log_name).read_text().strip().split('\n'))
-        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text())
+        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text().split('\n')[0])
         self.assertEqual(f'model_devi of {task_name}', Path(lmp_model_devi_name).read_text())
         os.chdir(cwd)
 
@@ -211,7 +211,7 @@ class TestPrepRunLmp(unittest.TestCase):
         for ii in [ii.name for ii in models]:
             fc.append((Path('..')/Path(ii)).read_text())    
         self.assertEqual(fc, Path(lmp_log_name).read_text().strip().split('\n'))
-        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text())
+        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text().split('\n')[0])
         self.assertEqual(f'model_devi of {task_name}', Path(lmp_model_devi_name).read_text())
         os.chdir(cwd)
 

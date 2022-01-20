@@ -35,24 +35,31 @@ except ModuleNotFoundError:
     pass
 from dpgen2.flow.prep_run_fp import prep_run_fp
 from mocked_ops import (
+    mocked_incar_template,
     MockedPrepVasp,
     MockedRunVasp,
 )
 from dpgen2.fp.vasp import VaspInputs
+from dpgen2.constants import (
+    vasp_task_pattern,
+    vasp_conf_name,
+    vasp_input_name,
+    vasp_pot_name,
+)
 
 def check_vasp_tasks(tcase, ntasks):
     cc = 0
     tdirs = []
     for ii in range(ntasks):
-        tdir = f'task.{cc:06d}'
+        tdir = vasp_task_pattern % cc
         tdirs.append(tdir)
         tcase.assertTrue(Path(tdir).is_dir())
-        fconf = Path(tdir)/'POSCAR'
-        finpt = Path(tdir)/'INCAR'
+        fconf = Path(tdir)/vasp_conf_name
+        finpt = Path(tdir)/vasp_input_name
         tcase.assertTrue(fconf.is_file())
         tcase.assertTrue(finpt.is_file())
         tcase.assertEqual(fconf.read_text(), f'conf {ii}')
-        tcase.assertEqual(finpt.read_text(), f'incar template')
+        tcase.assertEqual(finpt.read_text(), mocked_incar_template)
         cc += 1
     return tdirs
 
@@ -69,7 +76,7 @@ class TestPrepVaspTaskGroup(unittest.TestCase):
         
     def tearDown(self):
         for ii in range(self.ntasks):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(vasp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
             fname = Path(f'conf.{ii}')
@@ -96,10 +103,10 @@ class TestMockedRunVasp(unittest.TestCase):
         self.ntask = 6
         self.task_list = []
         for ii in range(self.ntask):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(vasp_task_pattern % ii)
             work_path.mkdir(exist_ok=True, parents=True)
-            (work_path/'POSCAR').write_text(f'conf {ii}')
-            (work_path/'INCAR').write_text(f'incar template')
+            (work_path/vasp_conf_name).write_text(f'conf {ii}')
+            (work_path/vasp_input_name).write_text(f'incar template')
             self.task_list.append(work_path)
 
     def check_run_lmp_output(
@@ -109,15 +116,16 @@ class TestMockedRunVasp(unittest.TestCase):
         cwd = os.getcwd()
         os.chdir(task_name)
         fc = []
-        for ii in ['POSCAR', 'INCAR']:
+        for ii in [vasp_conf_name, vasp_input_name]:
             fc.append(Path(ii).read_text())    
         self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'labeled_data of {task_name}', (Path('data_'+task_name) / 'data').read_text())
+        ii = int(task_name.split('.')[1])
+        self.assertEqual(f'labeled_data of {task_name}\nconf {ii}', (Path('data_'+task_name) / 'data').read_text())
         os.chdir(cwd)
 
     def tearDown(self):
         for ii in range(self.ntask):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(vasp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
             
@@ -130,8 +138,8 @@ class TestMockedRunVasp(unittest.TestCase):
             })
             op = MockedRunVasp()
             out = op.execute(ip)
-            self.assertEqual(out['log'] , Path(f'task.{ii:06d}')/'log')
-            self.assertEqual(out['labeled_data'] , Path(f'task.{ii:06d}')/('data_'+f'task.{ii:06d}'))
+            self.assertEqual(out['log'] , Path(vasp_task_pattern % ii)/'log')
+            self.assertEqual(out['labeled_data'] , Path(vasp_task_pattern % ii)/('data_'+vasp_task_pattern % ii))
             self.assertTrue(out['log'].is_file())
             self.assertTrue(out['labeled_data'].is_dir())
             self.check_run_lmp_output(self.task_list_str[ii])
@@ -150,7 +158,7 @@ class TestPrepRunVasp(unittest.TestCase):
 
     def tearDown(self):
         for ii in range(self.ntasks):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(vasp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
             fname = Path(f'conf.{ii}')
@@ -167,7 +175,7 @@ class TestPrepRunVasp(unittest.TestCase):
         fc.append(f'conf {ii}')
         fc.append(f'incar template')
         self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'labeled_data of {task_name}', (Path('data_'+task_name) / 'data').read_text())
+        self.assertEqual(f'labeled_data of {task_name}\nconf {ii}', (Path('data_'+task_name) / 'data').read_text())
         # self.assertEqual(f'labeled_data of {task_name}', Path('labeled_data').read_text())
         os.chdir(cwd)
 

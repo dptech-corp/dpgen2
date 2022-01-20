@@ -51,7 +51,7 @@ from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.report import ExplorationReport
-from dpgen2.flow.schedule import dpgen, loop
+from dpgen2.flow.loop import dpgen, loop
 from dpgen2.utils.lmp_task_group import LmpTaskGroup
 from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.utils.conf_selector import TrustLevelConfSelector
@@ -124,7 +124,7 @@ class TestLoop(unittest.TestCase):
         )
 
     def _setUp_data(self):
-        self.numb_models = 3
+        self.numb_models = mocked_numb_models
 
         tmp_models = []
         for ii in range(self.numb_models):
@@ -211,4 +211,31 @@ class TestLoop(unittest.TestCase):
         step = wf.query_step(name='dpgen-step')[0]
         self.assertEqual(step.phase, "Succeeded")        
         
+        report = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
+        download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
+        print(scheduler)
+        print(scheduler.get_stage(), scheduler.get_iteration())
+        self.assertEqual(scheduler.get_stage(), 2)
+        self.assertEqual(scheduler.get_iteration(), 2)
         
+        # we know number of selected data is 2
+        # by MockedConfSelector
+        for ii in range(2):
+            task_name = f'task.{ii:06d}'
+            self.assertEqual(
+                f'labeled_data of {task_name}',
+                (Path('iter_data')/self.name/('data_'+task_name)/'data').read_text())
+        for ii in ['iter-000000', 'iter-000001']:
+            dname = Path('iter_data')/ii
+            self.assertEqual((dname/'a').read_text(), 'data a')
+            self.assertEqual((dname/'b').read_text(), 'data b')
+
+        # new model is read from init model
+        for ii in range(self.numb_models):
+            model = Path('models')/self.name/(train_task_pattern%ii)/'model.pb'
+            flines = model.read_text().strip().split('\n')
+            self.assertEqual(flines[0], "read from init model: ")
+            self.assertEqual(flines[1], f"This is init model {ii}")
+
+            

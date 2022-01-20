@@ -53,12 +53,15 @@ from dpgen2.constants import (
     lmp_input_name,
     lmp_traj_name,
     lmp_log_name,
+    vasp_task_pattern,
 )
 from mocked_ops import (    
     mocked_template_script,
     mocked_numb_models,
     make_mocked_init_models,
     make_mocked_init_data,
+    mocked_incar_template,
+    mocked_numb_select,
     MockedPrepDPTrain,
     MockedRunDPTrain,    
     MockedRunLmp,
@@ -117,7 +120,7 @@ class TestBlockCL(unittest.TestCase):
         self.conf_filters = []
         self.type_map = []
 
-        self.incar = 'incar template'
+        self.incar = mocked_incar_template
         self.vasp_inputs = VaspInputs(
             self.incar,
             {'foo': 'bar'},
@@ -167,7 +170,6 @@ class TestBlockCL(unittest.TestCase):
                 "iter_data" : self.iter_data,
             },
         )
-        
         wf = Workflow(name="block")
         wf.add(block_step)
         wf.submit()
@@ -184,11 +186,16 @@ class TestBlockCL(unittest.TestCase):
         
         # we know number of selected data is 2
         # by MockedConfSelector
-        for ii in range(2):
-            task_name = f'task.{ii:06d}'
+        for ii in range(mocked_numb_select):
+            task_name = vasp_task_pattern % ii
             self.assertEqual(
-                f'labeled_data of {task_name}',
-                (Path('iter_data')/self.name/('data_'+task_name)/'data').read_text())
+                '\n'.join([f'labeled_data of {task_name}',
+                           f'select conf.{ii}',
+                           f'mocked conf {ii}',
+                           f'mocked input {ii}',
+                           ]),
+                (Path('iter_data')/self.name/('data_'+task_name)/'data').read_text()
+            )
         for ii in self.path_iter_data:
             dname = Path('iter_data')/ii
             self.assertEqual((dname/'a').read_text(), 'data a')
@@ -196,7 +203,7 @@ class TestBlockCL(unittest.TestCase):
 
         # new model is read from init model
         for ii in range(self.numb_models):
-            model = Path('models')/self.name/f'task.{ii:04d}'/'model.pb'
+            model = Path('models')/self.name/(train_task_pattern%ii)/'model.pb'
             flines = model.read_text().strip().split('\n')
             self.assertEqual(flines[0], "read from init model: ")
             self.assertEqual(flines[1], f"This is init model {ii}")

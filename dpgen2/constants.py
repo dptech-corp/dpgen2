@@ -8,4 +8,8 @@ lmp_input_name = 'in.lammps'
 lmp_traj_name = 'traj.dump'
 lmp_log_name = 'log.lammps'
 lmp_model_devi_name = 'model_devi.out'
+vasp_task_pattern = 'task.%06d'
+vasp_conf_name = 'POSCAR'
+vasp_input_name = 'INCAR'
+vasp_pot_name = 'POTCAR'
 
