@@ -8,7 +8,7 @@ from dflow.python import (
 
 upload_packages.append(__file__)
 
-import os, json, shutil
+import os, json, shutil, re
 from pathlib import Path
 from typing import Tuple, List
 try:
@@ -16,6 +16,18 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
+from dpgen2.constants import (
+    train_task_pattern,
+    train_script_name,
+    train_log_name,
+    model_name_pattern,
+    lmp_task_pattern,
+    lmp_conf_name,
+    lmp_input_name,
+    lmp_traj_name,
+    lmp_log_name,
+    lmp_model_devi_name,
+)
 from dpgen2.op.run_dp_train import RunDPTrain
 from dpgen2.op.prep_dp_train import PrepDPTrain
 from dpgen2.op.prep_lmp import PrepLmpTaskGroup
@@ -30,6 +42,29 @@ from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.stage import ExplorationStage
+from dpgen2.exploration.scheduler import ConstTrustLevelStageScheduler
+
+mocked_template_script = { 'seed' : 1024, 'data': [] }
+mocked_numb_models = 3
+mocked_numb_lmp_tasks = 6
+
+def make_mocked_init_models(numb_models):
+    tmp_models = []
+    for ii in range(numb_models):
+        ff = Path(model_name_pattern % ii)
+        ff.write_text(f'This is init model {ii}')
+        tmp_models.append(ff)
+    return tmp_models
+
+def make_mocked_init_data():
+    tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
+    for ii in tmp_init_data:
+        ii.mkdir(exist_ok=True, parents=True)
+        (ii/'a').write_text('data a')
+        (ii/'b').write_text('data b')
+    return tmp_init_data
+
+
 
 class MockedPrepDPTrain(PrepDPTrain):
     @OP.exec_sign_check
@@ -41,11 +76,14 @@ class MockedPrepDPTrain(PrepDPTrain):
         numb_models = ip['numb_models']
         ofiles = []
         osubdirs = []
+        
+        assert(template == mocked_template_script)
+        assert(numb_models == mocked_numb_models)
 
         for ii in range(numb_models):
             jtmp = template
             jtmp['seed'] = ii
-            subdir = Path(f'task.{ii:04d}') 
+            subdir = Path(train_task_pattern % ii) 
             subdir.mkdir(exist_ok=True, parents=True)
             fname = subdir / 'input.json'
             with open(fname, 'w') as fp:
@@ -71,6 +109,21 @@ class MockedRunDPTrain(RunDPTrain):
         init_model = Path(ip['init_model'])
         init_data = ip['init_data']
         iter_data = ip['iter_data']
+
+        assert(script.is_file())
+        assert(ip['task_path'].is_dir())
+        assert(init_model.is_file())
+        assert(len(init_data) == 2)
+        assert(re.match('task.[0-9][0-9][0-9][0-9]', ip['task_name']))
+        task_id = int(ip['task_name'].split('.')[1])
+        assert(ip['task_name'] in str(ip['task_path']))
+        assert("model" in str(ip['init_model']))
+        assert(".pb" in str(ip['init_model']))
+        list_init_data = sorted([str(ii) for ii in init_data] )
+        assert('init_data/bar' in list_init_data[0])
+        assert('init_data/foo' in list_init_data[1])        
+        assert(Path(list_init_data[0]).is_dir())
+        assert(Path(list_init_data[1]).is_dir())
 
         script = Path(script).resolve()
         init_model = init_model.resolve()
@@ -141,6 +194,18 @@ class MockedRunLmp(RunLmp):
         task_name = ip['task_name']
         task_path = ip['task_path']
         models = ip['models']
+
+        assert(ip['task_path'].is_dir())
+        assert(re.match('task.[0-9][0-9][0-9][0-9][0-9][0-9]', ip['task_name']))
+        task_id = int(ip['task_name'].split('.')[1])
+        assert(task_path.is_dir())
+        assert(ip['task_name'] in str(ip['task_path']))
+        assert(len(models) == mocked_numb_models)
+        for ii in range(mocked_numb_models):
+            assert(ip['models'][ii].is_file())
+            assert("model" in str(ip['models'][ii]))
+            assert(".pb" in str(ip['models'][ii]))
+
         
         task_path = task_path.resolve()
         models = [ii.resolve() for ii in models]
@@ -161,9 +226,9 @@ class MockedRunLmp(RunLmp):
             if not Path(Path(ii).name).exists():
                 Path(Path(ii).name).symlink_to(ii)
         
-        log = Path('log')
-        traj = Path('dump.traj')
-        model_devi = Path('model_devi.out')
+        log = Path(lmp_log_name)
+        traj = Path(lmp_traj_name)
+        model_devi = Path(lmp_model_devi_name)
         
         # fc = ['log of {task_name}']
         # for ii in ['conf.lmp', 'in.lammps'] + models_str:
@@ -172,7 +237,7 @@ class MockedRunLmp(RunLmp):
         # log.write_text('\n'.join(fc))        
         # log.write_text('log of {task_name}')
         fc = []
-        for ii in ['conf.lmp', 'in.lammps'] + [ii.name for ii in models]:
+        for ii in [lmp_conf_name, lmp_input_name] + [ii.name for ii in models]:
              fc.append(Path(ii).read_text())
         log.write_text('\n'.join(fc))
         traj.write_text(f'traj of {task_name}')
@@ -212,6 +277,7 @@ class MockedPrepVasp(PrepVasp):
             task_paths.append(task_path)
 
         task_names = [str(ii) for ii in task_paths]
+        print('prep vasp: ', task_names, task_paths)
         return OPIO({
             'task_names' : task_names,
             'task_paths' : task_paths,
@@ -247,6 +313,7 @@ class MockedRunVasp(RunVasp):
         for ii in ['POSCAR', 'INCAR']:
              fc.append(Path(ii).read_text())
         log.write_text('\n'.join(fc))
+        print('run vasp output to dir ', labeled_data)
         labeled_data.mkdir(exist_ok=True, parents=True)
         (labeled_data / 'data').write_text(f'labeled_data of {task_name}')
 
@@ -267,11 +334,14 @@ class MockedCollectData(CollectData):
         name = ip['name']
         labeled_data = ip['labeled_data']
         iter_data = ip['iter_data']
+        print('collect data: labeled_data', labeled_data)
+        print('collect data: iter_data', iter_data)
 
         new_iter_data = set()
         # copy iter_data
         for ii in iter_data:
             iiname = ii.name
+            print('collect data: copy iter data', ii, iiname)
             shutil.copytree(ii, iiname)
             new_iter_data.add(Path(iiname))
 
@@ -281,6 +351,7 @@ class MockedCollectData(CollectData):
         
         for ii in labeled_data:
             iiname = ii.name
+            print('collect data: copy labeled data', ii, name/iiname)
             shutil.copytree(ii, name/iiname)
         new_iter_data.add(name)
         
@@ -317,23 +388,23 @@ class MockedExplorationReport(ExplorationReport):
 class MockedLmpTaskGroup(LmpTaskGroup):
     def __init__(self):
         super().__init__()
-        ntask = 2
+        ntask = mocked_numb_lmp_tasks
         for jj in range(ntask):
             tt = LmpTask()
             tt\
-                .add_file('conf.lmp', f'mocked conf {jj}')\
-                .add_file('in.lammps', f'mocked input {jj}')
+                .add_file(lmp_conf_name, f'mocked conf {jj}')\
+                .add_file(lmp_input_name, f'mocked input {jj}')
             self.add_task(tt)
 
 class MockedLmpTaskGroup1(LmpTaskGroup):
     def __init__(self):
         super().__init__()
-        ntask = 2
+        ntask = mocked_numb_lmp_tasks
         for jj in range(ntask):
             tt = LmpTask()
             tt\
-                .add_file('conf.lmp', f'mocked 1 conf {jj}')\
-                .add_file('in.lammps', f'mocked 1 input {jj}')
+                .add_file(lmp_conf_name, f'mocked 1 conf {jj}')\
+                .add_file(lmp_input_name, f'mocked 1 input {jj}')
             self.add_task(tt)
 
 class MockedStage(ExplorationStage):
@@ -346,6 +417,12 @@ class MockedStage1(ExplorationStage):
 
 
 class MockedConfSelector(ConfSelector):
+    def __init__(
+            self,
+            trust_level: TrustLevel = TrustLevel(0.1, 0.2),
+    ):
+        self.trust_level = trust_level
+
     def select (
             self,
             trajs : List[Path],
@@ -361,7 +438,7 @@ class MockedConfSelector(ConfSelector):
         fname = Path('conf.1')
         fname.write_text('conf of conf.1')
         confs.append(fname)
-        return confs, None
+        return confs, self.trust_level
 
 class MockedSelectConfs(SelectConfs):
     @OP.exec_sign_check
@@ -379,3 +456,15 @@ class MockedSelectConfs(SelectConfs):
             "report" : report,
             "confs" : confs,
         })
+
+
+class MockedConstTrustLevelStageScheduler(ConstTrustLevelStageScheduler):
+    def __init__(
+            self,
+            stage : ExplorationStage,
+            trust_level : TrustLevel,
+            conv_accuracy : float = 0.9,
+            max_numb_iter : int = None,
+    ):
+        super().__init__(stage, trust_level, conv_accuracy, max_numb_iter)
+        self.selector = MockedConfSelector(trust_level)                

@@ -42,7 +42,23 @@ from dpgen2.flow.block import block_cl
 from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 
+from mock import patch
+
+from dpgen2.constants import (
+    train_task_pattern,
+    train_script_name,
+    train_log_name,
+    model_name_pattern,
+    lmp_conf_name,
+    lmp_input_name,
+    lmp_traj_name,
+    lmp_log_name,
+)
 from mocked_ops import (    
+    mocked_template_script,
+    mocked_numb_models,
+    make_mocked_init_models,
+    make_mocked_init_data,
     MockedPrepDPTrain,
     MockedRunDPTrain,    
     MockedRunLmp,
@@ -52,18 +68,8 @@ from mocked_ops import (
     MockedConfSelector,
     MockedExplorationReport,
     MockedCollectData,
+    MockedLmpTaskGroup,
 )
-
-def make_task_group_list(ngrp, ntask_per_grp):
-    tgrp = LmpTaskGroup()
-    for ii in range(ngrp):
-        for jj in range(ntask_per_grp):
-            tt = LmpTask()
-            tt\
-                .add_file('conf.lmp', f'group{ii} task{jj} conf')\
-                .add_file('in.lammps', f'group{ii} task{jj} input')
-            tgrp.add_task(tt)
-    return tgrp
 
 
 class TestBlockCL(unittest.TestCase):
@@ -85,21 +91,13 @@ class TestBlockCL(unittest.TestCase):
         )
 
     def _setUp_data(self):
-        self.numb_models = 3
+        self.numb_models = mocked_numb_models
 
-        tmp_models = []
-        for ii in range(self.numb_models):
-            ff = Path(f'model_{ii}.pb')
-            ff.write_text(f'This is init model {ii}')
-            tmp_models.append(ff)
+        tmp_models = make_mocked_init_models(self.numb_models)
         self.init_models = upload_artifact(tmp_models)
         self.str_init_models = tmp_models
 
-        tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
-        for ii in tmp_init_data:
-            ii.mkdir(exist_ok=True, parents=True)
-            (ii/'a').write_text('data a')
-            (ii/'b').write_text('data b')
+        tmp_init_data = make_mocked_init_data()
         self.init_data = upload_artifact(tmp_init_data)
         self.path_init_data = set(tmp_init_data)
         
@@ -111,11 +109,9 @@ class TestBlockCL(unittest.TestCase):
         self.iter_data = upload_artifact(tmp_iter_data)
         self.path_iter_data = set(tmp_iter_data)
         
-        self.template_script = { 'seed' : 1024, 'data': [] }
+        self.template_script = mocked_template_script
         
-        self.ngrp = 2
-        self.ntask_per_grp = 3
-        self.task_group_list = make_task_group_list(self.ngrp, self.ntask_per_grp)
+        self.task_group_list = MockedLmpTaskGroup()
 
         self.conf_selector = MockedConfSelector()
         self.conf_filters = []
@@ -147,7 +143,7 @@ class TestBlockCL(unittest.TestCase):
             if ii.is_dir():
                 shutil.rmtree(ii)            
         for ii in range(self.numb_models):
-            name = Path(f'model_{ii}.pb')
+            name = Path(model_name_pattern % ii)
             if name.is_file():
                 os.remove(name)
 
@@ -156,6 +152,7 @@ class TestBlockCL(unittest.TestCase):
             'step', 
             template = self.block_cl,
             parameters = {
+                "block_id" : self.name,
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,

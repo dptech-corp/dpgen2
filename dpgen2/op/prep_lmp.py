@@ -9,6 +9,9 @@ import json
 from typing import Tuple, List
 from pathlib import Path
 from dpgen2.utils.lmp_task_group import LmpTaskGroup
+from dpgen2.constants import (
+    lmp_task_pattern,
+)
 
 class PrepLmp(OP):
     @classmethod
@@ -26,7 +29,7 @@ class PrepLmp(OP):
 
 
 def mk_task_from_files(cc, ff):
-    tname = Path(f'task.{cc:06d}')
+    tname = Path(lmp_task_pattern % cc)
     tname.mkdir(exist_ok=True, parents=True)
     for nn in ff.keys():
         (tname/nn).write_text(ff[nn])

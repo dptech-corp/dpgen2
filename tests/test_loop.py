@@ -56,7 +56,21 @@ from dpgen2.utils.lmp_task_group import LmpTaskGroup
 from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.utils.conf_selector import TrustLevelConfSelector
 
+from dpgen2.constants import (
+    train_task_pattern,
+    train_script_name,
+    train_log_name,
+    model_name_pattern,
+    lmp_conf_name,
+    lmp_input_name,
+    lmp_traj_name,
+    lmp_log_name,
+)
 from mocked_ops import (
+    mocked_template_script,
+    mocked_numb_models,
+    make_mocked_init_models,
+    make_mocked_init_data,
     MockedPrepDPTrain,
     MockedRunDPTrain,    
     MockedRunLmp,
@@ -71,6 +85,7 @@ from mocked_ops import (
     MockedLmpTaskGroup1,
     MockedStage,
     MockedStage1,
+    MockedConstTrustLevelStageScheduler,
 )
 
 
@@ -92,7 +107,7 @@ class TestLoop(unittest.TestCase):
             MockedRunVasp,
         )
         self.block_cl_op = block_cl(
-            self.name, 
+            self.name+'-block', 
             self.prep_run_dp_train_op,
             self.prep_run_lmp_op,
             MockedSelectConfs,
@@ -100,7 +115,7 @@ class TestLoop(unittest.TestCase):
             MockedCollectData,
         )        
         self.loop_op = loop(
-            self.name,
+            self.name+'-loop',
             self.block_cl_op,
         )
         self.dpgen_op = dpgen(
@@ -113,7 +128,7 @@ class TestLoop(unittest.TestCase):
 
         tmp_models = []
         for ii in range(self.numb_models):
-            ff = Path(f'model_{ii}.pb')
+            ff = Path(model_name_pattern % ii)
             ff.write_text(f'This is init model {ii}')
             tmp_models.append(ff)
         self.init_models = upload_artifact(tmp_models)
@@ -141,10 +156,11 @@ class TestLoop(unittest.TestCase):
             {'foo': 'bar'},
         )
 
+
         self.scheduler = ExplorationScheduler()        
         self.trust_level = TrustLevel(0.1, 0.3)
         trust_level = TrustLevel(0.1, 0.3)
-        stage_scheduler = ConstTrustLevelStageScheduler(
+        stage_scheduler = MockedConstTrustLevelStageScheduler(
             MockedStage(),
             trust_level,
             conv_accuracy = 0.7,
@@ -152,7 +168,7 @@ class TestLoop(unittest.TestCase):
         )
         self.scheduler.add_stage_scheduler(stage_scheduler)
         trust_level = TrustLevel(0.2, 0.4)
-        stage_scheduler = ConstTrustLevelStageScheduler(
+        stage_scheduler = MockedConstTrustLevelStageScheduler(
             MockedStage1(),
             trust_level,
             conv_accuracy = 0.7,
@@ -171,7 +187,6 @@ class TestLoop(unittest.TestCase):
             'dpgen-step', 
             template = self.dpgen_op,
             parameters = {
-                "name_suffix" : "TestSuffix",
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
@@ -193,7 +208,7 @@ class TestLoop(unittest.TestCase):
         while wf.query_status() in ["Pending", "Running"]:
             time.sleep(4)
         self.assertEqual(wf.query_status(), "Succeeded")
-        step = wf.query_step(name='step')[0]
+        step = wf.query_step(name='dpgen-step')[0]
         self.assertEqual(step.phase, "Succeeded")        
         
         

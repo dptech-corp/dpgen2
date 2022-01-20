@@ -34,7 +34,12 @@ except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
+from dpgen2.constants import train_task_pattern
 from mocked_ops import (
+    mocked_template_script,
+    mocked_numb_models,
+    make_mocked_init_models,
+    make_mocked_init_data,
     MockedPrepDPTrain,
     MockedRunDPTrain,
 )
@@ -127,8 +132,8 @@ def check_run_train_dp_output(
 
 class TestMockedPrepDPTrain(unittest.TestCase):
     def setUp(self):
-        self.numb_models = 3
-        self.template_script = { 'seed' : 1024, 'data': [] }
+        self.numb_models = mocked_numb_models
+        self.template_script = mocked_template_script.copy()
         self.expected_subdirs = ['task.0000', 'task.0001', 'task.0002']
         self.expected_train_scripts = [Path('task.0000/input.json'), Path('task.0001/input.json'), Path('task.0002/input.json')]
 
@@ -151,20 +156,11 @@ class TestMockedPrepDPTrain(unittest.TestCase):
 
 class TestMockedRunDPTrain(unittest.TestCase):
     def setUp(self):
-        self.numb_models = 3
+        self.numb_models = mocked_numb_models
 
-        tmp_models = []
-        for ii in range(self.numb_models):
-            ff = Path(f'model_{ii}.pb')
-            ff.write_text(f'This is model {ii}')
-            tmp_models.append(ff)
-        self.init_models = tmp_models
+        self.init_models = make_mocked_init_models(self.numb_models)
         
-        tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
-        for ii in tmp_init_data:
-            ii.mkdir(exist_ok=True, parents=True)
-            (ii/'a').write_text('data a')
-            (ii/'b').write_text('data b')
+        tmp_init_data = make_mocked_init_data()
         self.init_data = set(tmp_init_data)
 
         tmp_iter_data = [Path('iter_data/foo'), Path('iter_data/bar')]
@@ -174,7 +170,7 @@ class TestMockedRunDPTrain(unittest.TestCase):
             (ii/'b').write_text('data b')
         self.iter_data = set(tmp_iter_data)
 
-        self.template_script = { 'seed' : 1024, 'data': [] }
+        self.template_script = mocked_template_script.copy()
 
         self.task_names = ['task.0000', 'task.0001', 'task.0002']
         self.task_paths = [Path(ii) for ii in self.task_names]
@@ -204,11 +200,11 @@ class TestMockedRunDPTrain(unittest.TestCase):
                 "iter_data" : self.iter_data,            
             })
             op = run.execute(ip)
-            self.assertEqual(op["script"], Path(f'task.{ii:04d}/input.json'))
+            self.assertEqual(op["script"], Path(train_task_pattern % ii) / 'input.json')
             self.assertTrue(op["script"].is_file())
-            self.assertEqual(op["model"], Path(f'task.{ii:04d}/model.pb'))
-            self.assertEqual(op["log"], Path(f'task.{ii:04d}/log'))
-            self.assertEqual(op["lcurve"], Path(f'task.{ii:04d}/lcurve.out'))
+            self.assertEqual(op["model"], Path(train_task_pattern % ii)/'model.pb')
+            self.assertEqual(op["log"], Path(train_task_pattern % ii)/'log')
+            self.assertEqual(op["lcurve"], Path(train_task_pattern % ii)/'lcurve.out')
             check_run_train_dp_output(
                 self, 
                 self.task_names[ii], 
@@ -221,21 +217,13 @@ class TestMockedRunDPTrain(unittest.TestCase):
 
 class TestTrainDp(unittest.TestCase):
     def setUp (self) :
-        self.numb_models = 3
+        self.numb_models = mocked_numb_models
 
-        tmp_models = []
-        for ii in range(self.numb_models):
-            ff = Path(f'model_{ii}.pb')
-            ff.write_text(f'This is model {ii}')
-            tmp_models.append(ff)
+        tmp_models = make_mocked_init_models(self.numb_models)
         self.init_models = upload_artifact(tmp_models)
         self.str_init_models = tmp_models
         
-        tmp_init_data = [Path('init_data/foo'), Path('init_data/bar')]
-        for ii in tmp_init_data:
-            ii.mkdir(exist_ok=True, parents=True)
-            (ii/'a').write_text('data a')
-            (ii/'b').write_text('data b')
+        tmp_init_data = make_mocked_init_data()
         self.init_data = upload_artifact(tmp_init_data)
         self.path_init_data = set(tmp_init_data)
 
@@ -247,7 +235,7 @@ class TestTrainDp(unittest.TestCase):
         self.iter_data = upload_artifact(tmp_iter_data)
         self.path_iter_data = set(tmp_iter_data)
 
-        self.template_script = { 'seed' : 1024, 'data': [] }
+        self.template_script = mocked_template_script.copy()
 
         self.task_names = ['task.0000', 'task.0001', 'task.0002']
         self.task_paths = [Path(ii) for ii in self.task_names]

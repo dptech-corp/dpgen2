@@ -37,9 +37,21 @@ from dpgen2.op.prep_lmp import PrepLmpTaskGroup
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
 from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from mocked_ops import (
+    mocked_numb_models,
     MockedRunLmp,
 )
-
+from dpgen2.constants import (
+    train_task_pattern,
+    train_script_name,
+    train_log_name,
+    model_name_pattern,
+    lmp_task_pattern,
+    lmp_conf_name,
+    lmp_input_name,
+    lmp_traj_name,
+    lmp_log_name,
+    lmp_model_devi_name,
+)
 
 def make_task_group_list(ngrp, ntask_per_grp):
     tgrp = LmpTaskGroup()
@@ -47,8 +59,8 @@ def make_task_group_list(ngrp, ntask_per_grp):
         for jj in range(ntask_per_grp):
             tt = LmpTask()
             tt\
-                .add_file('conf.lmp', f'group{ii} task{jj} conf')\
-                .add_file('in.lammps', f'group{ii} task{jj} input')
+                .add_file(lmp_conf_name, f'group{ii} task{jj} conf')\
+                .add_file(lmp_input_name, f'group{ii} task{jj} input')
             tgrp.add_task(tt)
     return tgrp
 
@@ -58,11 +70,11 @@ def check_lmp_tasks(tcase, ngrp, ntask_per_grp):
     tdirs = []
     for ii in range(ngrp):
         for jj in range(ntask_per_grp):
-            tdir = f'task.{cc:06d}'
+            tdir = lmp_task_pattern % cc
             tdirs.append(tdir)
             tcase.assertTrue(Path(tdir).is_dir())
-            fconf = Path(tdir)/'conf.lmp'
-            finpt = Path(tdir)/'in.lammps'
+            fconf = Path(tdir)/lmp_conf_name
+            finpt = Path(tdir)/lmp_input_name
             tcase.assertTrue(fconf.is_file())
             tcase.assertTrue(finpt.is_file())
             tcase.assertEqual(fconf.read_text(), f'group{ii} task{jj} conf')
@@ -79,7 +91,7 @@ class TestPrepLmpTaskGroup(unittest.TestCase):
         
     def tearDown(self):
         for ii in range(self.ngrp * self.ntask_per_grp):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(lmp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
 
@@ -103,10 +115,10 @@ class TestMockedRunLmp(unittest.TestCase):
         self.task_list = []
         self.model_list = []
         for ii in range(self.ntask):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(lmp_task_pattern % ii)
             work_path.mkdir(exist_ok=True, parents=True)
-            (work_path/'conf.lmp').write_text(f'conf {ii}')
-            (work_path/'in.lammps').write_text(f'input {ii}')
+            (work_path/lmp_conf_name).write_text(f'conf {ii}')
+            (work_path/lmp_input_name).write_text(f'input {ii}')
             self.task_list.append(work_path)
         for ii in range(self.nmodels):
             model = Path(f'model{ii}.pb')
@@ -121,17 +133,17 @@ class TestMockedRunLmp(unittest.TestCase):
         cwd = os.getcwd()
         os.chdir(task_name)
         fc = []
-        for ii in ['conf.lmp', 'in.lammps'] + [ii.name for ii in models]:
+        for ii in [lmp_conf_name, lmp_input_name] + [ii.name for ii in models]:
             fc.append(Path(ii).read_text())    
-        self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'traj of {task_name}', Path('dump.traj').read_text())
-        self.assertEqual(f'model_devi of {task_name}', Path('model_devi.out').read_text())
+        self.assertEqual(fc, Path(lmp_log_name).read_text().strip().split('\n'))
+        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text())
+        self.assertEqual(f'model_devi of {task_name}', Path(lmp_model_devi_name).read_text())
         os.chdir(cwd)
 
 
     def tearDown(self):
         for ii in range(self.ntask):
-            work_path = Path(f'task.{ii:06d}')
+            work_path = Path(lmp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
         for ii in range(self.nmodels):
@@ -150,9 +162,9 @@ class TestMockedRunLmp(unittest.TestCase):
             })
             op = MockedRunLmp()
             out = op.execute(ip)
-            self.assertEqual(out['log'] , Path(f'task.{ii:06d}')/'log')
-            self.assertEqual(out['traj'] , Path(f'task.{ii:06d}')/'dump.traj')
-            self.assertEqual(out['model_devi'] , Path(f'task.{ii:06d}')/'model_devi.out')
+            self.assertEqual(out['log'] , Path(f'task.{ii:06d}')/lmp_log_name)
+            self.assertEqual(out['traj'] , Path(f'task.{ii:06d}')/lmp_traj_name)
+            self.assertEqual(out['model_devi'] , Path(f'task.{ii:06d}')/lmp_model_devi_name)
             self.assertTrue(out['log'].is_file())
             self.assertTrue(out['traj'].is_file())
             self.assertTrue(out['model_devi'].is_file())
@@ -164,7 +176,7 @@ class TestPrepRunLmp(unittest.TestCase):
         self.ngrp = 2
         self.ntask_per_grp = 3
         self.task_group_list = make_task_group_list(self.ngrp, self.ntask_per_grp)
-        self.nmodels = 3
+        self.nmodels = mocked_numb_models
         self.model_list = []
         for ii in range(self.nmodels):
             model = Path(f'model{ii}.pb')
@@ -198,9 +210,9 @@ class TestPrepRunLmp(unittest.TestCase):
         fc.append(f'group{ii} task{jj} input')
         for ii in [ii.name for ii in models]:
             fc.append((Path('..')/Path(ii)).read_text())    
-        self.assertEqual(fc, Path('log').read_text().strip().split('\n'))
-        self.assertEqual(f'traj of {task_name}', Path('dump.traj').read_text())
-        self.assertEqual(f'model_devi of {task_name}', Path('model_devi.out').read_text())
+        self.assertEqual(fc, Path(lmp_log_name).read_text().strip().split('\n'))
+        self.assertEqual(f'traj of {task_name}', Path(lmp_traj_name).read_text())
+        self.assertEqual(f'model_devi of {task_name}', Path(lmp_model_devi_name).read_text())
         os.chdir(cwd)
 
 
