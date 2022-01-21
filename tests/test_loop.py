@@ -65,12 +65,18 @@ from dpgen2.constants import (
     lmp_input_name,
     lmp_traj_name,
     lmp_log_name,
+    vasp_task_pattern,
+    vasp_conf_name,
+    vasp_input_name,
+    vasp_pot_name,
 )
 from mocked_ops import (
     mocked_template_script,
     mocked_numb_models,
     make_mocked_init_models,
     make_mocked_init_data,
+    mocked_incar_template,
+    mocked_numb_select,
     MockedPrepDPTrain,
     MockedRunDPTrain,    
     MockedRunLmp,
@@ -145,12 +151,12 @@ class TestLoop(unittest.TestCase):
         self.iter_data = upload_artifact([])
         self.path_iter_data = None
         
-        self.template_script = { 'seed' : 1024, 'data': [] }        
+        self.template_script = mocked_template_script
 
         self.conf_filters = []
         self.type_map = []
 
-        self.incar = 'incar template'
+        self.incar = mocked_incar_template
         self.vasp_inputs = VaspInputs(
             self.incar,
             {'foo': 'bar'},
@@ -211,31 +217,45 @@ class TestLoop(unittest.TestCase):
         step = wf.query_step(name='dpgen-step')[0]
         self.assertEqual(step.phase, "Succeeded")        
         
-        report = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
         print(scheduler)
         print(scheduler.get_stage(), scheduler.get_iteration())
         self.assertEqual(scheduler.get_stage(), 2)
-        self.assertEqual(scheduler.get_iteration(), 2)
+        self.assertEqual(scheduler.get_iteration(), 1)
         
-        # we know number of selected data is 2
-        # by MockedConfSelector
-        for ii in range(2):
-            task_name = f'task.{ii:06d}'
+        # # we know number of selected data is 2
+        # # by MockedConfSelector
+        for ii in range(mocked_numb_select):
             self.assertEqual(
-                f'labeled_data of {task_name}',
-                (Path('iter_data')/self.name/('data_'+task_name)/'data').read_text())
-        for ii in ['iter-000000', 'iter-000001']:
-            dname = Path('iter_data')/ii
-            self.assertEqual((dname/'a').read_text(), 'data a')
-            self.assertEqual((dname/'b').read_text(), 'data b')
+                (Path('iter_data')/'iter-000000'/
+                 ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
+                '\n'.join(['labeled_data of '+vasp_task_pattern%ii,
+                           f'select conf.{ii}',
+                           f'mocked conf {ii}',
+                           f'mocked input {ii}',
+                           ]).strip()
+            )
+        for ii in range(mocked_numb_select):
+            self.assertEqual(
+                (Path('iter_data')/'iter-000001'/\
+                 ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
+                '\n'.join(['labeled_data of '+vasp_task_pattern%ii,
+                           f'select conf.{ii}',
+                           f'mocked 1 conf {ii}',
+                           f'mocked 1 input {ii}',
+                           ]).strip()
+            )
+                           
 
         # new model is read from init model
         for ii in range(self.numb_models):
             model = Path('models')/self.name/(train_task_pattern%ii)/'model.pb'
-            flines = model.read_text().strip().split('\n')
-            self.assertEqual(flines[0], "read from init model: ")
-            self.assertEqual(flines[1], f"This is init model {ii}")
+            flines = model.read_text().strip().split('\n')            
+            # two iteratins, to lines of reading
+            self.assertEqual(flines[0], "read from init model: ")            
+            self.assertEqual(flines[1], "read from init model: ")            
+            self.assertEqual(flines[2], f"This is init model {ii}")
 
             

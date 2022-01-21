@@ -109,12 +109,13 @@ class ExplorationScheduler():
         
         if converged:
             self.cur_stage += 1
+            self.stage_reports.append([])
             if self.cur_stage < len(self.stage_schedulers):
                 # goes to next stage
-                self.stage_reports.append([])
                 return self.plan_next_iteration()
             else:
                 # all stages converged
+                # self.iteration += 1
                 return True, None, None,
         else :
             self.iteration += 1
