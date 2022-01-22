@@ -46,9 +46,9 @@ class CollectData(OP):
         })
 ```
 
-The `dflow` requires static type define, i.e. the signitures of an OP, for the input and output variables. The input and output signitures of the `OP` are given by `classmethods` `get_input_sign` and `get_output_sign`. 
+The `dflow` requires static type define, i.e. the signatures of an OP, for the input and output variables. The input and output signatures of the `OP` are given by `classmethods` `get_input_sign` and `get_output_sign`. 
 
-The operator is executed by method `OP.executed`. The inputs and outputs variables are recorded in `dict`s. The keys in the input/output `dict`, and the types of the input/output variables will be checked against their signitures by decorator `OP.exec_sign_check`. If any key or type does not match, exception will be raised.
+The operator is executed by the method `OP.executed`. The inputs and outputs variables are recorded in `dict`s. The keys in the input/output `dict`, and the types of the input/output variables will be checked against their signatures by decorator `OP.exec_sign_check`. If any key or type does not match, an exception will be raised.
 
 The python `OP`s will be wrapped to `dflow` operators (named `Step`) to construct the workflow. An example of wrapping is 
 ```python
