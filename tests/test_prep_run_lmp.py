@@ -33,7 +33,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.op.prep_lmp import PrepLmpTaskGroup
+from dpgen2.op.prep_lmp import PrepLmp
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
 from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from mocked_ops import (
@@ -83,7 +83,7 @@ def check_lmp_tasks(tcase, ngrp, ntask_per_grp):
     return tdirs
 
 
-class TestPrepLmpTaskGroup(unittest.TestCase):
+class TestPrepLmp(unittest.TestCase):
     def setUp(self):
         self.ngrp = 2
         self.ntask_per_grp = 3
@@ -96,7 +96,7 @@ class TestPrepLmpTaskGroup(unittest.TestCase):
                 shutil.rmtree(work_path)
 
     def test(self):
-        op = PrepLmpTaskGroup()
+        op = PrepLmp()
         out = op.execute( OPIO({
             'lmp_task_grp' : self.task_group_list,
         }) )
@@ -219,7 +219,7 @@ class TestPrepRunLmp(unittest.TestCase):
     def test(self):
         steps = prep_run_lmp(
             "prep-run-lmp",
-            PrepLmpTaskGroup,
+            PrepLmp,
             MockedRunLmp,
         )        
         prep_run_step = Step(

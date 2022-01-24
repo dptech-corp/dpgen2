@@ -34,7 +34,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.op.prep_lmp import PrepLmpTaskGroup
+from dpgen2.op.prep_lmp import PrepLmp
 from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
 from dpgen2.flow.prep_run_fp import prep_run_fp
@@ -84,7 +84,7 @@ class TestBlockCL(unittest.TestCase):
         )
         self.prep_run_lmp_op = prep_run_lmp(
             "prep-run-lmp",
-            PrepLmpTaskGroup,
+            PrepLmp,
             MockedRunLmp,
         )
         self.prep_run_fp_op = prep_run_fp(
