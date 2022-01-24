@@ -40,7 +40,6 @@ from dpgen2.op.run_vasp import RunVasp
 from dpgen2.op.collect_data import CollectData
 from dpgen2.op.select_confs import SelectConfs
 from dpgen2.utils.conf_selector import ConfSelector
-from dpgen2.utils.conf_filter import ConfFilter
 from dpgen2.utils.trust_level import TrustLevel
 from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.exploration.report import ExplorationReport
@@ -446,7 +445,6 @@ class MockedConfSelector(ConfSelector):
             self,
             trajs : List[Path],
             model_devis : List[Path],
-            conf_filters : List[ConfFilter] = [],
             traj_fmt : str = 'deepmd/npy',
             type_map : List[str] = None,
     ) -> Tuple[List[ Path ], TrustLevel] :

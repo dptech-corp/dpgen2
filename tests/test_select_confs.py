@@ -43,7 +43,6 @@ from mocked_ops import (
 class TestMockedSelectConfs(unittest.TestCase):
     def setUp(self): 
         self.conf_selector = MockedConfSelector()
-        self.conf_filters = []
         self.traj_fmt = 'foo'
         self.type_map = []
         self.trajs = [Path('traj.foo'), Path('traj.bar')]
@@ -59,7 +58,6 @@ class TestMockedSelectConfs(unittest.TestCase):
         op = MockedSelectConfs()
         out = op.execute(OPIO({
             'conf_selector': self.conf_selector,
-            'conf_filters': self.conf_filters,
             'traj_fmt': self.traj_fmt,
             'type_map' : self.type_map,
             'trajs' : self.trajs,

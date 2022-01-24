@@ -117,7 +117,6 @@ class TestBlockCL(unittest.TestCase):
         self.task_group_list = MockedLmpTaskGroup()
 
         self.conf_selector = MockedConfSelector()
-        self.conf_filters = []
         self.type_map = []
 
         self.incar = mocked_incar_template
@@ -161,7 +160,6 @@ class TestBlockCL(unittest.TestCase):
                 "template_script" : self.template_script,
                 "lmp_task_grp" : self.task_group_list,
                 "conf_selector" : self.conf_selector,
-                "conf_filters" : self.conf_filters,
                 'fp_inputs' : self.vasp_inputs,
             },
             artifacts = {

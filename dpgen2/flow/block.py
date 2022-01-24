@@ -44,7 +44,6 @@ def block_cl(
                 "template_script" : InputParameter(),
                 "lmp_task_grp" : InputParameter(),
                 "conf_selector" : InputParameter(),
-                "conf_filters" : InputParameter(),
                 "fp_inputs" : InputParameter(),
             },
             artifacts={
@@ -104,7 +103,6 @@ def block_cl(
         ),
         parameters={
             "conf_selector": block_steps.inputs.parameters['conf_selector'],
-            "conf_filters": block_steps.inputs.parameters['conf_filters'],
             "type_map": block_steps.inputs.parameters['type_map'],
             "traj_fmt": 'lammps/dump',
         },

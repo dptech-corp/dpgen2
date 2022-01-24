@@ -8,7 +8,6 @@ import os, json
 from typing import Tuple, List, Set
 from pathlib import Path
 from dpgen2.utils.conf_selector import ConfSelector
-from dpgen2.utils.conf_filter import ConfFilter
 from dpgen2.exploration.report import ExplorationReport
 
 class SelectConfs(OP):
@@ -16,7 +15,6 @@ class SelectConfs(OP):
     def get_input_sign(cls):
         return OPIOSign({
             "conf_selector": ConfSelector,
-            "conf_filters": List[ConfFilter],
             "traj_fmt": str,
             "type_map": List[str],
 

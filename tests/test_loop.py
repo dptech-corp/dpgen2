@@ -153,7 +153,6 @@ class TestLoop(unittest.TestCase):
         
         self.template_script = mocked_template_script
 
-        self.conf_filters = []
         self.type_map = []
 
         self.incar = mocked_incar_template
@@ -196,7 +195,6 @@ class TestLoop(unittest.TestCase):
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
-                "conf_filters" : self.conf_filters,
                 'fp_inputs' : self.vasp_inputs,
                 "exploration_scheduler" : self.scheduler,
             },
