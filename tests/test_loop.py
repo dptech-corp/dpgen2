@@ -84,7 +84,6 @@ from mocked_ops import (
     MockedRunVasp,
     MockedSelectConfs,
     MockedConfSelector,
-    MockedExplorationReport,
     MockedCollectData,
     MockedExplorationReport,
     MockedLmpTaskGroup,
