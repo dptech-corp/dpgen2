@@ -9,24 +9,13 @@ from typing import Tuple, List, Set
 from pathlib import Path
 
 class RunDPTrain(OP):
-    r"""Train and freeze one DP model. 
+    r"""Execute a DP training task. Train and freeze a DP model. 
 
     A working directory named `task_name` is created. All input files
-    are copied or symbol linked to `task_name`, and the DeePMD-kit
-    training and freezing tasks are exectuted from `task_name`.
+    are copied or symbol linked to directory `task_name`. The
+    DeePMD-kit training and freezing commands are exectuted from
+    directory `task_name`.
 
-    Inputs of the OP:
-    - `task_name`: The name of training task.
-    - `task_path`: The path that contains all input files prepareed by `PrepDPTrain`.
-    - `init_model`: A frozen model to initialize the training.
-    - `init_data`: Initial training data.
-    - `iter_data`: Training data generated in the DPGEN iterations.
-
-    Outputs of the OP:
-    - `script`: The training script.
-    - `model`: The trained frozen model.
-    - `lcurve`: The learning curve file.
-    - `log`: The log file of training.
     """
 
     @classmethod
@@ -53,5 +42,36 @@ class RunDPTrain(OP):
             self,
             ip : OPIO,
     ) -> OPIO:
+        r"""Execute the OP.
+
+        Parameters
+        ----------
+        ip["task_name"] : str
+                The name of training task.
+        ip["task_path"] : Artifact(Path)
+                The path that contains all input files prepareed by `PrepDPTrain`.
+        ip["init_model"] : Artifact(Path)
+                A frozen model to initialize the training.
+        ip["init_data"] : Artifact(set[Path])
+                Initial training data.
+        ip["iter_data"] : Artifact(set[Path])
+                Training data generated in the DPGEN iterations.
+
+        Returns
+        -------
+        op["script"]: Artifact(Path)
+                The training script.
+        op["model"]: Artifact(Path)
+                The trained frozen model.
+        op["lcurve"]: Artifact(Path)
+                The learning curve file.
+        op["log"]: Artifact(Path)
+                The log file of training.
+        
+        Exceptions
+        ----------
+        FatalError
+                On the failure of training or freezing. Human intervention needed.
+        """
         raise NotImplementedError
 
