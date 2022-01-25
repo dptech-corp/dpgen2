@@ -46,32 +46,28 @@ class RunDPTrain(OP):
 
         Parameters
         ----------
-        ip["task_name"] : str
-                The name of training task.
-        ip["task_path"] : Artifact(Path)
-                The path that contains all input files prepareed by `PrepDPTrain`.
-        ip["init_model"] : Artifact(Path)
-                A frozen model to initialize the training.
-        ip["init_data"] : Artifact(set[Path])
-                Initial training data.
-        ip["iter_data"] : Artifact(set[Path])
-                Training data generated in the DPGEN iterations.
+        ip : dict
+            Input dict with components:
+        
+            - `task_name`: (`str`) The name of training task.
+            - `task_path`: (`Artifact(Path)`) The path that contains all input files prepareed by `PrepDPTrain`.
+            - `init_model`: (`Artifact(Path)`) A frozen model to initialize the training.
+            - `init_data`: (`Artifact(set[Path])`) Initial training data.
+            - `iter_data`: (`Artifact(set[Path])`) Training data generated in the DPGEN iterations.
 
         Returns
         -------
-        op["script"]: Artifact(Path)
-                The training script.
-        op["model"]: Artifact(Path)
-                The trained frozen model.
-        op["lcurve"]: Artifact(Path)
-                The learning curve file.
-        op["log"]: Artifact(Path)
-                The log file of training.
+            Output dict with components:
+        
+            - `script`: (`Artifact(Path)`) The training script.
+            - `model`: (`Artifact(Path)`) The trained frozen model.
+            - `lcurve`: (`Artifact(Path)`) The learning curve file.
+            - `log`: (`Artifact(Path)`) The log file of training.
         
         Exceptions
         ----------
         FatalError
-                On the failure of training or freezing. Human intervention needed.
+            On the failure of training or freezing. Human intervention needed.
         """
         raise NotImplementedError
 

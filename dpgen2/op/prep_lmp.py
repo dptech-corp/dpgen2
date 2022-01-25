@@ -40,16 +40,20 @@ class PrepLmp(OP):
 
         Parameters
         ----------
-        ip["lmp_task_grp"] : LmpTaskGroup
-                Definitions for LAMMPS tasks
+        ip : dict
+            Input dict with components:
+
+            - `lmp_task_grp` : (`LmpTaskGroup`) Definitions for LAMMPS tasks
         
         Returns
         -------
-        op["task_names"]: List[str]
-                The name of tasks. Will be used as the identities of the tasks. The names of different tasks are different.
-        op["task_paths"]: Artifact(List[Path])
-                The parepared working paths of the tasks. The order fo the Paths should be consistent with `op["task_names"]`
+        op : dict 
+            Output dict with components:
+
+            - `task_names`: (`List[str]`) The name of tasks. Will be used as the identities of the tasks. The names of different tasks are different.
+            - `task_paths`: (`Artifact(List[Path])`) The parepared working paths of the tasks. Contains all input files needed to start the LAMMPS simulation. The order fo the Paths should be consistent with `op["task_names"]`
         """
+
         lmp_task_grp = ip['lmp_task_grp']
         cc = 0
         task_paths = []

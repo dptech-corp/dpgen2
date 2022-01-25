@@ -36,17 +36,19 @@ class PrepDPTrain(OP):
 
         Parameters
         ----------
-        ip["template_script"]: dict
-                A template of the training script.
-        ip["numb_models"]: int
-                Number of DP models to train.
+        ip : dict
+            Input dict with components:
+
+            - `template_script`: (`str`) A template of the training script.
+            - `numb_models`: (`int`) Number of DP models to train.
         
         Returns
         -------
-        op["task_names"]: List[str]
-                The name of tasks. Will be used as the identities of the tasks. The names of different tasks are different.
-        op["task_paths"]: Artifact(List[Path])
-                The parepared working paths of the tasks. The order fo the Paths should be consistent with `op["task_names"]`
+        op : dict
+            Output dict with components:
+
+            - `task_names`: (`List[str]`) The name of tasks. Will be used as the identities of the tasks. The names of different tasks are different.
+            - `task_paths`: (`Artifact(List[Path])`) The parepared working paths of the tasks. The order fo the Paths should be consistent with `op["task_names"]`
         """
         raise NotImplementedError
     
