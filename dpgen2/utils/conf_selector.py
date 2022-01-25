@@ -15,7 +15,7 @@ class ConfSelector(ABC):
             model_devis : List[Path],
             traj_fmt : str = 'deepmd/npy',
             type_map : List[str] = None,
-    ) -> Tuple[List[ Path ], TrustLevel, ExplorationReport]:
+    ) -> Tuple[List[ Path ], ExplorationReport]:
         pass
 
 
@@ -34,5 +34,5 @@ class TrustLevelConfSelector(ConfSelector):
             model_devis : List[Path],
             traj_fmt : str = 'deepmd/npy',
             type_map : List[str] = None,
-    ) -> Tuple[List[ Path ], TrustLevel, ExplorationReport]:
+    ) -> Tuple[List[ Path ], ExplorationReport]:
         raise NotImplementedError

@@ -469,8 +469,7 @@ class MockedConfSelector(ConfSelector):
             fname.write_text('conf of conf.1')
             confs.append(fname)
         report = MockedExplorationReport()
-        return confs, self.trust_level, report
-
+        return confs, report
 
 class MockedSelectConfs(SelectConfs):
     @OP.exec_sign_check
@@ -481,7 +480,7 @@ class MockedSelectConfs(SelectConfs):
         conf_selector = ip['conf_selector']
         trajs = ip['trajs']
         model_devis = ip['model_devis']
-        confs, _, report = conf_selector.select(trajs, model_devis)
+        confs, report = conf_selector.select(trajs, model_devis)
 
         # get lmp output. check if all trajs and model devis are files
         if len(trajs) == mocked_numb_lmp_tasks:
