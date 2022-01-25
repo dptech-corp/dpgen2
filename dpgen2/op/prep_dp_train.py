@@ -10,7 +10,13 @@ from typing import Tuple, List
 from pathlib import Path
 
 class PrepDPTrain(OP):
-    r"""Prepares the training scripts for DP training tasks.
+    r"""Prepares the working directories for DP training tasks.
+
+    A list of (`numb_models`) working directories containing all files
+    needed to start training tasks will be created. The paths of the
+    directories will be returned as `op["task_paths"]`. The identities
+    of the tasks are returned as `op["task_names"]`.
+
     """
 
     @classmethod
@@ -32,7 +38,7 @@ class PrepDPTrain(OP):
             self,
             ip : OPIO,
     ) -> OPIO:
-        r"""Execute the OP.
+        r"""Execute the OP. 
 
         Parameters
         ----------
@@ -49,6 +55,7 @@ class PrepDPTrain(OP):
 
             - `task_names`: (`List[str]`) The name of tasks. Will be used as the identities of the tasks. The names of different tasks are different.
             - `task_paths`: (`Artifact(List[Path])`) The parepared working paths of the tasks. The order fo the Paths should be consistent with `op["task_names"]`
+
         """
         raise NotImplementedError
     

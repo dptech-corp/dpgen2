@@ -14,7 +14,13 @@ from dpgen2.constants import (
 )
 
 class PrepLmp(OP):
-    r"""Prepare configuration files, input scripts for LAMMPS tasks.
+    r"""Prepare the working directories for LAMMPS tasks.
+
+    A list of working directories (defined by `ip["lmp_task_group"]`)
+    containing all files needed to start LAMMPS tasks will be
+    created. The paths of the directories will be returned as
+    `op["task_paths"]`. The identities of the tasks are returned as
+    `op["task_names"]`.
 
     """
 
