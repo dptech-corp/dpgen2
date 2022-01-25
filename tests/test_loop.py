@@ -186,6 +186,16 @@ class TestLoop(unittest.TestCase):
         self._setUp_ops()
         self._setUp_data()
 
+    def tearDown(self):
+        for ii in ['init_data', 'iter_data', 'models']:
+            ii = Path(ii)
+            if ii.is_dir():
+                shutil.rmtree(ii)            
+        for ii in range(self.numb_models):
+            name = Path(model_name_pattern % ii)
+            if name.is_file():
+                os.remove(name)
+
     def test(self):
         dpgen_step = Step(
             'dpgen-step', 
