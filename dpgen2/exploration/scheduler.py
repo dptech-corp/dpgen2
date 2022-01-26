@@ -24,7 +24,7 @@ class StageScheduler(ABC):
     @abstractmethod
     def plan_next_iteration(
             self,
-            hist_reports : List[ExplorationReport] = [],
+            hist_reports : List[ExplorationReport],
             report : ExplorationReport,
             confs : List[Path],
     ) -> Tuple[bool, LmpTaskGroup, ConfSelector] :
