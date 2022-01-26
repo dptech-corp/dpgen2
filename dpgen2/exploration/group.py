@@ -23,6 +23,9 @@ class ExplorationGroup(ABC):
     def make_lmp_task_group(
             self,
     )->LmpTaskGroup:
+        """
+        Make the LAMMPS task group.
+        """
         pass
 
 class CPTGroup(ExplorationGroup):
@@ -34,7 +37,7 @@ class CPTGroup(ExplorationGroup):
 
     def set_conf(
             self,
-            conf_list : str,
+            conf_list : List[str],
             n_sample : int = None,
             random_sample : bool = False,
     ):
@@ -109,6 +112,17 @@ class CPTGroup(ExplorationGroup):
     def make_lmp_task_group(
             self,
     )->LmpTaskGroup:
+        """
+        Make the LAMMPS task group.
+        
+        Returns
+        -------
+        task_grp: LmpTaskGroup
+            The returned lammps task group. The number of tasks is nconf*nT*nP.
+            nconf is set by `n_sample` parameter of `set_conf`. 
+            nT and nP are lengths of the `temps` and `press` parameters of `set_md`.
+
+        """
         if not self.conf_set:
             raise RuntimeError('confs are not set')
         if not self.md_set:
