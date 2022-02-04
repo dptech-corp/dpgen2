@@ -357,12 +357,12 @@ class MockedCollectData(CollectData):
         labeled_data = ip['labeled_data']
         iter_data = ip['iter_data']
 
-        new_iter_data = set()
+        new_iter_data = []
         # copy iter_data
         for ii in iter_data:
             iiname = ii.name
             shutil.copytree(ii, iiname)
-            new_iter_data.add(Path(iiname))
+            new_iter_data.append(Path(iiname))
 
         # collect labled data
         name = Path(name)
@@ -371,7 +371,7 @@ class MockedCollectData(CollectData):
         for ii in labeled_data:
             iiname = ii.name
             shutil.copytree(ii, name/iiname)
-        new_iter_data.add(name)
+        new_iter_data.append(name)
         
         return OPIO({
             "iter_data" : new_iter_data,

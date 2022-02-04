@@ -41,8 +41,8 @@ from mocked_ops import (
 
 class TestMockedCollectData(unittest.TestCase):
     def setUp(self): 
-        self.iter_data = set(('foo/iter0', 'bar/iter1'))
-        self.iter_data = set([Path(ii) for ii in self.iter_data])
+        self.iter_data = ['foo/iter0', 'bar/iter1']
+        self.iter_data = [Path(ii) for ii in self.iter_data]
         self.name = 'outdata'
         self.labeled_data = ['d0', 'd1']
         self.labeled_data = [Path(ii) for ii in self.labeled_data]

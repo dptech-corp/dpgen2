@@ -25,7 +25,7 @@ class RunDPTrain(OP):
             "task_path" : Artifact(Path),
             "init_model" : Artifact(Path),
             "init_data" : Artifact(Set[Path]),
-            "iter_data" : Artifact(Set[Path]),
+            "iter_data" : Artifact(List[Path]),
         })
     
     @classmethod
@@ -53,7 +53,7 @@ class RunDPTrain(OP):
             - `task_path`: (`Artifact(Path)`) The path that contains all input files prepareed by `PrepDPTrain`.
             - `init_model`: (`Artifact(Path)`) A frozen model to initialize the training.
             - `init_data`: (`Artifact(set[Path])`) Initial training data.
-            - `iter_data`: (`Artifact(set[Path])`) Training data generated in the DPGEN iterations.
+            - `iter_data`: (`Artifact(List[Path])`) Training data generated in the DPGEN iterations.
 
         Returns
         -------

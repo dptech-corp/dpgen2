@@ -168,7 +168,7 @@ class TestMockedRunDPTrain(unittest.TestCase):
             ii.mkdir(exist_ok=True, parents=True)
             (ii/'a').write_text('data a')
             (ii/'b').write_text('data b')
-        self.iter_data = set(tmp_iter_data)
+        self.iter_data = tmp_iter_data
 
         self.template_script = mocked_template_script.copy()
 
@@ -225,7 +225,7 @@ class TestTrainDp(unittest.TestCase):
         
         tmp_init_data = make_mocked_init_data()
         self.init_data = upload_artifact(tmp_init_data)
-        self.path_init_data = set(tmp_init_data)
+        self.path_init_data = tmp_init_data
 
         tmp_iter_data = [Path('iter_data/foo'), Path('iter_data/bar')]
         for ii in tmp_iter_data:
