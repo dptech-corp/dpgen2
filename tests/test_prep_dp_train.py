@@ -1,6 +1,6 @@
 import context
 import numpy as np
-import unittest, json
+import unittest, json, shutil
 from mock import mock
 
 from dflow.python import (
@@ -74,31 +74,36 @@ class faked_rg():
 
 class TestPrepDPTrain(unittest.TestCase):
     def setUp(self):
+        self.numb_models = 2
         self.ptrain = PrepDPTrain()
+
+    def tearDown(self):
+        for ii in range(self.numb_models):
+            if Path(train_task_pattern % ii).exists():
+                shutil.rmtree(train_task_pattern % ii)
 
     def _check_output_dir_and_file_exist(self, op, numb_models):
         task_names = op['task_names']
         task_paths = op['task_paths']
-        for ii in range(numb_models):
+        for ii in range(self.numb_models):
             self.assertEqual(train_task_pattern % ii, task_names[ii])
             self.assertEqual(Path(train_task_pattern % ii), task_paths[ii])
             self.assertTrue(task_paths[ii].is_dir())
             self.assertTrue((task_paths[ii] / train_script_name).is_file())
 
     def test_template_str_hybrid(self):
-        numb_models = 2
         ip = OPIO({
             "template_script" : template_script_hybrid,
-            "numb_models" : numb_models
+            "numb_models" : self.numb_models
         })
 
         faked_rg.faked_random = -1
         with mock.patch('random.randrange', faked_rg.randrange):
             op = self.ptrain.execute(ip)
         
-        self._check_output_dir_and_file_exist(op, numb_models)
+        self._check_output_dir_and_file_exist(op, self.numb_models)
         
-        for ii in range(numb_models):
+        for ii in range(self.numb_models):
             with open(Path(train_task_pattern % ii)/train_script_name) as fp:
                 jdata = json.load(fp)
                 self.assertEqual(jdata['model']['descriptor']['list'][0]['seed'], 4*ii+0)
@@ -107,19 +112,19 @@ class TestPrepDPTrain(unittest.TestCase):
                 self.assertEqual(jdata['training']['seed'], 4*ii+3)
         
     def test_template_str_se_e2_a(self):
-        numb_models = 2
+        
         ip = OPIO({
             "template_script" : template_script_se_e2_a,
-            "numb_models" : numb_models
+            "numb_models" : self.numb_models
         })
 
         faked_rg.faked_random = -1
         with mock.patch('random.randrange', faked_rg.randrange):
             op = self.ptrain.execute(ip)
         
-        self._check_output_dir_and_file_exist(op, numb_models)
+        self._check_output_dir_and_file_exist(op, self.numb_models)
         
-        for ii in range(numb_models):
+        for ii in range(self.numb_models):
             with open(Path(train_task_pattern % ii)/train_script_name) as fp:
                 jdata = json.load(fp)
                 self.assertEqual(jdata['model']['descriptor']['seed'], 3*ii+0)
@@ -128,17 +133,17 @@ class TestPrepDPTrain(unittest.TestCase):
 
 
     def test_template_list_hyb_sea(self):
-        numb_models = 2
+        
         ip = OPIO({
             "template_script" : [template_script_hybrid, template_script_se_e2_a],
-            "numb_models" : numb_models
+            "numb_models" : self.numb_models
         })
 
         faked_rg.faked_random = -1
         with mock.patch('random.randrange', faked_rg.randrange):
             op = self.ptrain.execute(ip)
         
-        self._check_output_dir_and_file_exist(op, numb_models)
+        self._check_output_dir_and_file_exist(op, self.numb_models)
         
         ii = 0
         with open(Path(train_task_pattern % ii)/train_script_name) as fp:
@@ -156,10 +161,10 @@ class TestPrepDPTrain(unittest.TestCase):
         
 
     def test_template_raise_wrong_list_length(self):
-        numb_models = 2
+        
         ip = OPIO({
             "template_script" : [template_script_hybrid, template_script_hybrid, template_script_se_e2_a],
-            "numb_models" : numb_models
+            "numb_models" : self.numb_models
         })
 
         with self.assertRaises(RuntimeError) as context:
