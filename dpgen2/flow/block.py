@@ -42,6 +42,7 @@ def block_cl(
                 "type_map" : InputParameter(),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
+                "train_config" : InputParameter(),
                 "lmp_task_grp" : InputParameter(),
                 "conf_selector" : InputParameter(),
                 "fp_inputs" : InputParameter(),
@@ -68,6 +69,7 @@ def block_cl(
         name + '-prep-run-dp-train',
         template = prep_run_dp_train_op,
         parameters={
+            "train_config" : block_steps.inputs.parameters['train_config'],
             "numb_models": block_steps.inputs.parameters['numb_models'],
             "template_script": block_steps.inputs.parameters['template_script'],
         },

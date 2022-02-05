@@ -158,6 +158,7 @@ class TestBlockCL(unittest.TestCase):
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
+                "train_config" : {},
                 "lmp_task_grp" : self.task_group_list,
                 "conf_selector" : self.conf_selector,
                 'fp_inputs' : self.vasp_inputs,

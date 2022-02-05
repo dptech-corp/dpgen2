@@ -161,7 +161,7 @@ class TestMockedRunDPTrain(unittest.TestCase):
         self.init_models = make_mocked_init_models(self.numb_models)
         
         tmp_init_data = make_mocked_init_data()
-        self.init_data = set(tmp_init_data)
+        self.init_data = tmp_init_data
 
         tmp_iter_data = [Path('iter_data/foo'), Path('iter_data/bar')]
         for ii in tmp_iter_data:
@@ -193,6 +193,7 @@ class TestMockedRunDPTrain(unittest.TestCase):
         for ii in range(3):
             run = MockedRunDPTrain()
             ip = OPIO({
+                "config" : {},
                 "task_name": self.task_names[ii],
                 "task_path": self.task_paths[ii],
                 "init_model" : self.init_models[ii],
@@ -233,7 +234,7 @@ class TestTrainDp(unittest.TestCase):
             (ii/'a').write_text('data a')
             (ii/'b').write_text('data b')
         self.iter_data = upload_artifact(tmp_iter_data)
-        self.path_iter_data = set(tmp_iter_data)
+        self.path_iter_data = tmp_iter_data
 
         self.template_script = mocked_template_script.copy()
 
@@ -267,6 +268,7 @@ class TestTrainDp(unittest.TestCase):
             parameters = {
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
+                "train_config" : {},
             },
             artifacts = {
                 "init_models" : self.init_models,

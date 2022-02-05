@@ -145,7 +145,7 @@ class TestLoop(unittest.TestCase):
             (ii/'a').write_text('data a')
             (ii/'b').write_text('data b')
         self.init_data = upload_artifact(tmp_init_data)
-        self.path_init_data = set(tmp_init_data)
+        self.path_init_data = tmp_init_data
         
         self.iter_data = upload_artifact([])
         self.path_iter_data = None
@@ -204,6 +204,7 @@ class TestLoop(unittest.TestCase):
                 "type_map" : self.type_map,
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
+                "train_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "exploration_scheduler" : self.scheduler,
             },
@@ -227,8 +228,6 @@ class TestLoop(unittest.TestCase):
         scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        print(scheduler)
-        print(scheduler.get_stage(), scheduler.get_iteration())
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
