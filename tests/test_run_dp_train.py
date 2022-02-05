@@ -169,9 +169,10 @@ class TestRunDPTrain(unittest.TestCase):
 
         self.old_data_size = self.init_nframs_0 + self.init_nframs_1 + sum(self.nframes_0)
         self.task_name = 'task-000'
+        self.task_path = 'input-000'
 
     def tearDown(self):
-        for ii in ['init', 'data-000', 'data-001', self.task_name ]:
+        for ii in ['init', 'data-0', 'data-1', self.task_path, self.task_name ]:
             if Path(ii).exists():
                 shutil.rmtree(str(ii))
 
@@ -278,7 +279,7 @@ class TestRunDPTrain(unittest.TestCase):
         config = self.config.copy()
         config['init_model_policy'] = 'no'
 
-        task_path = "input-000"
+        task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
             json.dump(idict_v1, fp, indent=4)
@@ -322,7 +323,7 @@ class TestRunDPTrain(unittest.TestCase):
         config = self.config.copy()
         config['init_model_policy'] = 'no'
 
-        task_path = "input-000"
+        task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
             json.dump(idict_v2, fp, indent=4)
@@ -366,7 +367,7 @@ class TestRunDPTrain(unittest.TestCase):
         config = self.config.copy()
         config['init_model_policy'] = 'yes'
 
-        task_path = "input-000"
+        task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
             json.dump(idict_v2, fp, indent=4)
@@ -410,7 +411,7 @@ class TestRunDPTrain(unittest.TestCase):
         config = self.config.copy()
         config['init_model_policy'] = 'no'
 
-        task_path = "input-000"
+        task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
             json.dump(idict_v2, fp, indent=4)
@@ -448,7 +449,7 @@ class TestRunDPTrain(unittest.TestCase):
         config = self.config.copy()
         config['init_model_policy'] = 'no'
 
-        task_path = "input-000"
+        task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
             json.dump(idict_v2, fp, indent=4)
