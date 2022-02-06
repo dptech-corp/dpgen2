@@ -1,6 +1,7 @@
 import os, json, dpdata, glob
 from pathlib import Path
 from dpgen2.utils.run_command import run_command
+from dpgen2.utils.chdir import chdir
 from dflow.python import (
     OP,
     OPIO,
@@ -56,6 +57,7 @@ class RunDPTrain(OP):
         })
 
     @OP.exec_sign_check
+    @chdir("task_name")
     def execute(
             self,
             ip : OPIO,
@@ -123,16 +125,10 @@ class RunDPTrain(OP):
         train_dict = RunDPTrain.write_other_to_input_script(
             train_dict, config, do_init_model, major_version)        
 
-        # mkdir output dir
-        work_dir = Path(task_name)
-        cwd = os.getcwd()
-        work_dir.mkdir(exist_ok=True, parents=True)
-        os.chdir(work_dir)
         # open log
         fplog = open('train.log', 'w')
         def clean_before_quit():
             fplog.close()
-            os.chdir(cwd)
 
         # dump train script
         with open(train_script_name, 'w') as fp:
