@@ -33,6 +33,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
+from context import upload_python_package
 from dpgen2.flow.prep_run_fp import prep_run_fp
 from mocked_ops import (
     mocked_incar_template,
@@ -185,7 +186,8 @@ class TestPrepRunVasp(unittest.TestCase):
             "prep-run-vasp",
             MockedPrepVasp,
             MockedRunVasp,
-        )        
+            upload_python_package = upload_python_package,
+        )
         prep_run_step = Step(
             'prep-run-step', 
             template = steps,

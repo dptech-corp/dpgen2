@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import unittest, dpdata
-import context
+from exploration.context import dpgen2
 from dpgen2.utils.conf_filter import ConfFilter, ConfFilters
 
 class OKFilter(ConfFilter):

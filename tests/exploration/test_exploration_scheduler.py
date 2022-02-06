@@ -5,7 +5,7 @@ import unittest
 from typing import Set, List
 from pathlib import Path
 try:
-    from context import dpgen2
+    from exploration.context import dpgen2
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass

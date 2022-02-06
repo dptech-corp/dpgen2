@@ -33,6 +33,7 @@ def block_cl(
         select_confs_op : OP,
         prep_run_fp_op : OP,
         collect_data_op : OP,
+        upload_python_package : str = None,
 ):
     block_steps = Steps(
         name = name,
@@ -104,7 +105,7 @@ def block_cl(
             output_artifact_archive={
                 "confs": None
             },
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "conf_selector": block_steps.inputs.parameters['conf_selector'],
@@ -139,7 +140,7 @@ def block_cl(
             output_artifact_archive={
                 "iter_data": None
             },
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "name": block_steps.inputs.parameters["block_id"],

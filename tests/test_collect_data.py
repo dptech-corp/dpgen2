@@ -34,6 +34,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
+from context import upload_python_package
 from mocked_ops import (
     MockedCollectData,
 )
@@ -113,7 +114,7 @@ class TestMockedCollectDataArgo(unittest.TestCase):
                 output_artifact_archive={
                     "iter_data" : None,
                 },
-                python_packages = '../dpgen2',
+                python_packages = upload_python_package,
             ),
             parameters = {
                 "name" : self.name,

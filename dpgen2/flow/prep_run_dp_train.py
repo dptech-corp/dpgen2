@@ -31,6 +31,7 @@ def prep_run_dp_train(
         run_train_op : OP,
         prep_train_image : str = "dflow:v1.0",
         run_train_image : str = "dflow:v1.0",
+        upload_python_package : str = None,
 ):
     train_steps = Steps(
         name=name,
@@ -63,7 +64,7 @@ def prep_run_dp_train(
             output_artifact_archive={
                 "task_paths": None
             },
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "numb_models": train_steps.inputs.parameters['numb_models'],
@@ -85,7 +86,7 @@ def prep_run_dp_train(
                 input_artifact = ["task_path", "init_model"],
                 output_artifact = ["model", "lcurve", "log", "script"],
             ),
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "config" : train_steps.inputs.parameters["train_config"],

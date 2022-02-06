@@ -34,6 +34,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
+from context import upload_python_package
 from dpgen2.op.prep_lmp import PrepLmp
 from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
@@ -81,16 +82,19 @@ class TestBlockCL(unittest.TestCase):
             "prep-run-dp-train",
             MockedPrepDPTrain,
             MockedRunDPTrain,
+            upload_python_package = upload_python_package,
         )
         self.prep_run_lmp_op = prep_run_lmp(
             "prep-run-lmp",
             PrepLmp,
             MockedRunLmp,
+            upload_python_package = upload_python_package,
         )
         self.prep_run_fp_op = prep_run_fp(
             "prep-run-fp",
             MockedPrepVasp,
             MockedRunVasp,
+            upload_python_package = upload_python_package,
         )
 
     def _setUp_data(self):
@@ -137,6 +141,7 @@ class TestBlockCL(unittest.TestCase):
             MockedSelectConfs,
             self.prep_run_fp_op,
             MockedCollectData,
+            upload_python_package = upload_python_package,
         )        
 
     def tearDown(self):

@@ -31,6 +31,7 @@ def prep_run_fp(
         name : str,
         prep_op : OP,
         run_op : OP,
+        upload_python_package : str = None,
 ):
     prep_run_steps = Steps(
         name=name,
@@ -61,7 +62,7 @@ def prep_run_fp(
             output_artifact_archive={
                 "task_paths": None
             },
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "inputs": prep_run_steps.inputs.parameters['inputs'],
@@ -83,7 +84,7 @@ def prep_run_fp(
                 input_artifact = ["task_path"],
                 output_artifact = ["log", "labeled_data"],
             ),
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "task_name" : prep_fp.outputs.parameters["task_names"],

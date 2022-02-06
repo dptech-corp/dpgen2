@@ -104,6 +104,7 @@ class MakeBlockId(OP):
 def loop (
         name : str,
         block_op : OP,
+        upload_python_package : str = None,
 ):
     steps = Steps(
         name = name,
@@ -169,7 +170,7 @@ def loop (
         template=PythonOPTemplate(
             SchedulerWrapper,
             image="dflow:v1.0",
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "exploration_scheduler": steps.inputs.parameters['exploration_scheduler'],
@@ -186,7 +187,7 @@ def loop (
         template=PythonOPTemplate(
             MakeBlockId,
             image="dflow:v1.0",
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "exploration_scheduler": scheduler_step.outputs.parameters['exploration_scheduler'],
@@ -246,6 +247,7 @@ def loop (
 def dpgen(
         name,
         loop_op,
+        upload_python_package : str = None
 ):    
     steps = Steps(
         name = name,
@@ -282,7 +284,7 @@ def dpgen(
         template=PythonOPTemplate(
             SchedulerWrapper,
             image="dflow:v1.0",
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "exploration_scheduler": steps.inputs.parameters['exploration_scheduler'],
@@ -299,7 +301,7 @@ def dpgen(
         template=PythonOPTemplate(
             MakeBlockId,
             image="dflow:v1.0",
-            python_packages = "..//dpgen2",
+            python_packages = upload_python_package,
         ),
         parameters={
             "exploration_scheduler": scheduler_step.outputs.parameters['exploration_scheduler'],

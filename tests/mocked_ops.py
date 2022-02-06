@@ -12,7 +12,7 @@ import os, json, shutil, re
 from pathlib import Path
 from typing import Tuple, List
 try:
-    from context import dpgen2
+    from flow.context import dpgen2
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass

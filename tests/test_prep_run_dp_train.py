@@ -33,6 +33,7 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
+from context import upload_python_package
 from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
 from dpgen2.constants import train_task_pattern
 from mocked_ops import (
@@ -261,6 +262,7 @@ class TestTrainDp(unittest.TestCase):
             "train-steps",
             MockedPrepDPTrain,
             MockedRunDPTrain,
+            upload_python_package = upload_python_package,
         )
         train_step = Step(
             'train-step', 
