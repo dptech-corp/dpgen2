@@ -1,7 +1,7 @@
 import os, json, dpdata, glob
 from pathlib import Path
 from dpgen2.utils.run_command import run_command
-from dpgen2.utils.chdir import chdir
+from dpgen2.utils.chdir import set_directory
 from dflow.python import (
     OP,
     OPIO,
@@ -57,7 +57,6 @@ class RunDPTrain(OP):
         })
 
     @OP.exec_sign_check
-    @chdir("task_name")
     def execute(
             self,
             ip : OPIO,
@@ -100,6 +99,7 @@ class RunDPTrain(OP):
         iter_data_old_exp = _expand_all_multi_sys_to_sys(iter_data[:-1])
         iter_data_new_exp = _expand_all_multi_sys_to_sys(iter_data[-1:])
         iter_data_exp = iter_data_old_exp + iter_data_new_exp
+        work_dir = Path(task_name)
 
         # update the input script
         input_script = Path(task_path)/train_script_name
@@ -125,34 +125,35 @@ class RunDPTrain(OP):
         train_dict = RunDPTrain.write_other_to_input_script(
             train_dict, config, do_init_model, major_version)        
 
-        # open log
-        fplog = open('train.log', 'w')
-        def clean_before_quit():
-            fplog.close()
+        with set_directory(work_dir):
+            # open log
+            fplog = open('train.log', 'w')
+            def clean_before_quit():
+                fplog.close()
 
-        # dump train script
-        with open(train_script_name, 'w') as fp:
-            json.dump(train_dict, fp, indent=4)
+            # dump train script
+            with open(train_script_name, 'w') as fp:
+                json.dump(train_dict, fp, indent=4)
 
-        # train model
-        if do_init_model:
-            command = ['dp', 'train', '--init-frz-model', str(init_model), train_script_name]
-        else:
-            command = ['dp', 'train', train_script_name]
-        ret, out, err = run_command(command)
-        if ret != 0:
+            # train model
+            if do_init_model:
+                command = ['dp', 'train', '--init-frz-model', str(init_model), train_script_name]
+            else:
+                command = ['dp', 'train', train_script_name]
+            ret, out, err = run_command(command)
+            if ret != 0:
+                clean_before_quit()
+                raise FatalError('dp train failed')
+            fplog.write(out)
+
+            # freeze model
+            ret, out, err = run_command(['dp', 'freeze', '-o', 'frozen_model.pb'])
+            if ret != 0:
+                clean_before_quit()
+                raise FatalError('dp freeze failed')
+            fplog.write(out)
+
             clean_before_quit()
-            raise FatalError('dp train failed')
-        fplog.write(out)
-
-        # freeze model
-        ret, out, err = run_command(['dp', 'freeze', '-o', 'frozen_model.pb'])
-        if ret != 0:
-            clean_before_quit()
-            raise FatalError('dp freeze failed')
-        fplog.write(out)
-
-        clean_before_quit()
         
         return OPIO({
             "script" : work_dir / train_script_name,
