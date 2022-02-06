@@ -40,7 +40,7 @@ from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
 from dpgen2.flow.prep_run_fp import prep_run_fp
 from dpgen2.flow.block import block_cl
-from dpgen2.exploration.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 
 from mock import patch
@@ -72,7 +72,7 @@ from mocked_ops import (
     MockedConfSelector,
     MockedExplorationReport,
     MockedCollectData,
-    MockedLmpTaskGroup,
+    MockedExplorationTaskGroup,
 )
 
 
@@ -118,7 +118,7 @@ class TestBlockCL(unittest.TestCase):
         
         self.template_script = mocked_template_script
         
-        self.task_group_list = MockedLmpTaskGroup()
+        self.task_group_list = MockedExplorationTaskGroup()
 
         self.conf_selector = MockedConfSelector()
         self.type_map = []

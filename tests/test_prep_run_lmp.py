@@ -36,7 +36,7 @@ except ModuleNotFoundError:
 from context import upload_python_package
 from dpgen2.op.prep_lmp import PrepLmp
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
-from dpgen2.exploration.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from mocked_ops import (
     mocked_numb_models,
     MockedRunLmp,
@@ -55,10 +55,10 @@ from dpgen2.constants import (
 )
 
 def make_task_group_list(ngrp, ntask_per_grp):
-    tgrp = LmpTaskGroup()
+    tgrp = ExplorationTaskGroup()
     for ii in range(ngrp):
         for jj in range(ntask_per_grp):
-            tt = LmpTask()
+            tt = ExplorationTask()
             tt\
                 .add_file(lmp_conf_name, f'group{ii} task{jj} conf')\
                 .add_file(lmp_input_name, f'group{ii} task{jj} input')

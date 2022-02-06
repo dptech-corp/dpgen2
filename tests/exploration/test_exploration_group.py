@@ -110,7 +110,7 @@ class TestCPTGroup(unittest.TestCase):
         cpt_group.set_conf(
             self.confs,
         )
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
 
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs) * len(self.tt) * len(self.pp))
@@ -145,7 +145,7 @@ class TestCPTGroup(unittest.TestCase):
         cpt_group.set_conf(
             self.confs,
         )
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
 
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs) * len(self.tt))
@@ -182,7 +182,7 @@ class TestCPTGroup(unittest.TestCase):
             n_sample = 1,
         )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -197,7 +197,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -212,7 +212,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -227,7 +227,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -266,7 +266,7 @@ class TestCPTGroup(unittest.TestCase):
             random_sample = True,
         )            
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -281,7 +281,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -296,7 +296,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -311,7 +311,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_nvt % (self.tt[j_idx]),
             )
 
-        task_group = cpt_group.make_lmp_task_group()
+        task_group = cpt_group.make_task()
         ngroup = len(task_group)
         self.assertEqual(ngroup, len(self.confs[:1]) * len(self.tt))
         for ii in range(ngroup):
@@ -362,7 +362,7 @@ class TestCPTStage(unittest.TestCase):
         stage = ExplorationStage()
         stage.add_group(cpt_group_p).add_group(cpt_group_t)
 
-        task_group = stage.make_lmp_task_group()
+        task_group = stage.make_task()
         
         ngroup = len(task_group)
         self.assertEqual(ngroup, 4)

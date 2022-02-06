@@ -30,7 +30,7 @@ from typing import (
 from pathlib import Path
 from dpgen2.exploration.scheduler import ExplorationScheduler
 from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.exploration.conf_selector import ConfSelector
 from dpgen2.flow.block import block_cl
 
@@ -49,7 +49,7 @@ class SchedulerWrapper(OP):
         return OPIOSign({
             "exploration_scheduler" : ExplorationScheduler,
             "converged" : bool,
-            "lmp_task_grp" : LmpTaskGroup,
+            "lmp_task_grp" : ExplorationTaskGroup,
             "conf_selector" : ConfSelector,
         })
 

@@ -8,7 +8,7 @@ from dflow.python import (
 import json
 from typing import Tuple, List
 from pathlib import Path
-from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.constants import (
     lmp_task_pattern,
 )
@@ -16,7 +16,7 @@ from dpgen2.constants import (
 class PrepLmp(OP):
     r"""Prepare the working directories for LAMMPS tasks.
 
-    A list of working directories (defined by `ip["lmp_task_group"]`)
+    A list of working directories (defined by `ip["task"]`)
     containing all files needed to start LAMMPS tasks will be
     created. The paths of the directories will be returned as
     `op["task_paths"]`. The identities of the tasks are returned as
@@ -27,7 +27,7 @@ class PrepLmp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
-            "lmp_task_grp": LmpTaskGroup,
+            "lmp_task_grp": ExplorationTaskGroup,
         })
 
     @classmethod
@@ -49,7 +49,7 @@ class PrepLmp(OP):
         ip : dict
             Input dict with components:
 
-            - `lmp_task_grp` : (`LmpTaskGroup`) Definitions for LAMMPS tasks
+            - `lmp_task_grp` : (`ExplorationTaskGroup`) Definitions for LAMMPS tasks
         
         Returns
         -------
@@ -74,7 +74,7 @@ class PrepLmp(OP):
             'task_paths' : task_paths,
         })
 
-PrepLmpTaskGroup = PrepLmp
+PrepExplorationTaskGroup = PrepLmp
 
 def _mk_task_from_files(cc, ff):
     tname = Path(lmp_task_pattern % cc)

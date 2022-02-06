@@ -18,13 +18,13 @@ from dpgen2.exploration.scheduler import (
 )
 from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.exploration.trust_level import TrustLevel
 from dpgen2.exploration.conf_selector import TrustLevelConfSelector
 from mocked_ops import (
     MockedExplorationReport,
-    MockedLmpTaskGroup,
-    MockedLmpTaskGroup1,
+    MockedExplorationTaskGroup,
+    MockedExplorationTaskGroup1,
     MockedStage,
     MockedStage1,
 )
@@ -42,7 +42,7 @@ class TestConstTrustLevelStageScheduler(unittest.TestCase):
             
         conv, ltg, sel = self.scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))        
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -75,7 +75,7 @@ class TestConstTrustLevelStageScheduler(unittest.TestCase):
 
         conv, ltg, sel = self.scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))        
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -84,7 +84,7 @@ class TestConstTrustLevelStageScheduler(unittest.TestCase):
 
         conv, ltg, sel = self.scheduler.plan_next_iteration([], foo_report, [])
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))        
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -119,7 +119,7 @@ class TestConstTrustLevelStageScheduler(unittest.TestCase):
 
         conv, ltg, sel = self.scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))        
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -128,7 +128,7 @@ class TestConstTrustLevelStageScheduler(unittest.TestCase):
 
         conv, ltg, sel = self.scheduler.plan_next_iteration([], foo_report, [])        
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))        
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -166,7 +166,7 @@ class TestExplorationScheduler(unittest.TestCase):
         
         conv, ltg, sel = scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -176,7 +176,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 0)
         conv, ltg, sel = scheduler.plan_next_iteration(bar_report, [])        
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)
@@ -186,7 +186,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 1)
         conv, ltg, sel = scheduler.plan_next_iteration(foo_report, [])
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)
@@ -221,7 +221,7 @@ class TestExplorationScheduler(unittest.TestCase):
         
         conv, ltg, sel = scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -246,7 +246,7 @@ class TestExplorationScheduler(unittest.TestCase):
 
         conv, ltg, sel = scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)
@@ -256,7 +256,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 1)
         conv, ltg, sel = scheduler.plan_next_iteration(foo_report, [])
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)
@@ -299,7 +299,7 @@ class TestExplorationScheduler(unittest.TestCase):
         
         conv, ltg, sel = scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -309,7 +309,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 0)
         conv, ltg, sel = scheduler.plan_next_iteration(foo_report, [])        
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -347,7 +347,7 @@ class TestExplorationScheduler(unittest.TestCase):
         
         conv, ltg, sel = scheduler.plan_next_iteration()
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.1)
         self.assertEqual(sel.trust_level.level_f_hi, 0.3)
@@ -357,7 +357,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 0)
         conv, ltg, sel = scheduler.plan_next_iteration(bar_report, [])        
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)
@@ -367,7 +367,7 @@ class TestExplorationScheduler(unittest.TestCase):
         self.assertEqual(scheduler.get_iteration(), 1)
         conv, ltg, sel = scheduler.plan_next_iteration(foo_report, [])        
         self.assertEqual(conv, False)
-        self.assertTrue(isinstance(ltg, MockedLmpTaskGroup1))
+        self.assertTrue(isinstance(ltg, MockedExplorationTaskGroup1))
         self.assertTrue(isinstance(sel, TrustLevelConfSelector))
         self.assertEqual(sel.trust_level.level_f_lo, 0.2)
         self.assertEqual(sel.trust_level.level_f_hi, 0.4)

@@ -12,7 +12,7 @@ from dflow.python import (
 from pathlib import Path
 from .stage import ExplorationStage
 from .report import ExplorationReport
-from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.exploration.conf_selector import ConfSelector, TrustLevelConfSelector
 from dpgen2.exploration.trust_level import TrustLevel
 
@@ -27,7 +27,7 @@ class StageScheduler(ABC):
             hist_reports : List[ExplorationReport],
             report : ExplorationReport,
             confs : List[Path],
-    ) -> Tuple[bool, LmpTaskGroup, ConfSelector] :
+    ) -> Tuple[bool, ExplorationTaskGroup, ConfSelector] :
         """
         Make the plan for the next iteration of the stage.
 
@@ -46,8 +46,8 @@ class StageScheduler(ABC):
         -------
         converged: bool
             If the stage converged.
-        lmp_task_group: LmpTaskGroup
-            A `LmpTaskGroup` defining the exploration of the next iteration. Should be `None` if the stage is converged.
+        task: ExplorationTaskGroup
+            A `ExplorationTaskGroup` defining the exploration of the next iteration. Should be `None` if the stage is converged.
         conf_selector: ConfSelector
             The configuration selector for the next iteration. Should be `None` if the stage is converged.
 
@@ -75,10 +75,10 @@ class ConstTrustLevelStageScheduler(StageScheduler):
             hist_reports : List[ExplorationReport] = [],
             report : ExplorationReport = None,
             trajs : List[Path] = None,
-    ) -> Tuple[bool, LmpTaskGroup, TrustLevelConfSelector] :
+    ) -> Tuple[bool, ExplorationTaskGroup, TrustLevelConfSelector] :
         if report is None:
             converged = False
-            lmp_task_grp = self.stage.make_lmp_task_group()
+            lmp_task_grp = self.stage.make_task()
             ret_selector = self.selector
         else :
             converged = report.accurate_ratio() >= self.conv_accuracy
@@ -90,7 +90,7 @@ class ConstTrustLevelStageScheduler(StageScheduler):
                 # if not converged, check max iter and make lmp tasks
                 if self.max_numb_iter is not None and self.nxt_iter == self.max_numb_iter:
                     raise FatalError('reached maximal number of iterations')
-                lmp_task_grp = self.stage.make_lmp_task_group()
+                lmp_task_grp = self.stage.make_task()
                 ret_selector = self.selector
         self.nxt_iter += 1
         return converged, lmp_task_grp, ret_selector
@@ -150,7 +150,7 @@ class ExplorationScheduler():
             self,
             report : ExplorationReport = None,
             trajs : List[Path] = None,
-    ) -> Tuple[bool, LmpTaskGroup, ConfSelector] :
+    ) -> Tuple[bool, ExplorationTaskGroup, ConfSelector] :
         """
         Make the plan for the next DPGEN iteration.
 
@@ -165,8 +165,8 @@ class ExplorationScheduler():
         -------
         converged: bool
             If DPGEN converges.
-        lmp_task_group: LmpTaskGroup
-            A `LmpTaskGroup` defining the exploration of the next iteration. Should be `None` if converged.
+        task: ExplorationTaskGroup
+            A `ExplorationTaskGroup` defining the exploration of the next iteration. Should be `None` if converged.
         conf_selector: ConfSelector
             The configuration selector for the next iteration. Should be `None` if converged.
 

@@ -33,7 +33,7 @@ from dpgen2.constants import (
 )
 from dpgen2.op.run_dp_train import RunDPTrain
 from dpgen2.op.prep_dp_train import PrepDPTrain
-from dpgen2.op.prep_lmp import PrepLmpTaskGroup
+from dpgen2.op.prep_lmp import PrepExplorationTaskGroup
 from dpgen2.op.run_lmp import RunLmp
 from dpgen2.op.prep_vasp import PrepVasp
 from dpgen2.op.run_vasp import RunVasp
@@ -41,7 +41,7 @@ from dpgen2.op.collect_data import CollectData
 from dpgen2.op.select_confs import SelectConfs
 from dpgen2.exploration.conf_selector import ConfSelector
 from dpgen2.exploration.trust_level import TrustLevel
-from dpgen2.exploration.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.scheduler import ConstTrustLevelStageScheduler
@@ -403,35 +403,35 @@ class MockedExplorationReport(ExplorationReport):
         return self.candidate
 
 
-class MockedLmpTaskGroup(LmpTaskGroup):
+class MockedExplorationTaskGroup(ExplorationTaskGroup):
     def __init__(self):
         super().__init__()
         ntask = mocked_numb_lmp_tasks
         for jj in range(ntask):
-            tt = LmpTask()
+            tt = ExplorationTask()
             tt\
                 .add_file(lmp_conf_name, f'mocked conf {jj}')\
                 .add_file(lmp_input_name, f'mocked input {jj}')
             self.add_task(tt)
 
-class MockedLmpTaskGroup1(LmpTaskGroup):
+class MockedExplorationTaskGroup1(ExplorationTaskGroup):
     def __init__(self):
         super().__init__()
         ntask = mocked_numb_lmp_tasks
         for jj in range(ntask):
-            tt = LmpTask()
+            tt = ExplorationTask()
             tt\
                 .add_file(lmp_conf_name, f'mocked 1 conf {jj}')\
                 .add_file(lmp_input_name, f'mocked 1 input {jj}')
             self.add_task(tt)
 
 class MockedStage(ExplorationStage):
-    def make_lmp_task_group(self):
-        return MockedLmpTaskGroup()
+    def make_task(self):
+        return MockedExplorationTaskGroup()
 
 class MockedStage1(ExplorationStage):
-    def make_lmp_task_group(self):
-        return MockedLmpTaskGroup1()
+    def make_task(self):
+        return MockedExplorationTaskGroup1()
 
 
 class MockedConfSelector(ConfSelector):

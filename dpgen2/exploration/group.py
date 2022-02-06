@@ -1,5 +1,5 @@
 import itertools, random
-from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.task import ExplorationTaskGroup
 from abc import (
     ABC,
     abstractmethod,
@@ -10,9 +10,9 @@ from dpgen2.constants import (
     lmp_input_name,
     model_name_pattern,
 )
-from dpgen2.exploration.lmp_task_group import (
-    LmpTaskGroup,
-    LmpTask,
+from dpgen2.exploration.task import (
+    ExplorationTaskGroup,
+    ExplorationTask,
 )
 from typing import (
     List,
@@ -20,9 +20,9 @@ from typing import (
 
 class ExplorationGroup(ABC):
     @abstractmethod
-    def make_lmp_task_group(
+    def make_task(
             self,
-    )->LmpTaskGroup:
+    )->ExplorationTaskGroup:
         """
         Make the LAMMPS task group.
         """
@@ -50,7 +50,7 @@ class CPTGroup(ExplorationGroup):
                         A list of file contents
         n_sample        int
                         Number of samples drawn from the conf list each time 
-                        `make_lmp_task_group` is called. If set to `None`, 
+                        `make_task` is called. If set to `None`, 
                         `n_sample` is set to length of the conf_list.
         random_sample   bool
                         If true the confs are randomly sampled, otherwise are
@@ -109,15 +109,15 @@ class CPTGroup(ExplorationGroup):
         self.ele_temp_a = ele_temp_a
         self.md_set = True
 
-    def make_lmp_task_group(
+    def make_task(
             self,
-    )->LmpTaskGroup:
+    )->ExplorationTaskGroup:
         """
         Make the LAMMPS task group.
         
         Returns
         -------
-        task_grp: LmpTaskGroup
+        task_grp: ExplorationTaskGroup
             The returned lammps task group. The number of tasks is nconf*nT*nP.
             nconf is set by `n_sample` parameter of `set_conf`. 
             nT and nP are lengths of the `temps` and `press` parameters of `set_md`.
@@ -127,7 +127,7 @@ class CPTGroup(ExplorationGroup):
             raise RuntimeError('confs are not set')
         if not self.md_set:
             raise RuntimeError('MD settings are not set')
-        group = LmpTaskGroup()
+        group = ExplorationTaskGroup()
         confs = self._sample_confs()
         for cc,tt,pp in itertools.product(confs, self.temps, self.press):
             group.add_task(self._make_lmp_task(cc, tt, pp))
@@ -151,8 +151,8 @@ class CPTGroup(ExplorationGroup):
             conf : str,
             tt : float,
             pp : float,
-    ) -> LmpTask:
-        task = LmpTask()
+    ) -> ExplorationTask:
+        task = ExplorationTask()
         task\
             .add_file(
                 lmp_conf_name, 
