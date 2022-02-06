@@ -48,14 +48,14 @@ from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
 from dpgen2.flow.prep_run_lmp import prep_run_lmp
 from dpgen2.flow.prep_run_fp import prep_run_fp
 from dpgen2.flow.block import block_cl
-from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.exploration.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.flow.loop import dpgen, loop
-from dpgen2.utils.lmp_task_group import LmpTaskGroup
-from dpgen2.utils.trust_level import TrustLevel
-from dpgen2.utils.conf_selector import TrustLevelConfSelector
+from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.trust_level import TrustLevel
+from dpgen2.exploration.conf_selector import TrustLevelConfSelector
 
 from dpgen2.constants import (
     train_task_pattern,

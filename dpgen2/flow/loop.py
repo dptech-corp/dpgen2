@@ -30,8 +30,8 @@ from typing import (
 from pathlib import Path
 from dpgen2.exploration.scheduler import ExplorationScheduler
 from dpgen2.exploration.report import ExplorationReport
-from dpgen2.utils.lmp_task_group import LmpTaskGroup
-from dpgen2.utils.conf_selector import ConfSelector
+from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.conf_selector import ConfSelector
 from dpgen2.flow.block import block_cl
 
 class SchedulerWrapper(OP):

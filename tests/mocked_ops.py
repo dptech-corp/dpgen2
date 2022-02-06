@@ -39,9 +39,9 @@ from dpgen2.op.prep_vasp import PrepVasp
 from dpgen2.op.run_vasp import RunVasp
 from dpgen2.op.collect_data import CollectData
 from dpgen2.op.select_confs import SelectConfs
-from dpgen2.utils.conf_selector import ConfSelector
-from dpgen2.utils.trust_level import TrustLevel
-from dpgen2.utils.lmp_task_group import LmpTask, LmpTaskGroup
+from dpgen2.exploration.conf_selector import ConfSelector
+from dpgen2.exploration.trust_level import TrustLevel
+from dpgen2.exploration.lmp_task_group import LmpTask, LmpTaskGroup
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.scheduler import ConstTrustLevelStageScheduler

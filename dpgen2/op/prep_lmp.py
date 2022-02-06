@@ -8,7 +8,7 @@ from dflow.python import (
 import json
 from typing import Tuple, List
 from pathlib import Path
-from dpgen2.utils.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.lmp_task_group import LmpTaskGroup
 from dpgen2.constants import (
     lmp_task_pattern,
 )

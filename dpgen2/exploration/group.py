@@ -1,5 +1,5 @@
 import itertools, random
-from dpgen2.utils.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.lmp_task_group import LmpTaskGroup
 from abc import (
     ABC,
     abstractmethod,
@@ -10,7 +10,7 @@ from dpgen2.constants import (
     lmp_input_name,
     model_name_pattern,
 )
-from dpgen2.utils.lmp_task_group import (
+from dpgen2.exploration.lmp_task_group import (
     LmpTaskGroup,
     LmpTask,
 )

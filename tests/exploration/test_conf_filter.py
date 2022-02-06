@@ -2,7 +2,7 @@ import os
 import numpy as np
 import unittest, dpdata
 from exploration.context import dpgen2
-from dpgen2.utils.conf_filter import ConfFilter, ConfFilters
+from dpgen2.exploration.conf_filter import ConfFilter, ConfFilters
 
 class OKFilter(ConfFilter):
     def check(

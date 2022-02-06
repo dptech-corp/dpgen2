@@ -12,9 +12,9 @@ from dflow.python import (
 from pathlib import Path
 from .stage import ExplorationStage
 from .report import ExplorationReport
-from dpgen2.utils.lmp_task_group import LmpTaskGroup
-from dpgen2.utils.conf_selector import ConfSelector, TrustLevelConfSelector
-from dpgen2.utils.trust_level import TrustLevel
+from dpgen2.exploration.lmp_task_group import LmpTaskGroup
+from dpgen2.exploration.conf_selector import ConfSelector, TrustLevelConfSelector
+from dpgen2.exploration.trust_level import TrustLevel
 
 class StageScheduler(ABC):
     """
