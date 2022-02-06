@@ -1,3 +1,6 @@
+import os, json, dpdata, glob
+from pathlib import Path
+from dpgen2.utils.run_command import run_command
 from dflow.python import (
     OP,
     OPIO,
@@ -6,17 +9,14 @@ from dflow.python import (
     TransientError,
     FatalError,
 )
-import os, json, dpdata
 from typing import (
     Tuple, 
     List, 
 )
-from pathlib import Path
 from dpgen2.constants import (
     train_task_pattern,
     train_script_name,
 )
-from dpgen2.utils.run_command import run_command
 from dargs import (
     dargs, 
     Argument, 
@@ -67,7 +67,7 @@ class RunDPTrain(OP):
         ip : dict
             Input dict with components:
         
-            - `task_name`: (`dict`) The config of training task. Check `RunDPTrain._training_args` for definitions.
+            - `config`: (`dict`) The config of training task. Check `RunDPTrain.training_args` for definitions.
             - `task_name`: (`str`) The name of training task.
             - `task_path`: (`Artifact(Path)`) The path that contains all input files prepareed by `PrepDPTrain`.
             - `init_model`: (`Artifact(Path)`) A frozen model to initialize the training.
@@ -95,6 +95,9 @@ class RunDPTrain(OP):
         init_model = ip['init_model']
         init_data = ip['init_data']
         iter_data = ip['iter_data']
+        iter_data_old_exp = _expand_all_multi_sys_to_sys(iter_data[:-1])
+        iter_data_new_exp = _expand_all_multi_sys_to_sys(iter_data[-1:])
+        iter_data_exp = iter_data_old_exp + iter_data_new_exp
 
         # update the input script
         input_script = Path(task_path)/train_script_name
@@ -110,12 +113,13 @@ class RunDPTrain(OP):
         auto_prob_str = "prob_sys_size"
         if do_init_model:
             old_ratio = config['init_model_old_ratio']
-            numb_old = len(init_data) + len(iter_data[:-1])
-            auto_prob_str = f"prob_sys_size; 0:{numb_old}:{old_ratio}; {numb_old}:{numb_old+1}:{1.-old_ratio:g}"
+            numb_old = len(init_data) + len(iter_data_old_exp)
+            numb_new = numb_old + len(iter_data_new_exp)
+            auto_prob_str = f"prob_sys_size; 0:{numb_old}:{old_ratio}; {numb_old}:{numb_new}:{1.-old_ratio:g}"
 
         # update the input dict
         train_dict = RunDPTrain.write_data_to_input_script(
-            train_dict, init_data, iter_data, auto_prob_str, major_version)
+            train_dict, init_data, iter_data_exp, auto_prob_str, major_version)
         train_dict = RunDPTrain.write_other_to_input_script(
             train_dict, config, do_init_model, major_version)        
 
@@ -240,7 +244,7 @@ class RunDPTrain(OP):
 
 
     @staticmethod
-    def _training_args():
+    def training_args():
         doc_init_model_prolicy = "The policy of init-model training. It can be\n\n\
     - 'no': No init-model training. Traing from scratch.\n\n\
     - 'yes': Do init-model training.\n\n\
@@ -265,7 +269,7 @@ class RunDPTrain(OP):
 
     @staticmethod
     def normalize_config(data = {}):
-        ta = RunDPTrain._training_args()
+        ta = RunDPTrain.training_args()
 
         base = Argument("base", dict, ta)
         data = base.normalize_value(data, trim_pattern="_*")
@@ -295,3 +299,13 @@ def _get_data_size_of_all_mult_sys(data_dirs):
         count += _get_data_size_of_mult_sys(ii)
     return count
 
+def _expand_multi_sys_to_sys(multi_sys_dir):
+    all_type_raws = sorted(glob.glob(os.path.join(multi_sys_dir, '*', 'type.raw')))
+    all_sys_dirs = [ str(Path(ii).parent) for ii in all_type_raws ]
+    return all_sys_dirs
+
+def _expand_all_multi_sys_to_sys(list_multi_sys):
+    all_sys_dirs = []
+    for ii in list_multi_sys:
+        all_sys_dirs = all_sys_dirs + _expand_multi_sys_to_sys(ii)
+    return all_sys_dirs

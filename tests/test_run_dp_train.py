@@ -18,118 +18,6 @@ from dflow.python import (
     FatalError,
 )
 
-idict_v2 = {
-    'training' : {
-        'training_data':{
-            "systems" : [],
-        },
-        'validation_data':{
-            "systems" : [],
-        },
-    },
-    "learning_rate" : {
-        "start_lr" : 1.,
-    },
-    "loss" : {
-        "start_pref_e" : 1.,
-        "start_pref_f" : 1.,
-        "start_pref_v" : 1.,
-    },
-}
-expected_odict_v2 = {
-    'training' : {
-        'training_data':{
-            "systems" : [
-                'init/data-0', 'init/data-1', 'data-0', 'data-1'
-            ],
-            "batch_size" : "auto",
-            "auto_prob" : "prob_sys_size",
-        },
-        "disp_file" : "lcurve.out",
-    },
-    "learning_rate" : {
-        "start_lr" : 1.,
-    },
-    "loss" : {
-        "start_pref_e" : 1.,
-        "start_pref_f" : 1.,
-        "start_pref_v" : 1.,
-    },
-}
-expected_init_model_odict_v2 = {
-    "training" : {
-        "training_data" : {
-            "systems" : [
-                'init/data-0', 'init/data-1', 'data-0', 'data-1'
-            ],
-            "batch_size" : "auto",
-            "auto_prob" : "prob_sys_size; 0:3:0.9; 3:4:0.1",
-        },
-        "disp_file" : "lcurve.out",
-        "numb_steps" : 400000,
-    },
-    "learning_rate" : {
-        "start_lr" : 1e-4,
-    },
-    "loss" : {
-        "start_pref_e" : 0.1,
-        "start_pref_f" : 100,
-        "start_pref_v" : 0.0,
-    },
-}
-
-idict_v1 = {
-    'training' : {
-        "systems" : [],
-    },
-    "learning_rate" : {
-        "start_lr" : 1.,
-    },
-    "loss" : {
-        "start_pref_e" : 1.,
-        "start_pref_f" : 1.,
-        "start_pref_v" : 1.,
-    },
-}
-expected_odict_v1 = {
-    'training' : {
-        "systems" : [
-            'init/data-0', 'init/data-1', 'data-0', 'data-1'
-        ],
-        "batch_size" : "auto",
-        "auto_prob_style" : "prob_sys_size",
-        "disp_file" : "lcurve.out",
-    },
-    "learning_rate" : {
-        "start_lr" : 1.,
-    },
-    "loss" : {
-        "start_pref_e" : 1.,
-        "start_pref_f" : 1.,
-        "start_pref_v" : 1.,
-    },
-}
-expected_init_model_odict_v1 = {
-    "training" : {
-        "systems" : [
-            'init/data-0', 'init/data-1', 'data-0', 'data-1'
-        ],
-        "batch_size" : "auto",
-        "auto_prob_style" : "prob_sys_size; 0:3:0.9; 3:4:0.1",
-        "disp_file" : "lcurve.out",
-        "stop_batch" : 400000,
-    },
-    "learning_rate" : {
-        "start_lr" : 1e-4,
-    },
-    "loss" : {
-        "start_pref_e" : 0.1,
-        "start_pref_f" : 100,
-        "start_pref_v" : 0.0,
-    },
-}
-
-
 class TestRunDPTrain(unittest.TestCase):
     def setUp(self):
         self.atom_name = 'foo'
@@ -142,6 +30,7 @@ class TestRunDPTrain(unittest.TestCase):
         ms_0.to_deepmd_npy('data-0')
         ms_1.to_deepmd_npy('data-1')
         self.iter_data = [Path('data-0'), Path('data-1')]
+        self.iter_data_exp = ['data-0/foo3', 'data-0/foo4', 'data-1/foo2', 'data-1/foo3', 'data-1/foo5']
 
         self.init_nframs_0 = 3
         self.init_natoms_0 = 5
@@ -170,6 +59,119 @@ class TestRunDPTrain(unittest.TestCase):
         self.old_data_size = self.init_nframs_0 + self.init_nframs_1 + sum(self.nframes_0)
         self.task_name = 'task-000'
         self.task_path = 'input-000'
+
+        self.idict_v2 = {
+            'training' : {
+                'training_data':{
+                    "systems" : [],
+                },
+                'validation_data':{
+                    "systems" : [],
+                },
+            },
+            "learning_rate" : {
+                "start_lr" : 1.,
+            },
+            "loss" : {
+                "start_pref_e" : 1.,
+                "start_pref_f" : 1.,
+                "start_pref_v" : 1.,
+            },
+        }
+        self.expected_odict_v2 = {
+            'training' : {
+                'training_data':{
+                    "systems" : [
+                        'init/data-0', 'init/data-1', 'data-0/foo3', 'data-0/foo4', 'data-1/foo2', 'data-1/foo3', 'data-1/foo5'
+                    ],
+                    "batch_size" : "auto",
+                    "auto_prob" : "prob_sys_size",
+                },
+                "disp_file" : "lcurve.out",
+            },
+            "learning_rate" : {
+                "start_lr" : 1.,
+            },
+            "loss" : {
+                "start_pref_e" : 1.,
+                "start_pref_f" : 1.,
+                "start_pref_v" : 1.,
+            },
+        }
+        self.expected_init_model_odict_v2 = {
+            "training" : {
+                "training_data" : {
+                    "systems" : [
+                        'init/data-0', 'init/data-1', 'data-0/foo3', 'data-0/foo4', 'data-1/foo2', 'data-1/foo3', 'data-1/foo5'
+                    ],
+                    "batch_size" : "auto",
+                    "auto_prob" : "prob_sys_size; 0:4:0.9; 4:7:0.1",
+                },
+                "disp_file" : "lcurve.out",
+                "numb_steps" : 400000,
+            },
+            "learning_rate" : {
+                "start_lr" : 1e-4,
+            },
+            "loss" : {
+                "start_pref_e" : 0.1,
+                "start_pref_f" : 100,
+                "start_pref_v" : 0.0,
+            },
+        }
+
+        self.idict_v1 = {
+            'training' : {
+                "systems" : [],
+            },
+            "learning_rate" : {
+                "start_lr" : 1.,
+            },
+            "loss" : {
+                "start_pref_e" : 1.,
+                "start_pref_f" : 1.,
+                "start_pref_v" : 1.,
+            },
+        }
+        self.expected_odict_v1 = {
+            'training' : {
+                "systems" : [
+                    'init/data-0', 'init/data-1', 'data-0/foo3', 'data-0/foo4', 'data-1/foo2', 'data-1/foo3', 'data-1/foo5'
+                ],
+                "batch_size" : "auto",
+                "auto_prob_style" : "prob_sys_size",
+                "disp_file" : "lcurve.out",
+            },
+            "learning_rate" : {
+                "start_lr" : 1.,
+            },
+            "loss" : {
+                "start_pref_e" : 1.,
+                "start_pref_f" : 1.,
+                "start_pref_v" : 1.,
+            },
+        }
+        self.expected_init_model_odict_v1 = {
+            "training" : {
+                "systems" : [
+                    'init/data-0', 'init/data-1', 'data-0/foo3', 'data-0/foo4', 'data-1/foo2', 'data-1/foo3', 'data-1/foo5'
+                ],
+                "batch_size" : "auto",
+                "auto_prob_style" : "prob_sys_size; 0:4:0.9; 4:7:0.1",
+                "disp_file" : "lcurve.out",
+                "stop_batch" : 400000,
+            },
+            "learning_rate" : {
+                "start_lr" : 1e-4,
+            },
+            "loss" : {
+                "start_pref_e" : 0.1,
+                "start_pref_f" : 100,
+                "start_pref_v" : 0.0,
+            },
+        }
+
+
 
     def tearDown(self):
         for ii in ['init', 'data-0', 'data-1', self.task_path, self.task_name ]:
@@ -233,43 +235,43 @@ class TestRunDPTrain(unittest.TestCase):
 
     def test_update_input_dict_v1_init_model(self):
         odict = RunDPTrain.write_data_to_input_script(
-            idict_v1, self.init_data, self.iter_data, auto_prob_str = "prob_sys_size; 0:3:0.9; 3:4:0.1", major_version = "1")
+            self.idict_v1, self.init_data, self.iter_data_exp, auto_prob_str = "prob_sys_size; 0:4:0.9; 4:7:0.1", major_version = "1")
         config = self.config.copy()
         config['init_model_policy'] = 'yes'
         odict = RunDPTrain.write_other_to_input_script(
             odict, config, True, major_version = "1")
-        self.assertDictEqual(odict, expected_init_model_odict_v1)
+        self.assertDictEqual(odict, self.expected_init_model_odict_v1)
 
     def test_update_input_dict_v1(self):
         odict = RunDPTrain.write_data_to_input_script(
-            idict_v1, self.init_data, self.iter_data, auto_prob_str = "prob_sys_size", major_version = "1")
+            self.idict_v1, self.init_data, self.iter_data_exp, auto_prob_str = "prob_sys_size", major_version = "1")
         config = self.config.copy()
         config['init_model_policy'] = 'no'
         odict = RunDPTrain.write_other_to_input_script(
             odict, config, False, major_version = "1")
-        self.assertDictEqual(odict, expected_odict_v1)
+        self.assertDictEqual(odict, self.expected_odict_v1)
 
 
     def test_update_input_dict_v2_init_model(self):
-        idict = idict_v2
+        idict = self.idict_v2
         odict = RunDPTrain.write_data_to_input_script(
-            idict, self.init_data, self.iter_data, auto_prob_str = "prob_sys_size; 0:3:0.9; 3:4:0.1", major_version = "2")
+            idict, self.init_data, self.iter_data_exp, auto_prob_str = "prob_sys_size; 0:4:0.9; 4:7:0.1", major_version = "2")
         config = self.config.copy()
         config['init_model_policy'] = 'yes'
         odict = RunDPTrain.write_other_to_input_script(
             odict, config, True, major_version = "2")
-        self.assertDictEqual(odict, expected_init_model_odict_v2)
+        self.assertDictEqual(odict, self.expected_init_model_odict_v2)
 
 
     def test_update_input_dict_v2(self):
-        idict = idict_v2
+        idict = self.idict_v2
         odict = RunDPTrain.write_data_to_input_script(
-            idict, self.init_data, self.iter_data, auto_prob_str = "prob_sys_size", major_version = "2")
+            idict, self.init_data, self.iter_data_exp, auto_prob_str = "prob_sys_size", major_version = "2")
         config = self.config.copy()
         config['init_model_policy'] = 'no'
         odict = RunDPTrain.write_other_to_input_script(
             odict, config, False, major_version = "2")
-        self.assertDictEqual(odict, expected_odict_v2)
+        self.assertDictEqual(odict, self.expected_odict_v2)
 
 
     @patch('dpgen2.op.run_dp_train.run_command')
@@ -282,7 +284,7 @@ class TestRunDPTrain(unittest.TestCase):
         task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
-            json.dump(idict_v1, fp, indent=4)
+            json.dump(self.idict_v1, fp, indent=4)
         task_name = self.task_name
         work_dir = Path(task_name)
 
@@ -313,7 +315,7 @@ class TestRunDPTrain(unittest.TestCase):
         self.assertEqual(out['log'].read_text(), 'foo\nbar\n')
         with open(out['script']) as fp:
             jdata = json.load(fp)
-            self.assertDictEqual(jdata, expected_odict_v1)
+            self.assertDictEqual(jdata, self.expected_odict_v1)
 
 
     @patch('dpgen2.op.run_dp_train.run_command')
@@ -326,7 +328,7 @@ class TestRunDPTrain(unittest.TestCase):
         task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
-            json.dump(idict_v2, fp, indent=4)
+            json.dump(self.idict_v2, fp, indent=4)
         task_name = self.task_name
         work_dir = Path(task_name)
 
@@ -357,7 +359,7 @@ class TestRunDPTrain(unittest.TestCase):
         self.assertEqual(out['log'].read_text(), 'foo\nbar\n')
         with open(out['script']) as fp:
             jdata = json.load(fp)
-            self.assertDictEqual(jdata, expected_odict_v2)
+            self.assertDictEqual(jdata, self.expected_odict_v2)
 
 
     @patch('dpgen2.op.run_dp_train.run_command')
@@ -370,7 +372,7 @@ class TestRunDPTrain(unittest.TestCase):
         task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
-            json.dump(idict_v2, fp, indent=4)
+            json.dump(self.idict_v2, fp, indent=4)
         task_name = self.task_name
         work_dir = Path(task_name)
 
@@ -401,7 +403,7 @@ class TestRunDPTrain(unittest.TestCase):
         self.assertEqual(out['log'].read_text(), 'foo\nbar\n')
         with open(out['script']) as fp:
             jdata = json.load(fp)
-            self.assertDictEqual(jdata, expected_init_model_odict_v2)
+            self.assertDictEqual(jdata, self.expected_init_model_odict_v2)
 
 
     @patch('dpgen2.op.run_dp_train.run_command')
@@ -414,7 +416,7 @@ class TestRunDPTrain(unittest.TestCase):
         task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
-            json.dump(idict_v2, fp, indent=4)
+            json.dump(self.idict_v2, fp, indent=4)
         task_name = self.task_name
         work_dir = Path(task_name)
 
@@ -439,7 +441,7 @@ class TestRunDPTrain(unittest.TestCase):
         self.assertTrue(work_dir.is_dir())
         with open(work_dir/train_script_name) as fp:
             jdata = json.load(fp)
-            self.assertDictEqual(jdata, expected_odict_v2)
+            self.assertDictEqual(jdata, self.expected_odict_v2)
 
 
     @patch('dpgen2.op.run_dp_train.run_command')
@@ -452,7 +454,7 @@ class TestRunDPTrain(unittest.TestCase):
         task_path = self.task_path
         Path(task_path).mkdir(exist_ok=True)
         with open(Path(task_path)/train_script_name, 'w') as fp:
-            json.dump(idict_v2, fp, indent=4)
+            json.dump(self.idict_v2, fp, indent=4)
         task_name = self.task_name
         work_dir = Path(task_name)
 
@@ -478,4 +480,4 @@ class TestRunDPTrain(unittest.TestCase):
         self.assertTrue(work_dir.is_dir())
         with open(work_dir/train_script_name) as fp:
             jdata = json.load(fp)
-            self.assertDictEqual(jdata, expected_odict_v2)
+            self.assertDictEqual(jdata, self.expected_odict_v2)
