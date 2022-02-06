@@ -22,6 +22,7 @@ class RunLmp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
+            "config" : dict,
             "task_name": str,
             "task_path": Artifact(Path),
             "models" : Artifact(List[Path]),

@@ -159,6 +159,7 @@ class TestMockedRunLmp(unittest.TestCase):
                 'task_name' : self.task_list_str[ii],
                 'task_path' : self.task_list[ii],
                 'models' : self.model_list,
+                'config' : {},
             })
             op = MockedRunLmp()
             out = op.execute(ip)
@@ -227,6 +228,7 @@ class TestPrepRunLmp(unittest.TestCase):
             template = steps,
             parameters = {
                 "lmp_task_grp" : self.task_group_list,
+                "lmp_config" : {},
             },
             artifacts = {
                 "models" : self.models,

@@ -37,6 +37,7 @@ def prep_run_fp(
         inputs=Inputs(
             parameters={
                 "inputs": InputParameter(),
+                "fp_config" : InputParameter(),
             },
             artifacts={
                 "confs" : InputArtifact()
@@ -86,6 +87,7 @@ def prep_run_fp(
         ),
         parameters={
             "task_name" : prep_fp.outputs.parameters["task_names"],
+            "config" : prep_run_steps.inputs.parameters["fp_config"],
         },
         artifacts={
             'task_path' : prep_fp.outputs.artifacts['task_paths'],

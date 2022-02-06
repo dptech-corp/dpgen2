@@ -205,7 +205,9 @@ class TestLoop(unittest.TestCase):
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
                 "train_config" : {},
+                "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
+                "fp_config" : {},
                 "exploration_scheduler" : self.scheduler,
             },
             artifacts = {

@@ -24,6 +24,7 @@ class RunVasp(OP):
         return OPIOSign({
             "task_name": str,
             "task_path" : Artifact(Path),
+            "config" : dict,
         })
 
     @classmethod

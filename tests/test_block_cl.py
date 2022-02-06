@@ -160,8 +160,10 @@ class TestBlockCL(unittest.TestCase):
                 "template_script" : self.template_script,
                 "train_config" : {},
                 "lmp_task_grp" : self.task_group_list,
+                "lmp_config" : {},
                 "conf_selector" : self.conf_selector,
                 'fp_inputs' : self.vasp_inputs,
+                "fp_config" : {},
             },
             artifacts = {
                 "init_models" : self.init_models,

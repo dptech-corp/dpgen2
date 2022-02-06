@@ -44,8 +44,10 @@ def block_cl(
                 "template_script" : InputParameter(),
                 "train_config" : InputParameter(),
                 "lmp_task_grp" : InputParameter(),
+                "lmp_config" : InputParameter(),
                 "conf_selector" : InputParameter(),
                 "fp_inputs" : InputParameter(),
+                "fp_config" : InputParameter(),
             },
             artifacts={
                 "init_models" : InputArtifact(),
@@ -86,6 +88,7 @@ def block_cl(
         template = prep_run_lmp_op,
         parameters={
             "lmp_task_grp": block_steps.inputs.parameters['lmp_task_grp'],
+            "lmp_config": block_steps.inputs.parameters['lmp_config'],
         },
         artifacts={
             "models" : prep_run_dp_train.outputs.artifacts['models'],
@@ -120,6 +123,7 @@ def block_cl(
         template = prep_run_fp_op,
         parameters={
             "inputs": block_steps.inputs.parameters['fp_inputs'],            
+            "fp_config": block_steps.inputs.parameters['fp_config'],            
         },
         artifacts={
             "confs" : select_confs.outputs.artifacts['confs'],

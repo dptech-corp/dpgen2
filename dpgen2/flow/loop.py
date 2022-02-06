@@ -115,8 +115,10 @@ def loop (
                 "template_script" : InputParameter(),
                 "train_config" : InputParameter(),
                 "lmp_task_grp" : InputParameter(),
+                "lmp_config" : InputParameter(),
                 "conf_selector" : InputParameter(),
                 "fp_inputs" : InputParameter(),
+                "fp_config" : InputParameter(),
                 "exploration_scheduler" : InputParameter(),
             },
             artifacts={
@@ -149,8 +151,10 @@ def loop (
             "template_script" : steps.inputs.parameters["template_script"],
             "train_config" : steps.inputs.parameters["train_config"],
             "lmp_task_grp" : steps.inputs.parameters["lmp_task_grp"],
+            "lmp_config" : steps.inputs.parameters["lmp_config"],
             "conf_selector" : steps.inputs.parameters["conf_selector"],
             "fp_inputs" : steps.inputs.parameters["fp_inputs"],            
+            "fp_config" : steps.inputs.parameters["fp_config"],
         },
         artifacts={
             "init_models": steps.inputs.artifacts["init_models"],
@@ -202,8 +206,10 @@ def loop (
             "template_script" : steps.inputs.parameters["template_script"],
             "train_config" : steps.inputs.parameters["train_config"],
             "lmp_task_grp" : scheduler_step.outputs.parameters["lmp_task_grp"],
+            "lmp_config" : steps.inputs.parameters["lmp_config"],
             "conf_selector" : scheduler_step.outputs.parameters["conf_selector"],
             "fp_inputs" : steps.inputs.parameters["fp_inputs"],
+            "fp_config" : steps.inputs.parameters["fp_config"],
             "exploration_scheduler" : scheduler_step.outputs.parameters["exploration_scheduler"],
         },
         artifacts={
@@ -249,7 +255,9 @@ def dpgen(
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
                 "train_config" : InputParameter(),
+                "lmp_config" : InputParameter(),
                 "fp_inputs" : InputParameter(),
+                "fp_config" : InputParameter(),
                 "exploration_scheduler" : InputParameter(),
             },
             artifacts={
@@ -311,8 +319,10 @@ def dpgen(
             "template_script" : steps.inputs.parameters['template_script'],
             "train_config" : steps.inputs.parameters['train_config'],
             "lmp_task_grp" : scheduler_step.outputs.parameters['lmp_task_grp'],
+            "lmp_config" : steps.inputs.parameters['lmp_config'],
             "conf_selector" : scheduler_step.outputs.parameters['conf_selector'],
             "fp_inputs" : steps.inputs.parameters['fp_inputs'],
+            "fp_config" : steps.inputs.parameters['fp_config'],
             "exploration_scheduler" : scheduler_step.outputs.parameters['exploration_scheduler'],
         },
         artifacts={

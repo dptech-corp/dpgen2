@@ -135,6 +135,7 @@ class TestMockedRunVasp(unittest.TestCase):
             ip = OPIO({
                 'task_name' : self.task_list_str[ii],
                 'task_path' : self.task_list[ii],
+                'config' : {},
             })
             op = MockedRunVasp()
             out = op.execute(ip)
@@ -194,6 +195,7 @@ class TestPrepRunVasp(unittest.TestCase):
                     self.incar,
                     {'foo': 'bar'}
                 ),
+                "fp_config": {},
             },
             artifacts = {
                 "confs" : self.confs,

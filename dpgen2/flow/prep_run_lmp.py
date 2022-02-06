@@ -37,6 +37,7 @@ def prep_run_lmp(
         inputs=Inputs(
             parameters={
                 "lmp_task_grp": InputParameter(type=int),
+                "lmp_config" : InputParameter()
             },
             artifacts={
                 "models" : InputArtifact()
@@ -86,6 +87,7 @@ def prep_run_lmp(
         ),
         parameters={
             "task_name" : prep_lmp.outputs.parameters["task_names"],
+            "config" : prep_run_steps.inputs.parameters["lmp_config"],
         },
         artifacts={
             'task_path' : prep_lmp.outputs.artifacts['task_paths'],
