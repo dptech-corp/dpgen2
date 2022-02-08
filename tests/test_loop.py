@@ -50,12 +50,10 @@ from dpgen2.flow.prep_run_fp import prep_run_fp
 from dpgen2.flow.block import block_cl
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
-from dpgen2.exploration.stage import ExplorationStage
-from dpgen2.exploration.report import ExplorationReport
 from dpgen2.flow.loop import dpgen, loop
-from dpgen2.exploration.task import ExplorationTaskGroup
-from dpgen2.exploration.trust_level import TrustLevel
-from dpgen2.exploration.conf_selector import TrustLevelConfSelector
+from dpgen2.exploration.report import ExplorationReport
+from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
+from dpgen2.exploration.selector import TrustLevelConfSelector, TrustLevel
 
 from dpgen2.constants import (
     train_task_pattern,

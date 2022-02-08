@@ -72,6 +72,7 @@ def block_cl(
         name + '-prep-run-dp-train',
         template = prep_run_dp_train_op,
         parameters={
+            "block_id" : block_steps.inputs.parameters['block_id'],
             "train_config" : block_steps.inputs.parameters['train_config'],
             "numb_models": block_steps.inputs.parameters['numb_models'],
             "template_script": block_steps.inputs.parameters['template_script'],
@@ -81,6 +82,7 @@ def block_cl(
             "init_data" : block_steps.inputs.artifacts['init_data'],
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
         },
+        key = "%s-prep-run-train" % block_steps.inputs.parameters["block_id"],
     )
     block_steps.add(prep_run_dp_train)
         
@@ -88,12 +90,14 @@ def block_cl(
         name = name + '-prep-run-lmp',
         template = prep_run_lmp_op,
         parameters={
+            "block_id" : block_steps.inputs.parameters['block_id'],
             "lmp_task_grp": block_steps.inputs.parameters['lmp_task_grp'],
             "lmp_config": block_steps.inputs.parameters['lmp_config'],
         },
         artifacts={
             "models" : prep_run_dp_train.outputs.artifacts['models'],
         },
+        key = "%s-prep-run-lmp" % block_steps.inputs.parameters["block_id"],
     )
     block_steps.add(prep_run_lmp)
         
@@ -116,6 +120,7 @@ def block_cl(
             "trajs" : prep_run_lmp.outputs.artifacts['trajs'],
             "model_devis" : prep_run_lmp.outputs.artifacts['model_devis'],
         },
+        key = "%s-select-conf" % block_steps.inputs.parameters["block_id"],
     )
     block_steps.add(select_confs)
         
@@ -123,12 +128,14 @@ def block_cl(
         name = name + '-prep-run-fp',
         template = prep_run_fp_op,
         parameters={
+            "block_id" : block_steps.inputs.parameters['block_id'],
             "inputs": block_steps.inputs.parameters['fp_inputs'],            
             "fp_config": block_steps.inputs.parameters['fp_config'],            
         },
         artifacts={
             "confs" : select_confs.outputs.artifacts['confs'],
         },
+        key = "%s-prep-run-fp" % block_steps.inputs.parameters["block_id"],
     )
     block_steps.add(prep_run_fp)
 
@@ -149,6 +156,7 @@ def block_cl(
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
             "labeled_data" : prep_run_fp.outputs.artifacts['labeled_data'],
         },
+        key = "%s-collect-data" % block_steps.inputs.parameters["block_id"],
     )
     block_steps.add(collect_data)
 

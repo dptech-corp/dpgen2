@@ -31,7 +31,7 @@ from pathlib import Path
 from dpgen2.exploration.scheduler import ExplorationScheduler
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup
-from dpgen2.exploration.conf_selector import ConfSelector
+from dpgen2.exploration.selector import ConfSelector
 from dpgen2.flow.block import block_cl
 
 class SchedulerWrapper(OP):
@@ -162,6 +162,7 @@ def loop (
             "init_data": steps.inputs.artifacts["init_data"],
             "iter_data": steps.inputs.artifacts["iter_data"],
         },
+        key = "%s-block" % steps.inputs.parameters["block_id"],
     )
     steps.add(block_step)
 
@@ -179,6 +180,7 @@ def loop (
         artifacts={
             "trajs" : block_step.outputs.artifacts['trajs'],
         },
+        key = "%s-scheduler" % steps.inputs.parameters["block_id"],
     )
     steps.add(scheduler_step)
 
@@ -194,6 +196,7 @@ def loop (
         },
         artifacts={
         },
+        key = "%s-id" % steps.inputs.parameters["block_id"],
     )
     steps.add(id_step)
 
@@ -321,8 +324,8 @@ def dpgen(
             "template_script" : steps.inputs.parameters['template_script'],
             "train_config" : steps.inputs.parameters['train_config'],
             "lmp_task_grp" : scheduler_step.outputs.parameters['lmp_task_grp'],
-            "lmp_config" : steps.inputs.parameters['lmp_config'],
             "conf_selector" : scheduler_step.outputs.parameters['conf_selector'],
+            "lmp_config" : steps.inputs.parameters['lmp_config'],
             "fp_inputs" : steps.inputs.parameters['fp_inputs'],
             "fp_config" : steps.inputs.parameters['fp_config'],
             "exploration_scheduler" : scheduler_step.outputs.parameters['exploration_scheduler'],

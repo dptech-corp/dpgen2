@@ -37,6 +37,7 @@ def prep_run_dp_train(
         name=name,
         inputs=Inputs(
             parameters={
+                "block_id" : InputParameter(type=str, value=""),
                 "numb_models": InputParameter(type=int),
                 "template_script" : InputParameter(),
                 "train_config" : InputParameter(),
@@ -72,6 +73,7 @@ def prep_run_dp_train(
         },
         artifacts={
         },
+        key = "%s-prep-train" % train_steps.inputs.parameters["block_id"],
     )
     train_steps.add(prep_train)
 
@@ -99,6 +101,7 @@ def prep_run_dp_train(
             "iter_data": train_steps.inputs.artifacts['iter_data'],
         },
         with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
+        key = "%s-run-train" % train_steps.inputs.parameters["block_id"],
     )
     train_steps.add(run_train)
 
