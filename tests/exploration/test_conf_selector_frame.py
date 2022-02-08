@@ -3,8 +3,10 @@ import os, textwrap, dpdata, shutil
 import numpy as np
 import unittest
 from pathlib import Path
-from dpgen2.exploration.conf_selector_frame import ConfSelectorLammpsFrames
-from dpgen2.exploration.trust_level import TrustLevel
+from dpgen2.exploration.selector import (
+    TrustLevel,
+    ConfSelectorLammpsFrames,
+)
 
 class TestConfSelectorLammpsFrames(unittest.TestCase):
     def setUp(self):

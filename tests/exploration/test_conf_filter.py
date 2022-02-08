@@ -2,7 +2,7 @@ import os
 import numpy as np
 import unittest, dpdata
 from exploration.context import dpgen2
-from dpgen2.exploration.conf_filter import ConfFilter, ConfFilters
+from dpgen2.exploration.selector import ConfFilter, ConfFilters
 from fake_data_set import fake_system
 from mock import patch
 

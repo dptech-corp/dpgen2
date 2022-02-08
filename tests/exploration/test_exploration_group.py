@@ -9,8 +9,10 @@ try:
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
-from dpgen2.exploration.group import CPTGroup
-from dpgen2.exploration.stage import ExplorationStage
+from dpgen2.exploration.task import (
+    CPTGroup, 
+    ExplorationStage,
+)
 from dpgen2.constants import lmp_conf_name, lmp_input_name
 from unittest.mock import Mock, patch
 
@@ -91,7 +93,7 @@ class TestCPTGroup(unittest.TestCase):
     # def setUp(self):
     #     self.mock_random = Mock()
 
-    @patch('dpgen2.exploration.lmp.lmp_input.random')
+    @patch('dpgen2.exploration.task.lmp.lmp_input.random')
     def test_npt(self, mock_random):
         mock_random.randrange.return_value = 1110
         self.confs = ['foo', 'bar']
@@ -127,7 +129,7 @@ class TestCPTGroup(unittest.TestCase):
                 in_template_npt % (self.tt[j_idx], self.pp[k_idx]),
             )
 
-    @patch('dpgen2.exploration.lmp.lmp_input.random')
+    @patch('dpgen2.exploration.task.lmp.lmp_input.random')
     def test_nvt(self, mock_random):
         mock_random.randrange.return_value = 1110
         self.confs = ['foo', 'bar']
@@ -162,7 +164,7 @@ class TestCPTGroup(unittest.TestCase):
             )
 
 
-    @patch('dpgen2.exploration.lmp.lmp_input.random')
+    @patch('dpgen2.exploration.task.lmp.lmp_input.random')
     def test_nvt_sample(self, mock_random):
         mock_random.randrange.return_value = 1110
         self.confs = ['foo', 'bar']
@@ -243,8 +245,8 @@ class TestCPTGroup(unittest.TestCase):
             )
 
 
-    @patch('dpgen2.exploration.group.random.shuffle')
-    @patch('dpgen2.exploration.lmp.lmp_input.random.randrange')
+    @patch('dpgen2.exploration.task.npt_group.random.shuffle')
+    @patch('dpgen2.exploration.task.lmp.lmp_input.random.randrange')
     def test_nvt_sample_random(self, mock_randrange, mock_shuffle):
         mock_randrange.return_value = 1110
         mock_shuffle.side_effect = swap_element
@@ -331,7 +333,7 @@ class TestCPTStage(unittest.TestCase):
     # def setUp(self):
     #     self.mock_random = Mock()
 
-    @patch('dpgen2.exploration.lmp.lmp_input.random')
+    @patch('dpgen2.exploration.task.lmp.lmp_input.random')
     def test(self, mock_random):
         mock_random.randrange.return_value = 1110
         self.numb_model = 3

@@ -16,11 +16,9 @@ from dpgen2.exploration.scheduler import (
     ConstTrustLevelStageScheduler,
     ExplorationScheduler,
 )
-from dpgen2.exploration.stage import ExplorationStage
 from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.task import ExplorationTaskGroup
-from dpgen2.exploration.trust_level import TrustLevel
-from dpgen2.exploration.conf_selector import TrustLevelConfSelector
+from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
+from dpgen2.exploration.selector import TrustLevel, TrustLevelConfSelector
 from mocked_ops import (
     MockedExplorationReport,
     MockedExplorationTaskGroup,
