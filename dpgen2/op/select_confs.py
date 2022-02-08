@@ -7,7 +7,7 @@ from dflow.python import (
 import os, json
 from typing import Tuple, List, Set
 from pathlib import Path
-from dpgen2.exploration.conf_selector import ConfSelector
+from dpgen2.exploration.selector import ConfSelector
 from dpgen2.exploration.report import ExplorationReport
 
 class SelectConfs(OP):
