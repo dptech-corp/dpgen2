@@ -23,9 +23,9 @@ from dflow.python import(
     Slices,
 )
 
+import os
 from typing import Set, List
 from pathlib import Path
-
 
 def prep_run_fp(
         name : str,
@@ -71,7 +71,7 @@ def prep_run_fp(
         artifacts={
             "confs" : prep_run_steps.inputs.artifacts['confs'],
         },
-        key = "%s-prep-fp" % prep_run_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%prep_run_steps.inputs.parameters["block_id"], "prep-fp"),
     )
     prep_run_steps.add(prep_fp)
 
@@ -96,7 +96,7 @@ def prep_run_fp(
             'task_path' : prep_fp.outputs.artifacts['task_paths'],
         },
         with_param=argo_range(argo_len(prep_fp.outputs.parameters["task_names"])),
-        key = "%s-run-fp" % prep_run_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%prep_run_steps.inputs.parameters["block_id"], "run-fp"),
     )
     prep_run_steps.add(run_fp)
 

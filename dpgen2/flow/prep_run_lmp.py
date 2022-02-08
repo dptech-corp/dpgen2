@@ -23,6 +23,7 @@ from dflow.python import(
     Slices,
 )
 
+import os
 from typing import Set, List
 from pathlib import Path
 
@@ -71,7 +72,7 @@ def prep_run_lmp(
         },
         artifacts={
         },
-        key = "%s-prep-lmp" % prep_run_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s" % prep_run_steps.inputs.parameters["block_id"], "prep-lmp"),
     )
     prep_run_steps.add(prep_lmp)
 
@@ -98,7 +99,7 @@ def prep_run_lmp(
         },
         # with_sequence=argo_sequence(argo_len(prep_lmp.outputs.parameters["task_names"])),
         with_param=argo_range(argo_len(prep_lmp.outputs.parameters["task_names"])),
-        key = "%s-run-lmp" % prep_run_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s" % prep_run_steps.inputs.parameters["block_id"], "run-lmp"),
     )
     prep_run_steps.add(run_lmp)
 

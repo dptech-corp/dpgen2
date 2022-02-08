@@ -21,6 +21,7 @@ from dflow.python import(
     Slices,
 )
 
+import os
 from typing import Set, List
 from pathlib import Path
 
@@ -73,7 +74,7 @@ def prep_run_dp_train(
         },
         artifacts={
         },
-        key = "%s-prep-train" % train_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%train_steps.inputs.parameters["block_id"], "prep-train"),
     )
     train_steps.add(prep_train)
 
@@ -101,7 +102,7 @@ def prep_run_dp_train(
             "iter_data": train_steps.inputs.artifacts['iter_data'],
         },
         with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
-        key = "%s-run-train" % train_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%train_steps.inputs.parameters["block_id"], "run-train"),
     )
     train_steps.add(run_train)
 

@@ -23,6 +23,7 @@ from dflow.python import(
     Slices,
 )
 
+import os
 from typing import Set, List
 from pathlib import Path
 
@@ -82,7 +83,7 @@ def block_cl(
             "init_data" : block_steps.inputs.artifacts['init_data'],
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
         },
-        key = "%s-prep-run-train" % block_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-train"),
     )
     block_steps.add(prep_run_dp_train)
         
@@ -97,7 +98,7 @@ def block_cl(
         artifacts={
             "models" : prep_run_dp_train.outputs.artifacts['models'],
         },
-        key = "%s-prep-run-lmp" % block_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-lmp"),
     )
     block_steps.add(prep_run_lmp)
         
@@ -120,7 +121,7 @@ def block_cl(
             "trajs" : prep_run_lmp.outputs.artifacts['trajs'],
             "model_devis" : prep_run_lmp.outputs.artifacts['model_devis'],
         },
-        key = "%s-select-conf" % block_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "select-conf"),
     )
     block_steps.add(select_confs)
         
@@ -135,7 +136,7 @@ def block_cl(
         artifacts={
             "confs" : select_confs.outputs.artifacts['confs'],
         },
-        key = "%s-prep-run-fp" % block_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-fp"),
     )
     block_steps.add(prep_run_fp)
 
@@ -156,7 +157,7 @@ def block_cl(
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
             "labeled_data" : prep_run_fp.outputs.artifacts['labeled_data'],
         },
-        key = "%s-collect-data" % block_steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "collect-data"),
     )
     block_steps.add(collect_data)
 

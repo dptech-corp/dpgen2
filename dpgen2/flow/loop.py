@@ -23,7 +23,7 @@ from dflow.python import(
     Artifact,
     Slices,
 )
-import jsonpickle
+import jsonpickle, os
 from typing import (
     List
 )
@@ -162,7 +162,7 @@ def loop (
             "init_data": steps.inputs.artifacts["init_data"],
             "iter_data": steps.inputs.artifacts["iter_data"],
         },
-        key = "%s-block" % steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "block"),
     )
     steps.add(block_step)
 
@@ -180,7 +180,7 @@ def loop (
         artifacts={
             "trajs" : block_step.outputs.artifacts['trajs'],
         },
-        key = "%s-scheduler" % steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "scheduler"),
     )
     steps.add(scheduler_step)
 
@@ -196,7 +196,7 @@ def loop (
         },
         artifacts={
         },
-        key = "%s-id" % steps.inputs.parameters["block_id"],
+        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "id"),
     )
     steps.add(id_step)
 
@@ -296,6 +296,7 @@ def dpgen(
         artifacts={
             "trajs" : None,
         },
+        key = os.path.join("init", "scheduler"),
     )
     steps.add(scheduler_step)
 
@@ -311,6 +312,7 @@ def dpgen(
         },
         artifacts={
         },
+        key = os.path.join("init", "id"),
     )
     steps.add(id_step)
 
