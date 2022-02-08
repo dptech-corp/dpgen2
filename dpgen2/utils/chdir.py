@@ -52,7 +52,7 @@ def chdir(path_key: str):
         """Change the current working path."""
         @wraps(func)
         def wrapper(self, ip : OPIO):
-            with Path(ip[path_key]):
+            with set_directory(Path(ip[path_key])):
                 return func(self, ip)
         return wrapper
     return decorator
