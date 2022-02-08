@@ -1,14 +1,16 @@
 import dpdata
 import numpy as np
 from collections import Counter
-from .conf_selector import ConfSelector
-from .conf_filter import ConfFilters
 from typing import (
     List,
     Tuple,
 )
 from pathlib import Path
-from .report import ExplorationReport, NaiveExplorationReport
+from . import (
+    ConfSelector,
+    ConfFilters,
+)
+from dpgen2.exploration.report import ExplorationReport, NaiveExplorationReport
 
 class ConfSelectorLammpsFrames(ConfSelector):
     """Select frames from trajectories as confs.

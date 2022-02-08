@@ -1,24 +1,11 @@
 import dpdata
 from abc import ABC, abstractmethod
-from .conf_filter import ConfFilters
-from .trust_level import TrustLevel
 from typing import Tuple, List, Set
 from pathlib import Path
-from dpgen2.exploration.report import ExplorationReport
-
-class ConfSelector(ABC):
-    """Select configurations from trajectory and model deviation files.
-    """
-    @abstractmethod
-    def select (
-            self,
-            trajs : List[Path],
-            model_devis : List[Path],
-            traj_fmt : str = 'deepmd/npy',
-            type_map : List[str] = None,
-    ) -> Tuple[List[ Path ], ExplorationReport]:
-        pass
-
+from . import ConfFilters
+from . import ConfSelector
+from . import TrustLevel
+from dpgen2.exploration.report import ExplorationReport    
 
 class TrustLevelConfSelector(ConfSelector):
     def __init__(

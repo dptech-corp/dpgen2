@@ -1,8 +1,11 @@
 import itertools, random
-from dpgen2.exploration.task import ExplorationTaskGroup
-from abc import (
-    ABC,
-    abstractmethod,
+from typing import (
+    List,
+)
+from . import (
+    ExplorationTask,
+    ExplorationTaskGroup,
+    ExplorationGroup, 
 )
 from .lmp import make_lmp_input
 from dpgen2.constants import (
@@ -10,23 +13,6 @@ from dpgen2.constants import (
     lmp_input_name,
     model_name_pattern,
 )
-from dpgen2.exploration.task import (
-    ExplorationTaskGroup,
-    ExplorationTask,
-)
-from typing import (
-    List,
-)
-
-class ExplorationGroup(ABC):
-    @abstractmethod
-    def make_task(
-            self,
-    )->ExplorationTaskGroup:
-        """
-        Make the LAMMPS task group.
-        """
-        pass
 
 class CPTGroup(ExplorationGroup):
     def __init__(

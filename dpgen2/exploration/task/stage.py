@@ -8,14 +8,14 @@ from dpgen2.constants import (
     lmp_input_name,
     model_name_pattern,
 )
-from dpgen2.exploration.task import (
+from . import (
     ExplorationTaskGroup,
     ExplorationTask,
+    ExplorationGroup,
 )
 from typing import (
     List,
 )
-from .group import ExplorationGroup
 
 class ExplorationStage():
     """
