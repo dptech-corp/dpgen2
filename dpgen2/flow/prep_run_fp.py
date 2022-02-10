@@ -27,39 +27,96 @@ import os
 from typing import Set, List
 from pathlib import Path
 
-def prep_run_fp(
-        name : str,
+
+class PrepRunFp(Steps):
+    def __init__(
+            self,
+            name : str,
+            prep_op : OP,
+            run_op : OP,
+            prep_image : str = "dflow:v1.0",
+            run_image : str = "dflow:v1.0",
+            upload_python_package : str = None,
+    ):
+        self._input_parameters = {
+            "block_id" : InputParameter(type=str, value=""),
+            "inputs": InputParameter(),
+            "fp_config" : InputParameter(),
+        }
+        self._input_artifacts = {
+            "confs" : InputArtifact()
+        }
+        self._output_parameters = {
+            "task_names": OutputParameter(),
+        }
+        self._output_artifacts = {
+            "logs": OutputArtifact(),
+            "labeled_data": OutputArtifact(),
+        }
+
+        super().__init__(
+            name=name,
+            inputs=Inputs(
+                parameters=self._input_parameters,
+                artifacts=self._input_artifacts,
+            ),
+            outputs=Outputs(
+                parameters=self._output_parameters,
+                artifacts=self._output_artifacts,
+            ),
+        )
+        
+        self._keys = ['prep-fp', 'run-fp']
+        self.step_keys = {}
+        for ii in self._keys:
+            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)
+
+        self = _prep_run_fp(
+            self, 
+            self.step_keys,
+            prep_op,
+            run_op,
+            prep_image = prep_image,
+            run_image = run_image,
+            upload_python_package = upload_python_package,
+        )            
+
+    @property
+    def input_parameters(self):
+        return self._input_parameters
+
+    @property
+    def input_artifacts(self):
+        return self._input_artifacts
+
+    @property
+    def output_parameters(self):
+        return self._output_parameters
+
+    @property
+    def output_artifacts(self):
+        return self._output_artifacts
+
+    @property
+    def keys(self):
+        return self._keys
+
+
+
+def _prep_run_fp(
+        prep_run_steps,
+        step_keys,
         prep_op : OP,
         run_op : OP,
+        prep_image : str = "dflow:v1.0",
+        run_image : str = "dflow:v1.0",
         upload_python_package : str = None,
 ):
-    prep_run_steps = Steps(
-        name=name,
-        inputs=Inputs(
-            parameters={
-                "block_id" : InputParameter(type=str, value=""),
-                "inputs": InputParameter(),
-                "fp_config" : InputParameter(),
-            },
-            artifacts={
-                "confs" : InputArtifact()
-            },
-        ),
-        outputs=Outputs(
-            parameters={
-                "task_names": OutputParameter(),
-            },
-            artifacts={
-                "logs": OutputArtifact(),
-                "labeled_data": OutputArtifact(),
-            }),
-    )
-
     prep_fp = Step(
         'prep-fp',
         template=PythonOPTemplate(
             prep_op,
-            image="dflow:v1.0",
+            image=prep_image,
             output_artifact_archive={
                 "task_paths": None
             },
@@ -71,7 +128,7 @@ def prep_run_fp(
         artifacts={
             "confs" : prep_run_steps.inputs.artifacts['confs'],
         },
-        key = os.path.join("%s"%prep_run_steps.inputs.parameters["block_id"], "prep-fp"),
+        key = step_keys['prep-fp'],
     )
     prep_run_steps.add(prep_fp)
 
@@ -79,7 +136,7 @@ def prep_run_fp(
         'run-fp',
         template=PythonOPTemplate(
             run_op,
-            image="dflow:v1.0",
+            image=run_image,
             slices = Slices(
                 "{{item}}",
                 input_parameter = ["task_name"],
@@ -96,7 +153,7 @@ def prep_run_fp(
             'task_path' : prep_fp.outputs.artifacts['task_paths'],
         },
         with_param=argo_range(argo_len(prep_fp.outputs.parameters["task_names"])),
-        key = os.path.join("%s"%prep_run_steps.inputs.parameters["block_id"], "run-fp"),
+        key = step_keys['run-fp'],
     )
     prep_run_steps.add(run_fp)
 

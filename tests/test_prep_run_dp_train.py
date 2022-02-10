@@ -34,7 +34,7 @@ except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from context import upload_python_package
-from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
+from dpgen2.flow.prep_run_dp_train import PrepRunDPTrain
 from dpgen2.constants import train_task_pattern
 from mocked_ops import (
     mocked_template_script,
@@ -258,7 +258,7 @@ class TestTrainDp(unittest.TestCase):
 
 
     def test_train(self):
-        steps = prep_run_dp_train(
+        steps = PrepRunDPTrain(
             "train-steps",
             MockedPrepDPTrain,
             MockedRunDPTrain,

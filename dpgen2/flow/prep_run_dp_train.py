@@ -24,40 +24,93 @@ from dflow.python import(
 import os
 from typing import Set, List
 from pathlib import Path
+from . import FlowIO
 
+class PrepRunDPTrain(Steps):
+    def __init__(
+            self,
+            name : str,
+            prep_train_op : OP,
+            run_train_op : OP,
+            prep_train_image : str = "dflow:v1.0",
+            run_train_image : str = "dflow:v1.0",
+            upload_python_package : str = None,
+    ):
+        self._input_parameters = {
+            "block_id" : InputParameter(type=str, value=""),
+            "numb_models": InputParameter(type=int),
+            "template_script" : InputParameter(),
+            "train_config" : InputParameter(),
+        }        
+        self._input_artifacts = {
+            "init_models" : InputArtifact(),
+            "init_data" : InputArtifact(),
+            "iter_data" : InputArtifact(),
+        }
+        self._output_parameters = {}
+        self._output_artifacts = {
+            "scripts": OutputArtifact(),
+            "models": OutputArtifact(),
+            "logs": OutputArtifact(),
+            "lcurves": OutputArtifact(),
+        }
 
-def prep_run_dp_train(
-        name : str,
+        super().__init__(        
+            name=name,
+            inputs=Inputs(
+                parameters=self._input_parameters,
+                artifacts=self._input_artifacts,
+            ),
+            outputs=Outputs(
+                artifacts=self._output_artifacts,
+            ),
+        )
+        
+        self._keys = ['prep-train', 'run-train']
+        self.step_keys = {}
+        for ii in self._keys:
+            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)
+
+        self = _prep_run_dp_train(
+            self, 
+            self.step_keys,
+            prep_train_op,
+            run_train_op,
+            prep_train_image = prep_train_image,
+            run_train_image = run_train_image,
+            upload_python_package = upload_python_package,
+        )            
+
+    @property
+    def input_parameters(self):
+        return self._input_parameters
+
+    @property
+    def input_artifacts(self):
+        return self._input_artifacts
+
+    @property
+    def output_parameters(self):
+        return self._output_parameters
+
+    @property
+    def output_artifacts(self):
+        return self._output_artifacts
+
+    @property
+    def keys(self):
+        return self._keys
+    
+
+def _prep_run_dp_train(
+        train_steps,
+        step_keys,
         prep_train_op : OP,
         run_train_op : OP,
         prep_train_image : str = "dflow:v1.0",
         run_train_image : str = "dflow:v1.0",
         upload_python_package : str = None,
 ):
-    train_steps = Steps(
-        name=name,
-        inputs=Inputs(
-            parameters={
-                "block_id" : InputParameter(type=str, value=""),
-                "numb_models": InputParameter(type=int),
-                "template_script" : InputParameter(),
-                "train_config" : InputParameter(),
-            },
-            artifacts={
-                "init_models" : InputArtifact(),
-                "init_data" : InputArtifact(),
-                "iter_data" : InputArtifact(),
-            },
-        ),
-        outputs=Outputs(
-            artifacts={
-                "scripts": OutputArtifact(),
-                "models": OutputArtifact(),
-                "logs": OutputArtifact(),
-                "lcurves": OutputArtifact(),
-            }),
-    )
-
     prep_train = Step(
         'prep-train',
         template=PythonOPTemplate(
@@ -74,7 +127,7 @@ def prep_run_dp_train(
         },
         artifacts={
         },
-        key = os.path.join("%s"%train_steps.inputs.parameters["block_id"], "prep-train"),
+        key = step_keys['prep-train'],
     )
     train_steps.add(prep_train)
 
@@ -102,7 +155,7 @@ def prep_run_dp_train(
             "iter_data": train_steps.inputs.artifacts['iter_data'],
         },
         with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
-        key = os.path.join("%s"%train_steps.inputs.parameters["block_id"], "run-train"),
+        key = step_keys['run-train'],
     )
     train_steps.add(run_train)
 

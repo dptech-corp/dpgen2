@@ -36,10 +36,10 @@ except ModuleNotFoundError:
     pass
 from context import upload_python_package
 from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
-from dpgen2.flow.prep_run_lmp import prep_run_lmp
-from dpgen2.flow.prep_run_fp import prep_run_fp
-from dpgen2.flow.block import block_cl
+from dpgen2.flow.prep_run_dp_train import PrepRunDPTrain
+from dpgen2.flow.prep_run_lmp import PrepRunLmp
+from dpgen2.flow.prep_run_fp import PrepRunFp
+from dpgen2.flow.block import ConcurrentLearningBlock
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 
@@ -78,19 +78,19 @@ from mocked_ops import (
 
 class TestBlockCL(unittest.TestCase):
     def _setUp_ops(self):
-        self.prep_run_dp_train_op = prep_run_dp_train(
+        self.prep_run_dp_train_op = PrepRunDPTrain(
             "prep-run-dp-train",
             MockedPrepDPTrain,
             MockedRunDPTrain,
             upload_python_package = upload_python_package,
         )
-        self.prep_run_lmp_op = prep_run_lmp(
+        self.prep_run_lmp_op = PrepRunLmp(
             "prep-run-lmp",
             PrepLmp,
             MockedRunLmp,
             upload_python_package = upload_python_package,
         )
-        self.prep_run_fp_op = prep_run_fp(
+        self.prep_run_fp_op = PrepRunFp(
             "prep-run-fp",
             MockedPrepVasp,
             MockedRunVasp,
@@ -134,7 +134,7 @@ class TestBlockCL(unittest.TestCase):
         self.name = 'iter-002'
         self._setUp_ops()
         self._setUp_data()
-        self.block_cl = block_cl(
+        self.block_cl = ConcurrentLearningBlock(
             self.name, 
             self.prep_run_dp_train_op,
             self.prep_run_lmp_op,
@@ -142,7 +142,7 @@ class TestBlockCL(unittest.TestCase):
             self.prep_run_fp_op,
             MockedCollectData,
             upload_python_package = upload_python_package,
-        )        
+        )
 
     def tearDown(self):
         for ii in ['init_data', 'iter_data', 'iter-000', 'iter-001', 'models']:
@@ -155,6 +155,13 @@ class TestBlockCL(unittest.TestCase):
                 os.remove(name)
 
     def test(self):
+        self.assertEqual(
+            self.block_cl.keys, 
+            ['prep-train', 'run-train', 'prep-lmp', 'run-lmp', 'select-confs',
+             'prep-fp', 'run-fp', 'collect-data',
+             ]
+        )
+
         block_step = Step(
             'step', 
             template = self.block_cl,

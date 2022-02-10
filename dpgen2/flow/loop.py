@@ -32,7 +32,7 @@ from dpgen2.exploration.scheduler import ExplorationScheduler
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.exploration.selector import ConfSelector
-from dpgen2.flow.block import block_cl
+from dpgen2.flow.block import ConcurrentLearningBlock
 
 class SchedulerWrapper(OP):
 
@@ -100,50 +100,186 @@ class MakeBlockId(OP):
         })
 
 
+class ConcurrentLearningLoop(Steps):
+    def __init__(
+            self,
+            name : str,
+            block_op : Steps,
+            image : str = "dflow:v1.0",
+            upload_python_package : str = None,
+    ):
+        self._input_parameters={
+            "block_id" : InputParameter(),
+            "type_map" : InputParameter(),
+            "numb_models": InputParameter(type=int),
+            "template_script" : InputParameter(),
+            "train_config" : InputParameter(),
+            "lmp_task_grp" : InputParameter(),
+            "lmp_config" : InputParameter(),
+            "conf_selector" : InputParameter(),
+            "fp_inputs" : InputParameter(),
+            "fp_config" : InputParameter(),
+            "exploration_scheduler" : InputParameter(),
+        }
+        self._input_artifacts={
+            "init_models" : InputArtifact(),
+            "init_data" : InputArtifact(),
+            "iter_data" : InputArtifact(),
+        }
+        self._output_parameters={
+            "exploration_scheduler": OutputParameter(),
+        }
+        self._output_artifacts={
+            "models": OutputArtifact(),
+            "iter_data" : OutputArtifact(),
+        }
+        
+        super().__init__(
+            name = name,
+            inputs = Inputs(
+                parameters=self._input_parameters,
+                artifacts=self._input_artifacts,
+            ),
+            outputs=Outputs(
+                parameters=self._output_parameters,
+                artifacts=self._output_artifacts,
+            ),
+        )
 
-def loop (
+        self._my_keys = ['block', 'scheduler', 'id']
+        self._keys = \
+            self._my_keys[:1] + \
+            block_op.keys + \
+            self._my_keys[1:3]
+        self.step_keys = {}
+        for ii in self._my_keys:
+            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)
+        
+        self = _loop(
+            self,
+            self.step_keys,
+            name,
+            block_op,
+            image = image,
+            upload_python_package = upload_python_package,
+        )
+
+    @property
+    def input_parameters(self):
+        return self._input_parameters
+
+    @property
+    def input_artifacts(self):
+        return self._input_artifacts
+
+    @property
+    def output_parameters(self):
+        return self._output_parameters
+
+    @property
+    def output_artifacts(self):
+        return self._output_artifacts
+
+    @property
+    def keys(self):
+        return self._keys
+
+
+class ConcurrentLearning(Steps):
+    def __init__(
+            self,
+            name : str,
+            loop_op : Steps,
+            image : str = "dflow:v1.0",
+            upload_python_package : str = None,
+    ):
+        self._input_parameters={
+            "type_map" : InputParameter(),
+            "numb_models": InputParameter(type=int),
+            "template_script" : InputParameter(),
+            "train_config" : InputParameter(),
+            "lmp_config" : InputParameter(),
+            "fp_inputs" : InputParameter(),
+            "fp_config" : InputParameter(),
+            "exploration_scheduler" : InputParameter(),
+        }
+        self._input_artifacts={
+            "init_models" : InputArtifact(),
+            "init_data" : InputArtifact(),
+            "iter_data" : InputArtifact(),
+        }
+        self._output_parameters={
+            "exploration_scheduler": OutputParameter(),
+        }
+        self._output_artifacts={
+            "models": OutputArtifact(),
+            "iter_data" : OutputArtifact(),
+        }        
+        
+        super().__init__(
+            name = name,
+            inputs = Inputs(
+                parameters=self._input_parameters,
+                artifacts=self._input_artifacts,
+            ),
+            outputs=Outputs(
+                parameters=self._output_parameters,
+                artifacts=self._output_artifacts,
+            ),
+        )
+
+        self._init_keys = ['scheduler', 'id']
+        self.loop_key = 'loop'
+        self.step_keys = {}
+        for ii in self._init_keys:
+            self.step_keys[ii] = os.path.join('init', ii)
+        self.loop_op_keys = loop_op.keys
+
+        self = _dpgen(
+            self,
+            self.step_keys,
+            name, 
+            loop_op,
+            self.loop_key,
+            image = image,
+            upload_python_package = upload_python_package,
+        )
+
+    @property
+    def input_parameters(self):
+        return self._input_parameters
+
+    @property
+    def input_artifacts(self):
+        return self._input_artifacts
+
+    @property
+    def output_parameters(self):
+        return self._output_parameters
+
+    @property
+    def output_artifacts(self):
+        return self._output_artifacts
+
+    @property
+    def init_keys(self):
+        return self._init_keys
+
+    @property
+    def loop_keys(self):
+        return [self.loop_key] + self.loop_op_keys
+
+
+def _loop (
+        steps, 
+        step_keys,
         name : str,
         block_op : OP,
+        image : str = "dflow:v1.0",
         upload_python_package : str = None,
-):
-    steps = Steps(
-        name = name,
-        inputs = Inputs(
-            parameters={
-                "block_id" : InputParameter(),
-                "type_map" : InputParameter(),
-                "numb_models": InputParameter(type=int),
-                "template_script" : InputParameter(),
-                "train_config" : InputParameter(),
-                "lmp_task_grp" : InputParameter(),
-                "lmp_config" : InputParameter(),
-                "conf_selector" : InputParameter(),
-                "fp_inputs" : InputParameter(),
-                "fp_config" : InputParameter(),
-                "exploration_scheduler" : InputParameter(),
-            },
-            artifacts={
-                "init_models" : InputArtifact(),
-                "init_data" : InputArtifact(),
-                "iter_data" : InputArtifact(),
-            },
-        ),
-        outputs=Outputs(
-            parameters={
-                "exploration_scheduler": OutputParameter(),
-            },
-            artifacts={
-                "models": OutputArtifact(),
-                "iter_data" : OutputArtifact(),
-            },
-        ),
-    )
-    
-    # suffix = steps.inputs.parameters["name_suffix"].value
-    suffix=''
-
+):    
     block_step = Step(
-        name = name + suffix + '-block',
+        name = name + '-block',
         template = block_op,
         parameters={
             "block_id" : steps.inputs.parameters["block_id"],
@@ -162,15 +298,15 @@ def loop (
             "init_data": steps.inputs.artifacts["init_data"],
             "iter_data": steps.inputs.artifacts["iter_data"],
         },
-        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "block"),
+        key = step_keys['block'],
     )
     steps.add(block_step)
 
     scheduler_step = Step(
-        name = name + suffix + '-scheduler',
+        name = name + '-scheduler',
         template=PythonOPTemplate(
             SchedulerWrapper,
-            image="dflow:v1.0",
+            image=image,
             python_packages = upload_python_package,
         ),
         parameters={
@@ -180,7 +316,7 @@ def loop (
         artifacts={
             "trajs" : block_step.outputs.artifacts['trajs'],
         },
-        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "scheduler"),
+        key = step_keys['scheduler'],
     )
     steps.add(scheduler_step)
 
@@ -188,7 +324,7 @@ def loop (
         name = name + '-make-block-id',
         template=PythonOPTemplate(
             MakeBlockId,
-            image="dflow:v1.0",
+            image=image,
             python_packages = upload_python_package,
         ),
         parameters={
@@ -196,7 +332,7 @@ def loop (
         },
         artifacts={
         },
-        key = os.path.join("%s"%steps.inputs.parameters["block_id"], "id"),
+        key = step_keys['id'],
     )
     steps.add(id_step)
 
@@ -247,46 +383,20 @@ def loop (
     return steps
 
 
-def dpgen(
+def _dpgen(
+        steps, 
+        step_keys,
         name,
         loop_op,
+        loop_key,
+        image = "dflow:v1.0",
         upload_python_package : str = None
 ):    
-    steps = Steps(
-        name = name,
-        inputs = Inputs(
-            parameters={
-                "type_map" : InputParameter(),
-                "numb_models": InputParameter(type=int),
-                "template_script" : InputParameter(),
-                "train_config" : InputParameter(),
-                "lmp_config" : InputParameter(),
-                "fp_inputs" : InputParameter(),
-                "fp_config" : InputParameter(),
-                "exploration_scheduler" : InputParameter(),
-            },
-            artifacts={
-                "init_models" : InputArtifact(),
-                "init_data" : InputArtifact(),
-                "iter_data" : InputArtifact(),
-            },
-        ),
-        outputs=Outputs(
-            parameters={
-                "exploration_scheduler": OutputParameter(),
-            },
-            artifacts={
-                "models": OutputArtifact(),
-                "iter_data" : OutputArtifact(),
-            },
-        ),
-    )
-
     scheduler_step = Step(
         name = name + '-scheduler',
         template=PythonOPTemplate(
             SchedulerWrapper,
-            image="dflow:v1.0",
+            image=image,
             python_packages = upload_python_package,
         ),
         parameters={
@@ -296,7 +406,7 @@ def dpgen(
         artifacts={
             "trajs" : None,
         },
-        key = os.path.join("init", "scheduler"),
+        key = step_keys['scheduler'],
     )
     steps.add(scheduler_step)
 
@@ -304,7 +414,7 @@ def dpgen(
         name = name + '-make-block-id',
         template=PythonOPTemplate(
             MakeBlockId,
-            image="dflow:v1.0",
+            image=image,
             python_packages = upload_python_package,
         ),
         parameters={
@@ -312,7 +422,7 @@ def dpgen(
         },
         artifacts={
         },
-        key = os.path.join("init", "id"),
+        key = step_keys['id'],
     )
     steps.add(id_step)
 
@@ -337,6 +447,7 @@ def dpgen(
             "init_data": steps.inputs.artifacts["init_data"],
             "iter_data": steps.inputs.artifacts["iter_data"],
         },
+        key = os.path.join("%s"%id_step.outputs.parameters['block_id'], loop_key),
     )
     steps.add(loop_step)
 

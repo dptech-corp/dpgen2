@@ -44,13 +44,13 @@ from dpgen2.exploration.scheduler import (
     ExplorationScheduler,
 )
 from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.flow.prep_run_dp_train import prep_run_dp_train
-from dpgen2.flow.prep_run_lmp import prep_run_lmp
-from dpgen2.flow.prep_run_fp import prep_run_fp
-from dpgen2.flow.block import block_cl
+from dpgen2.flow.prep_run_dp_train import PrepRunDPTrain
+from dpgen2.flow.prep_run_lmp import PrepRunLmp
+from dpgen2.flow.prep_run_fp import PrepRunFp
+from dpgen2.flow.block import ConcurrentLearningBlock
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
-from dpgen2.flow.loop import dpgen, loop
+from dpgen2.flow.loop import ConcurrentLearning, ConcurrentLearningLoop
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
 from dpgen2.exploration.selector import TrustLevelConfSelector, TrustLevel
@@ -95,25 +95,25 @@ from mocked_ops import (
 
 class TestLoop(unittest.TestCase):
     def _setUp_ops(self):
-        self.prep_run_dp_train_op = prep_run_dp_train(
+        self.prep_run_dp_train_op = PrepRunDPTrain(
             "prep-run-dp-train",
             MockedPrepDPTrain,
             MockedRunDPTrain,
             upload_python_package = upload_python_package,
         )
-        self.prep_run_lmp_op = prep_run_lmp(
+        self.prep_run_lmp_op = PrepRunLmp(
             "prep-run-lmp",
             PrepLmp,
             MockedRunLmp,
             upload_python_package = upload_python_package,
         )
-        self.prep_run_fp_op = prep_run_fp(
+        self.prep_run_fp_op = PrepRunFp(
             "prep-run-fp",
             MockedPrepVasp,
             MockedRunVasp,
             upload_python_package = upload_python_package,
         )
-        self.block_cl_op = block_cl(
+        self.block_cl_op = ConcurrentLearningBlock(
             self.name+'-block', 
             self.prep_run_dp_train_op,
             self.prep_run_lmp_op,
@@ -122,12 +122,12 @@ class TestLoop(unittest.TestCase):
             MockedCollectData,
             upload_python_package = upload_python_package,
         )        
-        self.loop_op = loop(
+        self.loop_op = ConcurrentLearningLoop(
             self.name+'-loop',
             self.block_cl_op,
             upload_python_package = upload_python_package,
         )
-        self.dpgen_op = dpgen(
+        self.dpgen_op = ConcurrentLearning(
             self.name,
             self.loop_op,
             upload_python_package = upload_python_package,
@@ -202,6 +202,22 @@ class TestLoop(unittest.TestCase):
                 os.remove(name)
 
     def test(self):
+        self.assertEqual(
+            self.dpgen_op.loop_keys, 
+            [
+                "loop", 'block',
+                'prep-train', 'run-train', 'prep-lmp', 'run-lmp', 'select-confs',
+                'prep-fp', 'run-fp', 'collect-data', 
+                "scheduler", "id",
+            ]
+        )
+        self.assertEqual(
+            self.dpgen_op.init_keys, 
+            [
+                "scheduler", "id", 
+            ]
+        )
+
         dpgen_step = Step(
             'dpgen-step', 
             template = self.dpgen_op,
