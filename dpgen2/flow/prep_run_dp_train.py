@@ -24,7 +24,6 @@ from dflow.python import(
 import os
 from typing import Set, List
 from pathlib import Path
-from . import FlowIO
 
 class PrepRunDPTrain(Steps):
     def __init__(
