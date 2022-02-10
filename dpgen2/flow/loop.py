@@ -189,10 +189,17 @@ class ConcurrentLearning(Steps):
     def __init__(
             self,
             name : str,
-            loop_op : Steps,
+            block_op : Steps,
             image : str = "dflow:v1.0",
             upload_python_package : str = None,
     ):
+        self.loop = ConcurrentLearningLoop(
+            name+'-loop',
+            block_op,
+            image = image,
+            upload_python_package = upload_python_package,
+        )
+        
         self._input_parameters={
             "type_map" : InputParameter(),
             "numb_models": InputParameter(type=int),
@@ -233,13 +240,12 @@ class ConcurrentLearning(Steps):
         self.step_keys = {}
         for ii in self._init_keys:
             self.step_keys[ii] = os.path.join('init', ii)
-        self.loop_op_keys = loop_op.keys
 
         self = _dpgen(
             self,
             self.step_keys,
             name, 
-            loop_op,
+            self.loop,
             self.loop_key,
             image = image,
             upload_python_package = upload_python_package,
@@ -267,7 +273,7 @@ class ConcurrentLearning(Steps):
 
     @property
     def loop_keys(self):
-        return [self.loop_key] + self.loop_op_keys
+        return [self.loop_key] + self.loop.keys
 
 
 def _loop (

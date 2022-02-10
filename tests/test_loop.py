@@ -50,7 +50,7 @@ from dpgen2.flow.prep_run_fp import PrepRunFp
 from dpgen2.flow.block import ConcurrentLearningBlock
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
-from dpgen2.flow.loop import ConcurrentLearning, ConcurrentLearningLoop
+from dpgen2.flow.loop import ConcurrentLearning
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
 from dpgen2.exploration.selector import TrustLevelConfSelector, TrustLevel
@@ -122,14 +122,9 @@ class TestLoop(unittest.TestCase):
             MockedCollectData,
             upload_python_package = upload_python_package,
         )        
-        self.loop_op = ConcurrentLearningLoop(
-            self.name+'-loop',
-            self.block_cl_op,
-            upload_python_package = upload_python_package,
-        )
         self.dpgen_op = ConcurrentLearning(
             self.name,
-            self.loop_op,
+            self.block_cl_op,
             upload_python_package = upload_python_package,
         )
 
