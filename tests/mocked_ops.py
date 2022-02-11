@@ -400,9 +400,6 @@ class MockedCollectDataRestart(CollectData):
         for ii in iter_data:
             iiname = ii.name
             shutil.copytree(ii, iiname)
-            fc = (Path(iiname)/'data').read_text()
-            fc = "restart\n" + fc
-            (Path(iiname)/'data').write_text(fc)
             new_iter_data.append(Path(iiname))
 
         # collect labled data
@@ -412,6 +409,11 @@ class MockedCollectDataRestart(CollectData):
         for ii in labeled_data:
             iiname = ii.name
             shutil.copytree(ii, name/iiname)
+            print('copy-------------------', ii, name/iiname)
+            fc = (name/iiname/'data').read_text()
+            fc = "restart\n" + fc
+            (name/iiname/'data').write_text(fc)
+
         new_iter_data.append(name)
         
         return OPIO({
