@@ -382,6 +382,13 @@ class MockedCollectDataFailed(CollectData):
             self,
             ip : OPIO,
     ) -> OPIO:
+        name = ip['name']
+        labeled_data = ip['labeled_data']
+        name = Path(name)
+        for ii in labeled_data:
+            iiname = ii.name
+            print('copy-------------------', ii, name/iiname)
+
         raise FatalError
 
 
@@ -408,8 +415,8 @@ class MockedCollectDataRestart(CollectData):
         
         for ii in labeled_data:
             iiname = ii.name
-            shutil.copytree(ii, name/iiname)
             print('copy-------------------', ii, name/iiname)
+            shutil.copytree(ii, name/iiname)
             fc = (name/iiname/'data').read_text()
             fc = "restart\n" + fc
             (name/iiname/'data').write_text(fc)
