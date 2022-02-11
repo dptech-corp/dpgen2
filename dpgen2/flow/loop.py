@@ -153,7 +153,9 @@ class ConcurrentLearningLoop(Steps):
             self._my_keys[1:3]
         self.step_keys = {}
         for ii in self._my_keys:
-            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)
+            self.step_keys[ii] = '--'.join(
+                ["%s"%self.inputs.parameters["block_id"], ii]
+            )
         
         self = _loop(
             self,
@@ -239,7 +241,7 @@ class ConcurrentLearning(Steps):
         self.loop_key = 'loop'
         self.step_keys = {}
         for ii in self._init_keys:
-            self.step_keys[ii] = os.path.join('init', ii)
+            self.step_keys[ii] = '--'.join(['init', ii])
 
         self = _dpgen(
             self,
@@ -453,7 +455,7 @@ def _dpgen(
             "init_data": steps.inputs.artifacts["init_data"],
             "iter_data": steps.inputs.artifacts["iter_data"],
         },
-        key = os.path.join("%s"%id_step.outputs.parameters['block_id'], loop_key),
+        key = '--'.join(["%s"%id_step.outputs.parameters['block_id'], loop_key]),
     )
     steps.add(loop_step)
 

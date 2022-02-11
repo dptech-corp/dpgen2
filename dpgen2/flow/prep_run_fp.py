@@ -69,7 +69,9 @@ class PrepRunFp(Steps):
         self._keys = ['prep-fp', 'run-fp']
         self.step_keys = {}
         for ii in self._keys:
-            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)
+            self.step_keys[ii] = '--'.join(
+                ["%s"%self.inputs.parameters["block_id"], ii]
+            )
 
         self = _prep_run_fp(
             self, 

@@ -376,6 +376,49 @@ class MockedCollectData(CollectData):
         })
 
 
+class MockedCollectDataFailed(CollectData):
+    @OP.exec_sign_check
+    def execute(
+            self,
+            ip : OPIO,
+    ) -> OPIO:
+        raise FatalError
+
+
+class MockedCollectDataRestart(CollectData):
+    @OP.exec_sign_check
+    def execute(
+            self,
+            ip : OPIO,
+    ) -> OPIO:
+        name = ip['name']
+        labeled_data = ip['labeled_data']
+        iter_data = ip['iter_data']
+
+        new_iter_data = []
+        # copy iter_data
+        for ii in iter_data:
+            iiname = ii.name
+            shutil.copytree(ii, iiname)
+            fc = (Path(iiname)/'data').read_text()
+            fc = "restart\n" + fc
+            (Path(iiname)/'data').write_text(fc)
+            new_iter_data.append(Path(iiname))
+
+        # collect labled data
+        name = Path(name)
+        name.mkdir(exist_ok=True, parents=True)
+        
+        for ii in labeled_data:
+            iiname = ii.name
+            shutil.copytree(ii, name/iiname)
+        new_iter_data.append(name)
+        
+        return OPIO({
+            "iter_data" : new_iter_data,
+        })
+
+
 class MockedExplorationReport(ExplorationReport):
     def __init__(self):
         self.failed = .1
@@ -423,6 +466,17 @@ class MockedExplorationTaskGroup1(ExplorationTaskGroup):
                 .add_file(lmp_input_name, f'mocked 1 input {jj}')
             self.add_task(tt)
 
+class MockedExplorationTaskGroup2(ExplorationTaskGroup):
+    def __init__(self):
+        super().__init__()
+        ntask = mocked_numb_lmp_tasks
+        for jj in range(ntask):
+            tt = ExplorationTask()
+            tt\
+                .add_file(lmp_conf_name, f'mocked 2 conf {jj}')\
+                .add_file(lmp_input_name, f'mocked 2 input {jj}')
+            self.add_task(tt)
+
 class MockedStage(ExplorationStage):
     def make_task(self):
         return MockedExplorationTaskGroup()
@@ -431,6 +485,9 @@ class MockedStage1(ExplorationStage):
     def make_task(self):
         return MockedExplorationTaskGroup1()
 
+class MockedStage2(ExplorationStage):
+    def make_task(self):
+        return MockedExplorationTaskGroup2()
 
 class MockedConfSelector(ConfSelector):
     def __init__(

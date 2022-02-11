@@ -88,7 +88,9 @@ class ConcurrentLearningBlock(Steps):
             self._my_keys[1:2]
         self.step_keys = {}
         for ii in self._my_keys:
-            self.step_keys[ii] = os.path.join("%s"%self.inputs.parameters["block_id"], ii)        
+            self.step_keys[ii] = '--'.join(
+                ["%s"%self.inputs.parameters["block_id"], ii]
+            )
 
         self = _block_cl(
             self,
@@ -153,7 +155,7 @@ def _block_cl(
             "init_data" : block_steps.inputs.artifacts['init_data'],
             "iter_data" : block_steps.inputs.artifacts['iter_data'],
         },
-        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-train"),
+        key = '--'.join(["%s"%block_steps.inputs.parameters["block_id"], "prep-run-train"]),
     )
     block_steps.add(prep_run_dp_train)
         
@@ -168,7 +170,7 @@ def _block_cl(
         artifacts={
             "models" : prep_run_dp_train.outputs.artifacts['models'],
         },
-        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-lmp"),
+        key = '--'.join(["%s"%block_steps.inputs.parameters["block_id"], "prep-run-lmp"]),
     )
     block_steps.add(prep_run_lmp)
         
@@ -206,7 +208,7 @@ def _block_cl(
         artifacts={
             "confs" : select_confs.outputs.artifacts['confs'],
         },
-        key = os.path.join("%s"%block_steps.inputs.parameters["block_id"], "prep-run-fp"),
+        key = '--'.join(["%s"%block_steps.inputs.parameters["block_id"], "prep-run-fp"]),
     )
     block_steps.add(prep_run_fp)
 
