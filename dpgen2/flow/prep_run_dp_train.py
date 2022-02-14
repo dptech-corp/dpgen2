@@ -11,6 +11,8 @@ from dflow import (
     upload_artifact,
     download_artifact,
     argo_range,
+    argo_len,
+    argo_sequence,
 )
 from dflow.python import(
     PythonOPTemplate,
@@ -20,7 +22,9 @@ from dflow.python import(
     Artifact,
     Slices,
 )
-
+from dpgen2.constants import (
+    train_index_pattern,
+)
 import os
 from typing import Set, List
 from pathlib import Path
@@ -67,10 +71,14 @@ class PrepRunDPTrain(Steps):
         
         self._keys = ['prep-train', 'run-train']
         self.step_keys = {}
-        for ii in self._keys:
-            self.step_keys[ii] = '--'.join(
-                ["%s"%self.inputs.parameters["block_id"], ii]
-            )
+        ii = 'prep-train'
+        self.step_keys[ii] = '--'.join(
+            ["%s"%self.inputs.parameters["block_id"], ii]
+        )
+        ii = 'run-train'
+        self.step_keys[ii] = '--'.join(
+            ["%s"%self.inputs.parameters["block_id"], ii + "-{{item}}"]
+        )
 
         self = _prep_run_dp_train(
             self, 
@@ -138,7 +146,7 @@ def _prep_run_dp_train(
             run_train_op,
             image=run_train_image,
             slices = Slices(
-                "{{item}}",
+                "int('{{item}}')",
                 input_parameter = ["task_name"],
                 input_artifact = ["task_path", "init_model"],
                 output_artifact = ["model", "lcurve", "log", "script"],
@@ -155,7 +163,8 @@ def _prep_run_dp_train(
             "init_data": train_steps.inputs.artifacts['init_data'],
             "iter_data": train_steps.inputs.artifacts['iter_data'],
         },
-        with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
+        with_sequence=argo_sequence(argo_len(prep_train.outputs.parameters["task_names"]), format=train_index_pattern),
+        # with_param=argo_range(train_steps.inputs.parameters["numb_models"]),
         key = step_keys['run-train'],
     )
     train_steps.add(run_train)

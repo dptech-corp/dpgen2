@@ -22,7 +22,9 @@ from dflow.python import(
     Artifact,
     Slices,
 )
-
+from dpgen2.constants import (
+    lmp_index_pattern,
+)
 import os
 from typing import Set, List
 from pathlib import Path
@@ -69,10 +71,14 @@ class PrepRunLmp(Steps):
         
         self._keys = ['prep-lmp', 'run-lmp']
         self.step_keys = {}
-        for ii in self._keys:
-            self.step_keys[ii] = '--'.join(
-                ["%s"%self.inputs.parameters["block_id"], ii]
-            )
+        ii = 'prep-lmp'
+        self.step_keys[ii] = '--'.join(
+            ["%s"%self.inputs.parameters["block_id"], ii]
+        )
+        ii = 'run-lmp'
+        self.step_keys[ii] = '--'.join(
+            ["%s"%self.inputs.parameters["block_id"], ii + "-{{item}}"]
+        )
 
         self = _prep_run_lmp(
             self, 
@@ -140,7 +146,7 @@ def _prep_run_lmp(
             run_op,
             image=run_image,
             slices = Slices(
-                "{{item}}",
+                "int('{{item}}')",
                 input_parameter = ["task_name"],
                 input_artifact = ["task_path"],
                 output_artifact = ["log", "traj", "model_devi"],
@@ -155,8 +161,8 @@ def _prep_run_lmp(
             'task_path' : prep_lmp.outputs.artifacts['task_paths'],
             "models" : prep_run_steps.inputs.artifacts['models'],
         },
-        # with_sequence=argo_sequence(argo_len(prep_lmp.outputs.parameters["task_names"])),
-        with_param=argo_range(argo_len(prep_lmp.outputs.parameters["task_names"])),
+        with_sequence=argo_sequence(argo_len(prep_lmp.outputs.parameters["task_names"]), format=lmp_index_pattern),
+        # with_param=argo_range(argo_len(prep_lmp.outputs.parameters["task_names"])),
         key = step_keys['run-lmp'],
     )
     prep_run_steps.add(run_lmp)
