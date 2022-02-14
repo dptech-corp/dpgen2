@@ -345,6 +345,112 @@ class MockedRunVasp(RunVasp):
         })
 
 
+class MockedRunVaspFail1(RunVasp):
+    @OP.exec_sign_check
+    def execute(
+            self,
+            ip : OPIO,
+    ) -> OPIO:
+        task_name = ip['task_name']
+        task_path = ip['task_path']
+
+        assert(ip['task_path'].is_dir())
+        assert(re.match('task.[0-9][0-9][0-9][0-9][0-9][0-9]', ip['task_name']))
+        task_id = int(ip['task_name'].split('.')[1])
+        assert(ip['task_name'] in str(ip['task_path']))
+        assert((ip['task_path']/vasp_conf_name).is_file())
+        assert((ip['task_path']/vasp_input_name).is_file())
+
+        if task_id == 1:
+            raise FatalError
+
+        work_dir = Path(task_name)
+
+        cwd = os.getcwd()
+        work_dir.mkdir(exist_ok=True, parents=True)
+        os.chdir(work_dir)
+
+        import glob
+        ifiles = glob.glob(str(task_path / '*'))
+        for ii in ifiles:
+            if not Path(Path(ii).name).exists():
+                Path(Path(ii).name).symlink_to(ii)
+        
+        log = Path('log')
+        # labeled_data = Path('labeled_data')
+        labeled_data = Path('data_'+task_name)
+        
+        fc = []
+        for ii in [vasp_conf_name, vasp_input_name]:
+             fc.append(Path(ii).read_text())
+        log.write_text('\n'.join(fc))
+        labeled_data.mkdir(exist_ok=True, parents=True)
+
+        fc = []
+        fc.append(f'labeled_data of {task_name}')
+        fc.append(Path(vasp_conf_name).read_text())
+        (labeled_data / 'data').write_text('\n'.join(fc))
+
+        os.chdir(cwd)
+
+        return OPIO({
+            'log' : work_dir/log,
+            'labeled_data' : work_dir/labeled_data,
+        })
+
+
+class MockedRunVaspRestart(RunVasp):
+    @OP.exec_sign_check
+    def execute(
+            self,
+            ip : OPIO,
+    ) -> OPIO:
+        task_name = ip['task_name']
+        task_path = ip['task_path']
+
+        assert(ip['task_path'].is_dir())
+        assert(re.match('task.[0-9][0-9][0-9][0-9][0-9][0-9]', ip['task_name']))
+        task_id = int(ip['task_name'].split('.')[1])
+        assert(ip['task_name'] in str(ip['task_path']))
+        assert((ip['task_path']/vasp_conf_name).is_file())
+        assert((ip['task_path']/vasp_input_name).is_file())
+
+        work_dir = Path(task_name)
+
+        cwd = os.getcwd()
+        work_dir.mkdir(exist_ok=True, parents=True)
+        os.chdir(work_dir)
+
+        import glob
+        ifiles = glob.glob(str(task_path / '*'))
+        for ii in ifiles:
+            if not Path(Path(ii).name).exists():
+                Path(Path(ii).name).symlink_to(ii)
+        
+        log = Path('log')
+        # labeled_data = Path('labeled_data')
+        labeled_data = Path('data_'+task_name)
+        
+        fc = []
+        for ii in [vasp_conf_name, vasp_input_name]:
+             fc.append(Path(ii).read_text())
+        log.write_text('\n'.join(fc))
+        labeled_data.mkdir(exist_ok=True, parents=True)
+
+        fc = []
+        fc.append('restarted')
+        fc.append(f'labeled_data of {task_name}')
+        fc.append(Path(vasp_conf_name).read_text())
+        (labeled_data / 'data').write_text('\n'.join(fc))
+
+        os.chdir(cwd)
+
+        return OPIO({
+            'log' : work_dir/log,
+            'labeled_data' : work_dir/labeled_data,
+        })
+
+
 class MockedCollectData(CollectData):
     @OP.exec_sign_check
     def execute(
