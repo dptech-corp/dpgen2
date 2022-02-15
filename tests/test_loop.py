@@ -471,8 +471,24 @@ class TestLoopRestart(unittest.TestCase):
             if name.is_file():
                 os.remove(name)
 
+    def get_restart_step(
+            self,
+            wf,
+            steps_exceptions = [],
+            phase = 'Succeeded',
+    ):
+        _steps = wf.query_step(phase=phase)
+        steps = []
+        for ii in _steps:
+            if ii.type != "Steps" or (ii.key is not None and ii.key in steps_exceptions):
+                steps.append(ii)
+        return steps
 
     def test_update_artifact(self):
+        # failed at collect_data
+        # revise the output of prep-run-fp
+        # restart the workflow with restarted collect_data and the old scheduler
+
         dpgen_step_0 = Step(
             'dpgen-step', 
             template = self.dpgen_op_0,
@@ -498,17 +514,20 @@ class TestLoopRestart(unittest.TestCase):
         wf_0.submit()
         id_0 = wf_0.id
 
-        # wf_0 = Workflow(id='dpgen-z4f2l')
+        # wf_0 = Workflow(id='dpgen-kjd6c')
 
         while wf_0.query_status() in ["Pending", "Running"]:
             time.sleep(4)
         self.assertEqual(wf_0.query_status(), "Failed")
 
-        _steps_0 = wf_0.query_step()
-        steps_0 = []
-        for ii in _steps_0:
-            if ii['phase'] == 'Succeeded':
-                steps_0.append(ii)
+        # _steps_0 = wf_0.query_step()
+        # steps_0 = []
+        # for ii in _steps_0:
+        #     if ii['phase'] == 'Succeeded':
+        #         steps_0.append(ii)
+
+        steps_0 = self.get_restart_step(
+            wf_0, steps_exceptions = ['iter-000000--prep-run-fp'])
         
         fpout_idx = None
         for idx, ii in enumerate(steps_0):
@@ -609,6 +628,11 @@ class TestLoopRestart(unittest.TestCase):
 
 
     def test_update_artifact_scheduler(self):
+        # failed at collect_data
+        # revise the output of prep-run-fp
+        # revise the scheduler
+        # restart the workflow with restarted collect_data and the new scheduler
+
         dpgen_step_0 = Step(
             'dpgen-step', 
             template = self.dpgen_op_0,
@@ -753,7 +777,11 @@ class TestLoopRestart(unittest.TestCase):
             )
 
 
-    def test_update_slice_item(self):
+    def test_update_slice_item_input(self):
+        # failed at run-fp-000001
+        # revise the item 1 of the output of prep-fp
+        # restart the workflow with restarted run_fp, the same scheduler
+
         dpgen_step_0 = Step(
             'dpgen-step', 
             template = self.dpgen_op_2,
@@ -892,6 +920,156 @@ class TestLoopRestart(unittest.TestCase):
                  ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
                 '\n'.join([
                     'restarted',
+                    'labeled_data of '+vasp_task_pattern%ii,
+                    f'select conf.{ii}',
+                    f'mocked 1 conf {ii}',
+                    f'mocked 1 input {ii}',
+                ]).strip()
+            )
+
+
+    def test_update_slice_item_output(self):        
+        # failed at collect_data
+        # revise the output of run-fp-000001
+        # restart the workflow with restarted collect_data, the same scheduler
+
+        dpgen_step_0 = Step(
+            'dpgen-step', 
+            template = self.dpgen_op_0,
+            parameters = {
+                "type_map" : self.type_map,
+                "numb_models" : self.numb_models,
+                "template_script" : self.template_script,
+                "train_config" : {},
+                "lmp_config" : {},
+                'fp_inputs' : self.vasp_inputs,
+                "fp_config" : {},
+                "exploration_scheduler" : self.scheduler_0,
+            },
+            artifacts = {
+                "init_models" : self.init_models,
+                "init_data" : self.init_data,
+                "iter_data" : self.iter_data,
+            },
+        )
+        
+        wf_0 = Workflow(name="dpgen")
+        wf_0.add(dpgen_step_0)
+        wf_0.submit()
+        id_0 = wf_0.id
+
+        # wf_0 = Workflow(id='dpgen-nmgsw')
+
+        while wf_0.query_status() in ["Pending", "Running"]:
+            time.sleep(4)
+        self.assertEqual(wf_0.query_status(), "Failed")
+
+        steps_0 = self.get_restart_step(wf_0)
+        # for ii in steps_0:
+        #     print(ii.key)
+        
+        fpout_idx = None
+        for idx, ii in enumerate(steps_0):
+            if ii.key is not None and ii.key == 'iter-000000--run-fp-000001':
+                fpout_idx = idx
+        self.assertTrue(fpout_idx is not None)
+        step_fp = steps_0.pop(fpout_idx)
+
+        self.assertEqual(step_fp['phase'], 'Succeeded')
+        download_artifact(step_fp.outputs.artifacts['labeled_data'], path='failed_res')
+        for modi_file in [
+                Path('failed_res')/'task.000001'/'data_task.000001'/'data',
+        ]:
+            fc = modi_file.read_text()
+            fc = 'modified\n' + fc
+            modi_file.write_text(fc)
+        os.chdir('failed_res')
+        new_arti = upload_artifact([
+            None,
+            'task.000001/data_task.000001',
+        ], archive = None)
+        step_fp.modify_output_artifact('labeled_data', new_arti)
+        os.chdir('..')
+        steps_0.append(step_fp)
+
+        # keys_0 =  []
+        # for ii in steps_0:
+        #     if ii.key is not None:
+        #         keys_0.append(ii.key)
+        # keys_0.sort()
+        # print(keys_0)
+
+        dpgen_step_1 = Step(
+            'dpgen-step', 
+            template = self.dpgen_op_1,
+            parameters = {
+                "type_map" : self.type_map,
+                "numb_models" : self.numb_models,
+                "template_script" : self.template_script,
+                "train_config" : {},
+                "lmp_config" : {},
+                'fp_inputs' : self.vasp_inputs,
+                "fp_config" : {},
+                "exploration_scheduler" : self.scheduler_0,
+            },
+            artifacts = {
+                "init_models" : self.init_models,
+                "init_data" : self.init_data,
+                "iter_data" : self.iter_data,
+            },
+        )
+        
+        wf_1 = Workflow(name="dpgen")
+        wf_1.add(dpgen_step_1)
+        wf_1.submit(reuse_step = steps_0)
+        id_1 = wf_1.id
+        
+        while wf_1.query_status() in ["Pending", "Running"]:
+            time.sleep(2)
+        self.assertEqual(wf_1.query_status(), "Succeeded")
+
+        step = wf_1.query_step(name='dpgen-step')[0]
+        self.assertEqual(step.phase, "Succeeded")
+        download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
+        download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
+        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        self.assertEqual(scheduler.get_stage(), 2)
+        self.assertEqual(scheduler.get_iteration(), 1)
+        
+        # # we know number of selected data is 2
+        # # by MockedConfSelector
+        for ii in range(mocked_numb_select):
+            if ii == 0:
+                self.assertEqual(
+                    (Path('iter_data')/'iter-000000'/
+                     ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
+                    '\n'.join([
+                        'restart',
+                        'labeled_data of '+vasp_task_pattern%ii,
+                        f'select conf.{ii}',
+                        f'mocked conf {ii}',
+                        f'mocked input {ii}',
+                    ]).strip()
+                )
+            elif ii == 1:
+                self.assertEqual(
+                    (Path('iter_data')/'iter-000000'/
+                     ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
+                    '\n'.join([
+                        'restart',
+                        'modified',
+                        'labeled_data of '+vasp_task_pattern%ii,
+                        f'select conf.{ii}',
+                        f'mocked conf {ii}',
+                        f'mocked input {ii}',
+                    ]).strip()
+                )
+        for ii in range(mocked_numb_select):
+            self.assertEqual(
+                (Path('iter_data')/'iter-000001'/\
+                 ('data_'+vasp_task_pattern%ii)/'data').read_text().strip(),
+                '\n'.join([
+                    'restart',
                     'labeled_data of '+vasp_task_pattern%ii,
                     f'select conf.{ii}',
                     f'mocked 1 conf {ii}',
