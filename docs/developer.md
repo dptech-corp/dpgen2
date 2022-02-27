@@ -76,5 +76,5 @@ Anyone interested in the DPGEN2 project may contribute from two aspects: operato
 
 - To contribute OPs, one may check the [guide on writing operators](./operator.md)
 
-- To contribute workflows, one may take the DP-GEN workflow as an example. It is implemented in [dpgen2/flow/loop.py](https://github.com/wanghan-iapcm/dpgen2/blob/master/dpgen2/flow/loop.py) and tested with all operators mocked in [test/test_loop.py](https://github.com/wanghan-iapcm/dpgen2/blob/master/tests/test_loop.py)
+- To contribute workflows, one may take the DP-GEN workflow as an example. It is implemented in [dpgen2/flow/dpgen_loop.py](https://github.com/wanghan-iapcm/dpgen2/blob/master/dpgen2/flow/dpgen_loop.py) and tested with all operators mocked in [test/test_dpgen_loop.py](https://github.com/wanghan-iapcm/dpgen2/blob/master/tests/test_dpten_loop.py)
 
