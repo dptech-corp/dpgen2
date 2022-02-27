@@ -4,6 +4,7 @@ from dflow.python import (
     OPIOSign,
     Artifact,
     upload_packages,
+    FatalError,
 )
 
 upload_packages.append(__file__)

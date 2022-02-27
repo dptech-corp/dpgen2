@@ -44,13 +44,13 @@ from dpgen2.exploration.scheduler import (
     ExplorationScheduler,
 )
 from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.flow.prep_run_dp_train import PrepRunDPTrain
-from dpgen2.flow.prep_run_lmp import PrepRunLmp
-from dpgen2.flow.prep_run_fp import PrepRunFp
-from dpgen2.flow.block import ConcurrentLearningBlock
+from dpgen2.superop.prep_run_dp_train import PrepRunDPTrain
+from dpgen2.superop.prep_run_lmp import PrepRunLmp
+from dpgen2.superop.prep_run_fp import PrepRunFp
+from dpgen2.superop.block import ConcurrentLearningBlock
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
-from dpgen2.flow.loop import ConcurrentLearning
+from dpgen2.flow.dpgen_loop import ConcurrentLearning
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
 from dpgen2.exploration.selector import TrustLevelConfSelector, TrustLevel
@@ -514,7 +514,7 @@ class TestLoopRestart(unittest.TestCase):
         wf_0.submit()
         id_0 = wf_0.id
 
-        # wf_0 = Workflow(id='dpgen-kjd6c')
+        # wf_0 = Workflow(id='dpgen-rdhxw')
 
         while wf_0.query_status() in ["Pending", "Running"]:
             time.sleep(4)

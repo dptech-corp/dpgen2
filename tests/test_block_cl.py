@@ -36,10 +36,10 @@ except ModuleNotFoundError:
     pass
 from context import upload_python_package
 from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.flow.prep_run_dp_train import PrepRunDPTrain
-from dpgen2.flow.prep_run_lmp import PrepRunLmp
-from dpgen2.flow.prep_run_fp import PrepRunFp
-from dpgen2.flow.block import ConcurrentLearningBlock
+from dpgen2.superop.prep_run_dp_train import PrepRunDPTrain
+from dpgen2.superop.prep_run_lmp import PrepRunLmp
+from dpgen2.superop.prep_run_fp import PrepRunFp
+from dpgen2.superop.block import ConcurrentLearningBlock
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from dpgen2.fp.vasp import VaspInputs
 

@@ -32,7 +32,7 @@ from dpgen2.exploration.scheduler import ExplorationScheduler
 from dpgen2.exploration.report import ExplorationReport
 from dpgen2.exploration.task import ExplorationTaskGroup
 from dpgen2.exploration.selector import ConfSelector
-from dpgen2.flow.block import ConcurrentLearningBlock
+from dpgen2.superop.block import ConcurrentLearningBlock
 
 class SchedulerWrapper(OP):
 

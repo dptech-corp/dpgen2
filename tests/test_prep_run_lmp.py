@@ -35,7 +35,7 @@ except ModuleNotFoundError:
     pass
 from context import upload_python_package
 from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.flow.prep_run_lmp import PrepRunLmp
+from dpgen2.superop.prep_run_lmp import PrepRunLmp
 from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
 from mocked_ops import (
     mocked_numb_models,

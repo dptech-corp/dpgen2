@@ -30,7 +30,7 @@ setuptools.setup(
     url="https://github.com/deepmodeling/dpgen2",
     packages=['dpgen2',
               'dpgen2/op',
-              'dpgen2/flow',
+              'dpgen2/superop',
               'dpgen2/utils',
               'dpgen2/fp',
     ],
