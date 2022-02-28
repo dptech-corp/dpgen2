@@ -10,7 +10,7 @@ except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from dpgen2.exploration.task import (
-    CPTGroup, 
+    NPTTaskGroup, 
     ExplorationStage,
 )
 from dpgen2.constants import lmp_conf_name, lmp_input_name
@@ -102,7 +102,7 @@ class TestCPTGroup(unittest.TestCase):
         self.numb_model = 3
         self.mass_map = [10, 20]
 
-        cpt_group = CPTGroup()
+        cpt_group = NPTTaskGroup()
         cpt_group.set_md(
             self.numb_model, 
             self.mass_map,
@@ -137,7 +137,7 @@ class TestCPTGroup(unittest.TestCase):
         self.numb_model = 3
         self.mass_map = [10, 20]
 
-        cpt_group = CPTGroup()
+        cpt_group = NPTTaskGroup()
         cpt_group.set_md(
             self.numb_model, 
             self.mass_map,
@@ -172,7 +172,7 @@ class TestCPTGroup(unittest.TestCase):
         self.numb_model = 3
         self.mass_map = [10, 20]
 
-        cpt_group = CPTGroup()
+        cpt_group = NPTTaskGroup()
         cpt_group.set_md(
             self.numb_model, 
             self.mass_map,
@@ -245,7 +245,7 @@ class TestCPTGroup(unittest.TestCase):
             )
 
 
-    @patch('dpgen2.exploration.task.npt_group.random.shuffle')
+    @patch('dpgen2.exploration.task.npt_task_group.random.shuffle')
     @patch('dpgen2.exploration.task.lmp.lmp_input.random.randrange')
     def test_nvt_sample_random(self, mock_randrange, mock_shuffle):
         mock_randrange.return_value = 1110
@@ -255,7 +255,7 @@ class TestCPTGroup(unittest.TestCase):
         self.numb_model = 3
         self.mass_map = [10, 20]
 
-        cpt_group = CPTGroup()
+        cpt_group = NPTTaskGroup()
         cpt_group.set_md(
             self.numb_model, 
             self.mass_map,
@@ -339,7 +339,7 @@ class TestCPTStage(unittest.TestCase):
         self.numb_model = 3
         self.mass_map = [10, 20]
 
-        cpt_group_p = CPTGroup()
+        cpt_group_p = NPTTaskGroup()
         cpt_group_p.set_md(
             self.numb_model,
             self.mass_map,
@@ -350,7 +350,7 @@ class TestCPTStage(unittest.TestCase):
             ['foo'],
         )
 
-        cpt_group_t = CPTGroup()
+        cpt_group_t = NPTTaskGroup()
         cpt_group_t.set_md(
             self.numb_model, 
             self.mass_map,
@@ -362,7 +362,7 @@ class TestCPTStage(unittest.TestCase):
         )
 
         stage = ExplorationStage()
-        stage.add_group(cpt_group_p).add_group(cpt_group_t)
+        stage.add_task_group(cpt_group_p).add_task_group(cpt_group_t)
 
         task_group = stage.make_task()
         

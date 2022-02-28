@@ -64,7 +64,7 @@ class ExplorationTaskGroup(Sequence):
     """
     def __init__(self):
         super().__init__()
-        self._task_list = []
+        self.clear()
 
     def __getitem__(self, ii:int) -> ExplorationTask:
         """Get the `ii`th task"""
@@ -73,6 +73,9 @@ class ExplorationTaskGroup(Sequence):
     def __len__(self) -> int:
         """Get the number of tasks in the group"""
         return len(self.task_list)
+
+    def clear(self)->None:
+        self._task_list = []
 
     @property
     def task_list(self) -> List[ExplorationTask]:

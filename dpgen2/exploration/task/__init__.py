@@ -2,11 +2,8 @@ from .task import (
     ExplorationTask,
     ExplorationTaskGroup,
 )
-from .group import (
-    ExplorationGroup,
-)
-from .npt_group import (
-    CPTGroup,
+from .npt_task_group import (
+    NPTTaskGroup,
 )
 from .stage import (
     ExplorationStage,

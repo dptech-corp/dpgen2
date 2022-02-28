@@ -5,7 +5,6 @@ from typing import (
 from . import (
     ExplorationTask,
     ExplorationTaskGroup,
-    ExplorationGroup, 
 )
 from .lmp import make_lmp_input
 from dpgen2.constants import (
@@ -14,10 +13,11 @@ from dpgen2.constants import (
     model_name_pattern,
 )
 
-class CPTGroup(ExplorationGroup):
+class NPTTaskGroup(ExplorationTaskGroup):
     def __init__(
             self, 
     ):
+        super().__init__()
         self.conf_set = False
         self.md_set = False
 
@@ -113,11 +113,12 @@ class CPTGroup(ExplorationGroup):
             raise RuntimeError('confs are not set')
         if not self.md_set:
             raise RuntimeError('MD settings are not set')
-        group = ExplorationTaskGroup()
+        # clear all existing tasks
+        self.clear()
         confs = self._sample_confs()
         for cc,tt,pp in itertools.product(confs, self.temps, self.press):
-            group.add_task(self._make_lmp_task(cc, tt, pp))
-        return group
+            self.add_task(self._make_lmp_task(cc, tt, pp))
+        return self
 
     def _sample_confs(
             self,

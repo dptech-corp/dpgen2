@@ -11,7 +11,6 @@ from dpgen2.constants import (
 from . import (
     ExplorationTaskGroup,
     ExplorationTask,
-    ExplorationGroup,
 )
 from typing import (
     List,
@@ -33,17 +32,17 @@ class ExplorationStage():
         """
         self.explor_groups = []
 
-    def add_group(
+    def add_task_group(
             self,
-            grp : ExplorationGroup,
+            grp : ExplorationTaskGroup,
     ):
         """
         Add an exploration group
         
         Parameters
         ----------
-        grp: ExplorationGroup
-            The added exploration group
+        grp: ExplorationTaskGroup
+            The added exploration task group
 
         """
         self.explor_groups.append(grp)
