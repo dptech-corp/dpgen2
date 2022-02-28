@@ -5,7 +5,7 @@ from dflow.python import (
     Artifact
 )
 
-import json
+import json, pickle
 from typing import Tuple, List
 from pathlib import Path
 from dpgen2.exploration.task import ExplorationTaskGroup
@@ -27,7 +27,7 @@ class PrepLmp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
-            "lmp_task_grp": ExplorationTaskGroup,
+            "lmp_task_grp": Artifact(Path),
         })
 
     @classmethod
@@ -48,8 +48,7 @@ class PrepLmp(OP):
         ----------
         ip : dict
             Input dict with components:
-
-            - `lmp_task_grp` : (`ExplorationTaskGroup`) Definitions for LAMMPS tasks
+            - `lmp_task_grp` : (`Artifact(Path)`) Can be pickle loaded as a ExplorationTaskGroup. Definitions for LAMMPS tasks
         
         Returns
         -------
@@ -60,7 +59,8 @@ class PrepLmp(OP):
             - `task_paths`: (`Artifact(List[Path])`) The parepared working paths of the tasks. Contains all input files needed to start the LAMMPS simulation. The order fo the Paths should be consistent with `op["task_names"]`
         """
 
-        lmp_task_grp = ip['lmp_task_grp']
+        with open(ip['lmp_task_grp'], 'rb') as fp:
+            lmp_task_grp = pickle.load(fp)
         cc = 0
         task_paths = []
         for tt in lmp_task_grp:

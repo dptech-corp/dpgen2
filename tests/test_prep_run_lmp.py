@@ -25,7 +25,7 @@ from dflow.python import (
     Artifact,
 )
 
-import time, shutil, json, jsonpickle
+import time, shutil, json, jsonpickle, pickle
 from typing import Set, List
 from pathlib import Path
 try:
@@ -89,12 +89,18 @@ class TestPrepLmp(unittest.TestCase):
         self.ngrp = 2
         self.ntask_per_grp = 3
         self.task_group_list = make_task_group_list(self.ngrp, self.ntask_per_grp)
+        with open('lmp_task_grp.dat', 'wb') as fp:
+            pickle.dump(self.task_group_list, fp)
+        self.task_group_list = Path('lmp_task_grp.dat')
         
     def tearDown(self):
         for ii in range(self.ngrp * self.ntask_per_grp):
             work_path = Path(lmp_task_pattern % ii)
             if work_path.is_dir():
                 shutil.rmtree(work_path)
+        task_grp = Path('lmp_task_grp.dat')
+        if task_grp.is_file():
+            os.remove(task_grp)
 
     def test(self):
         op = PrepLmp()
@@ -178,6 +184,9 @@ class TestPrepRunLmp(unittest.TestCase):
         self.ngrp = 2
         self.ntask_per_grp = 3
         self.task_group_list = make_task_group_list(self.ngrp, self.ntask_per_grp)
+        with open('lmp_task_grp.dat', 'wb') as fp:
+            pickle.dump(self.task_group_list, fp)
+        self.task_group_list = upload_artifact('lmp_task_grp.dat')
         self.nmodels = mocked_numb_models
         self.model_list = []
         for ii in range(self.nmodels):
@@ -195,6 +204,9 @@ class TestPrepRunLmp(unittest.TestCase):
             work_path = Path(f'task.{ii:06d}')
             if work_path.is_dir():
                 shutil.rmtree(work_path)
+        task_grp = Path('lmp_task_grp.dat')
+        if task_grp.is_file():
+            os.remove(task_grp)
         
 
     def check_run_lmp_output(
@@ -229,10 +241,10 @@ class TestPrepRunLmp(unittest.TestCase):
             'prep-run-step', 
             template = steps,
             parameters = {
-                "lmp_task_grp" : self.task_group_list,
                 "lmp_config" : {},
             },
             artifacts = {
+                "lmp_task_grp" : self.task_group_list,
                 "models" : self.models,
             },
         )

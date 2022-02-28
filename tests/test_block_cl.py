@@ -26,7 +26,7 @@ from dflow.python import (
     upload_packages,
 )
 
-import time, shutil, json, jsonpickle
+import time, shutil, json, jsonpickle, pickle
 from typing import Set, List
 from pathlib import Path
 try:
@@ -119,6 +119,9 @@ class TestBlockCL(unittest.TestCase):
         self.template_script = mocked_template_script
         
         self.task_group_list = MockedExplorationTaskGroup()
+        with open('lmp_task_grp.dat', 'wb') as fp:
+            pickle.dump(self.task_group_list, fp)
+        self.task_group_list = upload_artifact('lmp_task_grp.dat')
 
         self.conf_selector = MockedConfSelector()
         self.type_map = []
@@ -171,13 +174,13 @@ class TestBlockCL(unittest.TestCase):
                 "numb_models" : self.numb_models,
                 "template_script" : self.template_script,
                 "train_config" : {},
-                "lmp_task_grp" : self.task_group_list,
                 "lmp_config" : {},
                 "conf_selector" : self.conf_selector,
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
             },
             artifacts = {
+                "lmp_task_grp" : self.task_group_list,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
