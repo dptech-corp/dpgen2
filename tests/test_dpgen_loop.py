@@ -1,4 +1,4 @@
-import os, textwrap
+import os, textwrap, pickle
 import numpy as np
 import unittest
 
@@ -203,7 +203,9 @@ class TestLoop(unittest.TestCase):
             max_numb_iter = 2,
         )
         self.scheduler.add_stage_scheduler(stage_scheduler)        
-        
+        with open('in_scheduler.dat', 'wb') as fp:
+            pickle.dump(self.scheduler, fp)
+        self.scheduler_artifact = upload_artifact('in_scheduler.dat')
         
     def setUp(self):
         self.name = 'dpgen'
@@ -219,7 +221,7 @@ class TestLoop(unittest.TestCase):
             name = Path(model_name_pattern % ii)
             if name.is_file():
                 os.remove(name)
-        for ii in [self.incar, self.potcar]:
+        for ii in [self.incar, self.potcar, Path('scheduler.dat'), Path('in_scheduler.dat')]:
             if ii.is_file():
                 os.remove(ii)
 
@@ -251,9 +253,9 @@ class TestLoop(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -270,7 +272,10 @@ class TestLoop(unittest.TestCase):
         step = wf.query_step(name='dpgen-step')[0]
         self.assertEqual(step.phase, "Succeeded")        
         
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts["exploration_scheduler"])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
         self.assertEqual(scheduler.get_stage(), 2)
@@ -481,8 +486,10 @@ class TestLoopRestart(unittest.TestCase):
             conv_accuracy = 0.7,
             max_numb_iter = 2,
         )
-        self.scheduler_0.add_stage_scheduler(stage_scheduler)        
-
+        self.scheduler_0.add_stage_scheduler(stage_scheduler)
+        with open('in_scheduler_0.dat', 'wb') as fp:
+            pickle.dump(self.scheduler_0, fp)
+        self.scheduler_0_artifact = upload_artifact('in_scheduler_0.dat')
 
         self.scheduler_1 = ExplorationScheduler()        
         self.trust_level = TrustLevel(0.1, 0.3)
@@ -502,6 +509,10 @@ class TestLoopRestart(unittest.TestCase):
             max_numb_iter = 2,
         )
         self.scheduler_1.add_stage_scheduler(stage_scheduler)        
+        self.scheduler_1.add_stage_scheduler(stage_scheduler)
+        with open('in_scheduler_1.dat', 'wb') as fp:
+            pickle.dump(self.scheduler_1, fp)
+        self.scheduler_1_artifact = upload_artifact('in_scheduler_1.dat')
         
         
     def setUp(self):
@@ -519,6 +530,15 @@ class TestLoopRestart(unittest.TestCase):
             if name.is_file():
                 os.remove(name)
         for ii in [self.incar, self.potcar]:
+            if ii.is_file():
+                os.remove(ii)
+        for ii in [Path('scheduler_0.dat'), Path('in_scheduler_0.dat')]:
+            if ii.is_file():
+                os.remove(ii)
+        for ii in [Path('scheduler_1.dat'), Path('in_scheduler_1.dat')]:
+            if ii.is_file():
+                os.remove(ii)
+        for ii in [Path('scheduler.dat'), Path('scheduler_new.dat')]:
             if ii.is_file():
                 os.remove(ii)
 
@@ -551,9 +571,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -623,9 +643,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_1,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_1_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -645,7 +665,10 @@ class TestLoopRestart(unittest.TestCase):
         self.assertEqual(step.phase, "Succeeded")
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
@@ -695,9 +718,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -755,11 +778,18 @@ class TestLoopRestart(unittest.TestCase):
         self.assertTrue(scheduler_idx is not None)
         step_scheduler = steps_0.pop(scheduler_idx)
         self.assertEqual(step_scheduler['phase'], 'Succeeded')
-        old_scheduler = jsonpickle.decode(step_scheduler.outputs.parameters['exploration_scheduler'].value)
+        # old_scheduler = jsonpickle.decode(step_scheduler.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step_scheduler.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            old_scheduler = pickle.load(fp)
         self.assertEqual(old_scheduler.get_stage(), 0)
         # update a stage scheduler
         old_scheduler.stage_schedulers[1] = self.scheduler_1.stage_schedulers[1]        
-        step_scheduler.modify_output_parameter("exploration_scheduler", old_scheduler)
+        # step_scheduler.modify_output_parameter("exploration_scheduler", old_scheduler)
+        with open('scheduler_new.dat', 'wb') as fp:
+            pickle.dump(old_scheduler, fp)
+        old_scheduler_artifact = upload_artifact('scheduler_new.dat')
+        step_scheduler.modify_output_artifact("exploration_scheduler", old_scheduler_artifact)
         steps_0.append(step_scheduler)
 
         dpgen_step_1 = Step(
@@ -773,9 +803,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -795,7 +825,10 @@ class TestLoopRestart(unittest.TestCase):
         self.assertEqual(step.phase, "Succeeded")
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
@@ -844,9 +877,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -912,9 +945,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -934,7 +967,10 @@ class TestLoopRestart(unittest.TestCase):
         self.assertEqual(step.phase, "Succeeded")
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
@@ -995,9 +1031,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -1061,9 +1097,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -1083,7 +1119,10 @@ class TestLoopRestart(unittest.TestCase):
         self.assertEqual(step.phase, "Succeeded")
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
@@ -1146,9 +1185,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -1211,9 +1250,9 @@ class TestLoopRestart(unittest.TestCase):
                 "lmp_config" : {},
                 'fp_inputs' : self.vasp_inputs,
                 "fp_config" : {},
-                "exploration_scheduler" : self.scheduler_0,
             },
             artifacts = {
+                "exploration_scheduler" : self.scheduler_0_artifact,
                 "init_models" : self.init_models,
                 "init_data" : self.init_data,
                 "iter_data" : self.iter_data,
@@ -1233,7 +1272,10 @@ class TestLoopRestart(unittest.TestCase):
         self.assertEqual(step.phase, "Succeeded")
         download_artifact(step.outputs.artifacts["iter_data"], path = 'iter_data')
         download_artifact(step.outputs.artifacts["models"], path = Path('models')/self.name)
-        scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        # scheduler = jsonpickle.decode(step.outputs.parameters['exploration_scheduler'].value)
+        download_artifact(step.outputs.artifacts['exploration_scheduler'])
+        with open('scheduler.dat', 'rb') as fp:
+            scheduler = pickle.load(fp)
         self.assertEqual(scheduler.get_stage(), 2)
         self.assertEqual(scheduler.get_iteration(), 1)
         
