@@ -36,11 +36,11 @@ change_box   all triclinic
 mass            1 10.000000
 mass            2 20.000000
 pair_style      deepmd model.000.pb model.001.pb model.002.pb  out_freq ${THERMO_FREQ} out_file model_devi.out 
-pair_coeff      
+pair_coeff      * *
 
 thermo_style    custom step temp pe ke etotal press vol lx ly lz xy xz yz
 thermo          ${THERMO_FREQ}
-dump            1 all custom ${DUMP_FREQ} traj/*.lammpstrj id type x y z fx fy fz
+dump            1 all custom ${DUMP_FREQ} traj.dump id type x y z fx fy fz
 restart         10000 dpgen.restart
 
 if "${restart} == 0" then "velocity        all create ${TEMP} 1111"
@@ -68,11 +68,11 @@ change_box   all triclinic
 mass            1 10.000000
 mass            2 20.000000
 pair_style      deepmd model.000.pb model.001.pb model.002.pb  out_freq ${THERMO_FREQ} out_file model_devi.out 
-pair_coeff      
+pair_coeff      * *
 
 thermo_style    custom step temp pe ke etotal press vol lx ly lz xy xz yz
 thermo          ${THERMO_FREQ}
-dump            1 all custom ${DUMP_FREQ} traj/*.lammpstrj id type x y z fx fy fz
+dump            1 all custom ${DUMP_FREQ} traj.dump id type x y z fx fy fz
 restart         10000 dpgen.restart
 
 if "${restart} == 0" then "velocity        all create ${TEMP} 1111"
