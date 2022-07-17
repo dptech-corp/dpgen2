@@ -320,3 +320,6 @@ def _expand_all_multi_sys_to_sys(list_multi_sys):
     for ii in list_multi_sys:
         all_sys_dirs = all_sys_dirs + _expand_multi_sys_to_sys(ii)
     return all_sys_dirs
+
+
+config_args = RunDPTrain.training_args

@@ -21,14 +21,18 @@ from dpgen2 import (
     __version__
 )
 
-def parse_args(args: Optional[List[str]] = None):
+
+def main_parser() -> argparse.ArgumentParser:
     """DPGEN2 commandline options argument parser.
 
-    Parameters
-    ----------
-    args: List[str]
-        list of command line arguments, main purpose is testing default option None
-        takes arguments from sys.argv
+    Notes
+    -----
+    This function is used by documentation.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        the argument parser
     """
     parser = argparse.ArgumentParser(
         description="DPGEN2: concurrent learning workflow generating the "
@@ -52,6 +56,20 @@ def parse_args(args: Optional[List[str]] = None):
         action='version', 
         version='DPGEN v%s' % __version__,
     )
+
+    return parser
+
+
+def parse_args(args: Optional[List[str]] = None):
+    """DPGEN2 commandline options argument parsing.
+
+    Parameters
+    ----------
+    args: List[str]
+        list of command line arguments, main purpose is testing default option None
+        takes arguments from sys.argv
+    """
+    parser = main_parser()
 
     parsed_args = parser.parse_args(args=args)
     if parsed_args.command is None:

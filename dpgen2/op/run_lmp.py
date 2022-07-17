@@ -144,3 +144,4 @@ class RunLmp(OP):
         return data
 
     
+config_args = RunLmp.lmp_args

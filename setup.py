@@ -49,7 +49,16 @@ setuptools.setup(
         ]
     },
     extras_require={
-        'docs': ['sphinx', 'recommonmark', 'sphinx_rtd_theme>=1.0.0rc1', 'numpydoc', 'm2r2'],
+        'docs': [
+            'sphinx',
+            'recommonmark',
+            'sphinx_rtd_theme>=1.0.0rc1',
+            'numpydoc',
+            'myst_parser',
+            'deepmodeling_sphinx',
+            'sphinx-argparse',
+            "dargs>=0.3.1",
+        ],
     }
 )
 

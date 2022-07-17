@@ -139,3 +139,4 @@ class RunVasp(OP):
         return data
 
     
+config_args = RunVasp.vasp_args
