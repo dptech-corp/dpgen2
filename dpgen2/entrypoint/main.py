@@ -1,4 +1,4 @@
-import argparse, os, json
+import argparse, os, json, logging
 
 from dflow import (
     Workflow,
@@ -21,9 +21,20 @@ from .submit import (
 from .status import (
     status,
 )
+from .download import (
+    download,
+)
+from .watch import (
+    watch,
+    default_watching_keys,
+)
 from dpgen2 import (
     __version__
 )
+
+#####################################
+# logging
+logging.basicConfig(level=logging.INFO)
 
 
 def main_parser() -> argparse.ArgumentParser:
@@ -45,6 +56,8 @@ def main_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(title="Valid subcommands", dest="command")
     
+    ##########################################
+    # submit
     parser_run = subparsers.add_parser(
         "submit",
         help="Submit DPGEN2 workflow",
@@ -54,6 +67,8 @@ def main_parser() -> argparse.ArgumentParser:
         "CONFIG", help="the config file in json format defining the workflow."
     )
 
+    ##########################################
+    # resubmit
     parser_resubmit = subparsers.add_parser(
         "resubmit",
         help="Submit DPGEN2 workflow resuing steps from an existing workflow",
@@ -72,6 +87,8 @@ def main_parser() -> argparse.ArgumentParser:
         "--reuse", type=str, nargs='+', default=None, help="specify which Steps to reuse."
     )
 
+    ##########################################
+    # status
     parser_status = subparsers.add_parser(
         "status",
         help="Print the status (stage, iteration, convergence) of the  DPGEN2 workflow",
@@ -82,6 +99,55 @@ def main_parser() -> argparse.ArgumentParser:
     )
     parser_status.add_argument(
         "ID", help="the ID of the existing workflow."
+    )
+
+    ##########################################
+    # download
+    parser_download = subparsers.add_parser(
+        "download",
+        help="Download the artifacts of DPGEN2 steps",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_download.add_argument(
+        "CONFIG", help="the config file in json format."
+    )
+    parser_download.add_argument(
+        "ID", help="the ID of the existing workflow."
+    )
+    parser_download.add_argument(
+        "-k","--keys", type=str, nargs='+', help="the keys of the downloaded steps. If not provided download all artifacts"
+    )
+    parser_download.add_argument(
+        "-p","--prefix", type=str, help="the prefix of the path storing the download artifacts"
+    )
+
+    ##########################################
+    # watch
+    parser_watch = subparsers.add_parser(
+        "watch",
+        help="Watch a DPGEN2 workflow",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_watch.add_argument(
+        "CONFIG", help="the config file in json format."
+    )
+    parser_watch.add_argument(
+        "ID", help="the ID of the existing workflow."
+    )
+    parser_watch.add_argument(
+        "-k","--keys", type=str, nargs='+', default=default_watching_keys,
+        help="the subkey to watch. For example, 'prep-run-train' 'prep-run-lmp'"
+    )
+    parser_watch.add_argument(
+        "-f","--frequency", type=float, default=600.,
+        help="the frequency of workflow status query. In unit of second"
+    )
+    parser_watch.add_argument(
+        "-d","--download", action='store_true',
+        help="whether to download artifacts of a step when it finishes"
+    )
+    parser_watch.add_argument(
+        "-p","--prefix", type=str, help="the prefix of the path storing the download artifacts"
     )
 
     # --version
@@ -134,6 +200,26 @@ def main():
         status(
             wfid, config,
         )        
+    elif args.command == "download":
+        with open(args.CONFIG) as fp:
+            config = json.load(fp)
+        wfid = args.ID
+        download(
+            wfid, config,
+            wf_keys=args.keys,
+            prefix=args.prefix,
+        )
+    elif args.command == "watch":
+        with open(args.CONFIG) as fp:
+            config = json.load(fp)
+        wfid = args.ID
+        watch(
+            wfid, config, 
+            watching_keys=args.keys,
+            frequency=args.frequency,
+            download=args.download,
+            prefix=args.prefix,
+        )
     elif args.command is None:
         pass
     else:
