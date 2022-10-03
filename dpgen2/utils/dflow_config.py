@@ -1,6 +1,15 @@
 import copy
 from dflow import config, s3_config
 
+def workflow_config_from_dict(
+        wf_config,
+):
+    dflow_config_data = wf_config.get('dflow_config', None)
+    dflow_config(dflow_config_data)
+    dflow_s3_config_data = wf_config.get('dflow_s3_config', None)
+    dflow_s3_config(dflow_s3_config_data)
+    
+
 def dflow_config_lower(
         dflow_config,
 ):
@@ -14,6 +23,12 @@ def dflow_config_lower(
     for kk in dflow_s3_config.keys():
         s3_config[kk] = dflow_s3_config[kk]
 
+def dflow_s3_config_lower(
+        dflow_s3_config_data,
+):
+    for kk in dflow_s3_config_data.keys():
+        s3_config[kk] = dflow_s3_config_data[kk]
+
 def dflow_config(
         config_data,
 ):
@@ -26,4 +41,14 @@ def dflow_config(
     """
     if config_data is not None:
         dflow_config_lower(config_data)
+        
+def dflow_s3_config(
+        config_data,
+):
+    """
+    set the s3 config by `config_data`
+
+    """
+    if config_data is not None:
+        dflow_s3_config_lower(config_data)
         
