@@ -73,6 +73,7 @@ from dpgen2.utils import (
     sort_slice_ops,
     print_keys_in_nice_format,
     workflow_config_from_dict,
+    matched_step_key,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
 from dpgen2.entrypoint.submit_args import normalize as normalize_submit_args
@@ -463,6 +464,20 @@ def successful_step_keys(wf):
     return all_step_keys
 
 
+def get_resubmit_keys(
+        wf,
+):
+    all_step_keys = successful_step_keys(wf)
+    all_step_keys = matched_step_key(
+        all_step_keys,
+        ['prep-train', 'run-train', 'prep-lmp', 'run-lmp', 'select-confs', 
+         'prep-fp', 'run-fp', 'collect-data', 'scheduler', 'id'],
+    )
+    all_step_keys = sort_slice_ops(
+        all_step_keys, ['run-train', 'run-lmp', 'run-fp'],)
+    return all_step_keys
+
+
 def resubmit_concurrent_learning(
         wf_config,
         wfid,
@@ -475,10 +490,8 @@ def resubmit_concurrent_learning(
     context = wf_global_workflow(wf_config)
 
     old_wf = Workflow(id=wfid)
+    all_step_keys = get_resubmit_keys(old_wf)
 
-    all_step_keys = successful_step_keys(old_wf)
-    all_step_keys = sort_slice_ops(
-        all_step_keys, ['run-train', 'run-lmp', 'run-fp'],)
     if list_steps:
         prt_str = print_keys_in_nice_format(
             all_step_keys, ['run-train', 'run-lmp', 'run-fp'],)
