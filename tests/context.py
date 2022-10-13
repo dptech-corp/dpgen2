@@ -14,3 +14,6 @@ upload_python_package = os.path.join(dpgen_path, 'dpgen2')
 default_image = 'dptechnology/dpgen2:latest'
 default_host = None
 dflow_config({})
+if os.getenv('DFLOW_DEBUG'):
+    from dflow import config
+    config["mode"] = "debug"
