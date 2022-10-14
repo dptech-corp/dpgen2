@@ -5,6 +5,7 @@ from dflow.python import (
     Artifact,
     TransientError,
     FatalError,
+    BigParameter,
 )
 import os, json, dpdata
 from pathlib import Path
@@ -44,7 +45,7 @@ class RunVasp(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
-            "config" : dict,
+            "config" : BigParameter(dict),
             "task_name": str,
             "task_path" : Artifact(Path),
         })
@@ -85,7 +86,7 @@ class RunVasp(OP):
             On the failure of VASP execution. 
         """
         config = ip['config'] if ip['config'] is not None else {}
-        config = RunVasp.normalize_config(config)
+        config = RunVasp.normalize_config(config, strict=False)
         command = config['command']
         log_name = config['log']
         out_name = config['out']
@@ -131,11 +132,11 @@ class RunVasp(OP):
         ]
 
     @staticmethod
-    def normalize_config(data = {}):
+    def normalize_config(data = {}, strict=True):
         ta = RunVasp.vasp_args()
         base = Argument("base", dict, ta)
         data = base.normalize_value(data, trim_pattern="_*")
-        base.check_value(data, strict=True)
+        base.check_value(data, strict=strict)
         return data
 
     
