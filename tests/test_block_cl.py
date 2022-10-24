@@ -152,9 +152,10 @@ class TestBlockCL(unittest.TestCase):
         self.potcar = Path('potcar')
         self.potcar.write_text('bar')
         self.vasp_inputs = VaspInputs(
-            0.16, True,
+            0.16,
             self.incar,
             {'foo': self.potcar},
+            True,
         )
 
     def setUp(self):

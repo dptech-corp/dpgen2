@@ -102,16 +102,16 @@ def make_concurrent_learning_op (
         train_style : str = 'dp',
         explore_style : str = 'lmp',
         fp_style : str = 'vasp',
-        prep_train_config : str = default_config,
-        run_train_config : str = default_config,
-        prep_explore_config : str = default_config,
-        run_explore_config : str = default_config,
-        prep_fp_config : str = default_config,
-        run_fp_config : str = default_config,
-        select_confs_config : str = default_config,
-        collect_data_config : str = default_config,
-        cl_step_config : str = default_config,
-        upload_python_package : bool = None,
+        prep_train_config : dict = default_config,
+        run_train_config : dict = default_config,
+        prep_explore_config : dict = default_config,
+        run_explore_config : dict = default_config,
+        prep_fp_config : dict = default_config,
+        run_fp_config : dict = default_config,
+        select_confs_config : dict = default_config,
+        collect_data_config : dict = default_config,
+        cl_step_config : dict = default_config,
+        upload_python_package : Optional[List[os.PathLike]] = None,
 ):
     if train_style == 'dp':
         prep_run_train_op = PrepRunDPTrain(
@@ -277,6 +277,8 @@ def get_kspacing_kgamma_from_incar(
 ):
     with open(fname) as fp:
         lines = fp.readlines()
+    ks = None
+    kg = None
     for ii in lines:
         if 'KSPACING' in ii:
             ks = float(ii.split('=')[1])
@@ -287,12 +289,13 @@ def get_kspacing_kgamma_from_incar(
                 kg = False
             else:
                 raise RuntimeError(f"invalid kgamma value {ii.split('=')[1]}")
+    assert ks is not None and kg is not None
     return ks, kg
 
 
 def workflow_concurrent_learning(
         config : Dict,
-        old_style : Optional[bool] = False,
+        old_style : bool = False,
 ):
     default_config = normalize_step_dict(config.get('default_config', {})) if old_style else config['default_step_config']
 

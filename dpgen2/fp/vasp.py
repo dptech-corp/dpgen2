@@ -2,6 +2,7 @@ import numpy as np
 import dpdata
 from pathlib import Path
 from typing import (
+    Optional,
     Tuple, 
     List, 
     Set, 
@@ -13,9 +14,9 @@ class VaspInputs():
     def __init__(
             self,
             kspacing : Union[float, List[float]],
+            incar_template_name : str,
+            potcar_names : Dict[str, str],
             kgamma : bool = True,
-            incar_template_name : str = None,
-            potcar_names : Dict[str, str] = None,
     ):
         """
         Parameters
@@ -24,8 +25,6 @@ class VaspInputs():
                 The kspacing. If it is a number, then three directions use the same
                 ksapcing, otherwise it is a list of three numbers, specifying the
                 kspacing used in the x, y and z dimension.
-        kgamma : bool
-                K-mesh includes the gamma point
         incar_template_name: str
                 A template INCAR file. 
         potcar_names : Dict[str,str]
@@ -34,6 +33,8 @@ class VaspInputs():
                    "H" : "/path/to/POTCAR_H",
                    "O" : "/path/to/POTCAR_O",
                 }
+        kgamma : bool
+                K-mesh includes the gamma point
         """
         self.kspacing = kspacing
         self.kgamma = kgamma
@@ -73,7 +74,7 @@ class VaspInputs():
 
     def make_kpoints(
             self,
-            box : np.array,
+            box : np.ndarray,
     ) -> str:
         return make_kspacing_kpoints(box, self.kspacing, self.kgamma)
 

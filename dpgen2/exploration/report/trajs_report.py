@@ -3,6 +3,7 @@ import random
 from . import ExplorationReport
 from typing import (
     List,
+    Optional,
     Tuple,
 )
 from dflow.python import FatalError
@@ -92,7 +93,7 @@ class TrajsExplorationReport(ExplorationReport):
 
     def get_candidates(
             self,
-            max_nframes : int = None,
+            max_nframes : Optional[int] = None,
     )->List[Tuple[int,int]]:
         """
         Get candidates. If number of candidates is larger than `max_nframes`, 

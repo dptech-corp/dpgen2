@@ -1,6 +1,7 @@
 import itertools, random
 from typing import (
     List,
+    Optional,
 )
 from . import (
     ExplorationTask,
@@ -26,21 +27,21 @@ class NPTTaskGroup(ConfSamplingTaskGroup):
             numb_models,
             mass_map,
             temps : List[float],
-            press : List[float] = None,
+            press : Optional[List[float]] = None,
             ens : str = 'npt',
             dt : float = 0.001,
             nsteps : int = 1000,
             trj_freq : int = 10,
             tau_t : float = 0.1,
             tau_p : float = 0.5,
-            pka_e : float = None,
-            neidelay : int = None,
+            pka_e : Optional[float] = None,
+            neidelay : Optional[int] = None,
             no_pbc : bool = False,
             use_clusters : bool = False,
-            relative_f_epsilon : float = None,
-            relative_v_epsilon : float = None,
-            ele_temp_f : float = None,
-            ele_temp_a : float = None,
+            relative_f_epsilon : Optional[float] = None,
+            relative_v_epsilon : Optional[float] = None,
+            ele_temp_f : Optional[float] = None,
+            ele_temp_a : Optional[float] = None,
     ):
         """
         Set MD parameters
@@ -95,7 +96,7 @@ class NPTTaskGroup(ConfSamplingTaskGroup):
             self,
             conf : str,
             tt : float,
-            pp : float,
+            pp : Optional[float],
     ) -> ExplorationTask:
         task = ExplorationTask()
         task\

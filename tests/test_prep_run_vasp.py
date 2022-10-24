@@ -109,9 +109,9 @@ class TestPrepVaspTaskGroup(unittest.TestCase):
         op = MockedPrepVasp()
         vasp_inputs = VaspInputs(
                 0.16,
-                True,
                 self.incar,
-                {'foo': self.potcar}
+                {'foo': self.potcar},
+                True,
             )
         out = op.execute( OPIO({
             'confs' : self.confs,
@@ -226,9 +226,9 @@ class TestPrepRunVasp(unittest.TestCase):
         )
         vasp_inputs = VaspInputs(
             0.16,
-            True,
             self.incar,
-            {'foo': self.potcar}
+            {'foo': self.potcar},
+            True,
         )
         prep_run_step = Step(
             'prep-run-step', 

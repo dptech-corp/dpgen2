@@ -2,6 +2,7 @@ import numpy as np
 
 from typing import (
     List,
+    Optional,
     Tuple,
 )
 from dflow.python import (
@@ -76,9 +77,9 @@ class ExplorationScheduler():
 
     def plan_next_iteration(
             self,
-            report : ExplorationReport = None,
-            trajs : List[Path] = None,
-    ) -> Tuple[bool, ExplorationTaskGroup, ConfSelector] :
+            report : Optional[ExplorationReport] = None,
+            trajs : Optional[List[Path]] = None,
+    ) -> Tuple[bool, Optional[ExplorationTaskGroup], Optional[ConfSelector]] :
         """
         Make the plan for the next DPGEN iteration.
 
@@ -202,7 +203,9 @@ class ExplorationScheduler():
         for iidx in range(len(accu)):
             if stage_idx[iidx] != prev_stg_idx:
                 if prev_stg_idx >= 0:
-                    ret.append(self._print_prev_summary(prev_stg_idx))
+                    _summary = self._print_prev_summary(prev_stg_idx)
+                    assert _summary is not None
+                    ret.append(_summary)
                 ret.append(f'# Stage {stage_idx[iidx]:4d}  ' + '-'*20)
                 prev_stg_idx = stage_idx[iidx]
             ret.append(' ' + fmt_str % (
@@ -213,6 +216,8 @@ class ExplorationScheduler():
             ))
         if self.complete():
             if prev_stg_idx >= 0:
-                ret.append(self._print_prev_summary(prev_stg_idx))
+                _summary = self._print_prev_summary(prev_stg_idx)
+                assert _summary is not None
+                ret.append(_summary)
                 ret.append(f'# All stages converged')
         return '\n'.join(ret + [''])

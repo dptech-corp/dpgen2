@@ -27,7 +27,8 @@ from dflow.python import(
 )
 import pickle, jsonpickle, os
 from typing import (
-    List
+    List,
+    Optional,
 )
 from pathlib import Path
 from dpgen2.exploration.scheduler import ExplorationScheduler
@@ -117,7 +118,7 @@ class ConcurrentLearningLoop(Steps):
             name : str,
             block_op : OPTemplate,
             step_config : dict = normalize_step_dict({}),
-            upload_python_package : str = None,
+            upload_python_package : Optional[List[os.PathLike]] = None,
     ):
         self._input_parameters={
             "block_id" : InputParameter(),
@@ -203,7 +204,7 @@ class ConcurrentLearning(Steps):
             name : str,
             block_op : OPTemplate,
             step_config : dict = normalize_step_dict({}),
-            upload_python_package : str = None,
+            upload_python_package : Optional[List[os.PathLike]] = None,
     ):
         self.loop = ConcurrentLearningLoop(
             name+'-loop',
@@ -293,7 +294,7 @@ def _loop (
         name : str,
         block_op : OPTemplate,
         step_config : dict = normalize_step_dict({}),
-        upload_python_package : str = None,
+        upload_python_package : Optional[List[os.PathLike]] = None,
 ):    
     step_config = deepcopy(step_config)
     step_template_config = step_config.pop('template_config')
@@ -413,7 +414,7 @@ def _dpgen(
         loop_op,
         loop_key,
         step_config : dict = normalize_step_dict({}),
-        upload_python_package : str = None
+        upload_python_package : Optional[List[os.PathLike]] = None
 ):    
     step_config = deepcopy(step_config)
     step_template_config = step_config.pop('template_config')

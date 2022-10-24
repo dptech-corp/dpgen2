@@ -1,5 +1,6 @@
 from typing import (
     List,
+    Optional,
     Tuple,
 )
 from dflow.python import (
@@ -17,7 +18,7 @@ class ConvergenceCheckStageScheduler(StageScheduler):
             stage : ExplorationStage,
             selector : ConfSelector,
             conv_accuracy : float = 0.9,
-            max_numb_iter : int = None,
+            max_numb_iter : Optional[int] = None,
             fatal_at_max : bool = True,
     ):
         self.stage = stage
@@ -42,9 +43,9 @@ class ConvergenceCheckStageScheduler(StageScheduler):
 
     def plan_next_iteration(
             self,
-            report : ExplorationReport = None,
-            trajs : List[Path] = None,
-    ) -> Tuple[bool, ExplorationTaskGroup, ConfSelector] :
+            report : Optional[ExplorationReport] = None,
+            trajs : Optional[List[Path]] = None,
+    ) -> Tuple[bool, Optional[ExplorationTaskGroup], Optional[ConfSelector]] :
         if report is None:
             stg_complete = False
             self.conv = stg_complete

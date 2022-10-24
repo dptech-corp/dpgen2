@@ -1,6 +1,7 @@
 import itertools, random
 from typing import (
     List,
+    Optional,
 )
 from pathlib import Path
 from . import (
@@ -30,7 +31,7 @@ class LmpTemplateTaskGroup(ConfSamplingTaskGroup):
             self,
             numb_models : int,
             lmp_template_fname : str,
-            plm_template_fname : str = None,
+            plm_template_fname : Optional[str] = None,
             revisions : dict = {},
             traj_freq : int = 10,
     )->None:
@@ -92,7 +93,7 @@ class LmpTemplateTaskGroup(ConfSamplingTaskGroup):
             self,
             conf: str,
             lmp_cont : str,
-            plm_cont : str = None,
+            plm_cont : Optional[str] = None,
     )->ExplorationTask:
         task = ExplorationTask()
         task\

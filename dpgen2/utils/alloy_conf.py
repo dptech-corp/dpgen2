@@ -4,7 +4,7 @@ import tempfile
 import numpy as np
 from pathlib import Path
 from typing import (
-    Union, List, Tuple
+    Optional, Union, List, Tuple
 )
 from dargs import (
     Argument,
@@ -31,15 +31,16 @@ class AlloyConf():
             self,
             lattice : Union[dpdata.System, Tuple[str,float]],
             type_map : List[str],
-            replicate : Union[List[int], Tuple[int], int] = None,
+            replicate : Union[List[int], Tuple[int], int, None] = None,
     )->None:
         # init sys
-        if type(lattice) != dpdata.System: 
+        if not isinstance(lattice, dpdata.System): 
             sys = generate_unit_cell(lattice[0], lattice[1])
         else:
             sys = lattice
+        assert not isinstance(sys, tuple)
         # replicate
-        if type(replicate) == int:
+        if isinstance(replicate, int):
             replicate = [replicate] * 3
         if replicate is not None:
             sys = sys.replicate(replicate)            
@@ -136,7 +137,7 @@ class AlloyConf():
             concentration: Union[List[List[float]], List[float], None] = None,
             cell_pert_frac: float = 0.0,
             atom_pert_dist: float = 0.0,
-    ) -> str:        
+    ) -> dpdata.System:        
         if concentration is None:
             cc = [1./float(self.ntypes) for ii in range(self.ntypes)]
         elif type(concentration) is list and type(concentration[0]) is list:
@@ -149,7 +150,7 @@ class AlloyConf():
         ret_sys = self.sys.perturb(1, cell_pert_frac, atom_pert_dist)[0]
         ret_sys.data['atom_types'] = np.array(random.choices(
             self.type_population, 
-            weights=cc,
+            weights=cc, # type: ignore
             k=self.natoms,
         ), dtype=int)
         ret_sys.data['atom_numbs'] = list(np.bincount(
@@ -209,7 +210,7 @@ def generate_alloy_conf_file_content(
         lattice : Union[dpdata.System, Tuple[str,float]],
         type_map : List[str],
         numb_confs,
-        replicate : Union[List[int], Tuple[int], int] = None,
+        replicate : Union[List[int], Tuple[int], int, None] = None,
         concentration: Union[List[List[float]], List[float], None] = None,
         cell_pert_frac: float = 0.0,
         atom_pert_dist: float = 0.0,

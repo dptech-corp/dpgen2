@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 
 class MDSettings():
     def __init__(
@@ -8,18 +8,18 @@ class MDSettings():
             dt : float,
             nsteps : int,
             trj_freq : int,
-            temps : List[float] = None,
-            press : List[float] = None,
+            temps : Optional[List[float]] = None,
+            press : Optional[List[float]] = None,
             tau_t : float = 0.1,
             tau_p : float = 0.5,
-            pka_e : float = None,
-            neidelay : int = None,
+            pka_e : Optional[float] = None,
+            neidelay : Optional[int] = None,
             no_pbc : bool = False,
             use_clusters : bool = False,
-            relative_epsilon : float = None,
-            relative_v_epsilon : float = None,
-            ele_temp_f : float = None,
-            ele_temp_a : float = None,
+            relative_epsilon : Optional[float] = None,
+            relative_v_epsilon : Optional[float] = None,
+            ele_temp_f : Optional[float] = None,
+            ele_temp_a : Optional[float] = None,
     )->None:
         self.ens = ens
         self.temps = temps

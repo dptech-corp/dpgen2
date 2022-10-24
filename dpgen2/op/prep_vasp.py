@@ -109,7 +109,7 @@ class PrepVasp(OP):
             idx,
             vasp_inputs : VaspInputs,
             conf_frame : dpdata.System,
-    ) -> str:
+    ) -> Tuple[str, Path]:
         task_name = vasp_task_pattern % idx
         task_path = Path(task_name)
         with set_directory(task_path):

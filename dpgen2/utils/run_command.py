@@ -2,7 +2,7 @@ import sys, subprocess
 
 def run_command(
         cmd,
-        shell = None,
+        shell: bool = False,
 ):
     pp = subprocess.Popen(
         cmd, 

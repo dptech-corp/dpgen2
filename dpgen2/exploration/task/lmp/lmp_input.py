@@ -2,6 +2,7 @@ import random
 import numpy as np
 from typing import (
     List,
+    Optional,
 )
 from distutils.version import (
     LooseVersion,
@@ -9,6 +10,9 @@ from distutils.version import (
 from dpgen2.constants import (
     lmp_traj_name,
 )
+
+import dpdata
+import scipy.constants as pc
 
 def _sample_sphere() :
     while True:
@@ -24,19 +28,19 @@ def make_lmp_input(
         graphs : List[str],
         nsteps : int,
         dt : float,
-        neidelay : int,
+        neidelay : Optional[int],
         trj_freq : int,
         mass_map : List[float],
         temp : float, 
         tau_t : float = 0.1,
-        pres : float= None,
+        pres : Optional[float]= None,
         tau_p : float = 0.5,
         use_clusters : bool = False,        
-        relative_f_epsilon : float = None,
-        relative_v_epsilon : float = None,
-        pka_e : float = None,
-        ele_temp_f : float = None,
-        ele_temp_a : float = None,
+        relative_f_epsilon : Optional[float] = None,
+        relative_v_epsilon : Optional[float] = None,
+        pka_e : Optional[float] = None,
+        ele_temp_f : Optional[float] = None,
+        ele_temp_a : Optional[float] = None,
         nopbc : bool = False,
         max_seed : int = 1000000,
         deepmd_version = '2.0', 
@@ -115,7 +119,7 @@ def make_lmp_input(
         sys_data = sys.data
         pka_mass = mass_map[sys_data['atom_types'][0] - 1]
         pka_vn = pka_e * pc.electron_volt / \
-                 (0.5 * pka_mass * 1e-3 / pc.Avogadro * (pc.angstrom / pc.pico) ** 2)
+                 (0.5 * pka_mass * 1e-3 / pc.Avogadro * (pc.angstrom / pc.pico) ** 2) # type: ignore
         pka_vn = np.sqrt(pka_vn)
         print(pka_vn)
         pka_vec = _sample_sphere()

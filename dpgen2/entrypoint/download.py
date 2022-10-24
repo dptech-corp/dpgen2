@@ -28,6 +28,7 @@ def download(
     if wf_keys is None:
         wf_keys = wf.query_keys_of_steps()
     
+    assert wf_keys is not None
     for kk in wf_keys:
         download_dpgen2_artifacts(wf, kk, prefix=prefix)
         logging.info(f'step {kk} downloaded')

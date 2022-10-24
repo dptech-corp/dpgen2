@@ -27,7 +27,7 @@ from dpgen2.utils.step_config import normalize as normalize_step_dict
 from dpgen2.utils.step_config import init_executor
 
 import os
-from typing import Set, List
+from typing import Any, Dict, Optional, Set, List
 from pathlib import Path
 from copy import deepcopy
 
@@ -42,7 +42,7 @@ class ConcurrentLearningBlock(Steps):
             collect_data_op : OP,
             select_confs_config : dict = normalize_step_dict({}),
             collect_data_config : dict = normalize_step_dict({}),
-            upload_python_package : str = None,
+            upload_python_package : Optional[List[os.PathLike]] = None,
     ):
         self._input_parameters={
             "block_id" : InputParameter(),
@@ -131,7 +131,7 @@ class ConcurrentLearningBlock(Steps):
 
 def _block_cl(
         block_steps : Steps,
-        step_keys : List[str],
+        step_keys : Dict[str, Any],
         name : str,
         prep_run_dp_train_op : OPTemplate,
         prep_run_lmp_op : OPTemplate,
@@ -140,7 +140,7 @@ def _block_cl(
         collect_data_op : OP,
         select_confs_config : dict = normalize_step_dict({}),
         collect_data_config : dict = normalize_step_dict({}),
-        upload_python_package : str = None,
+        upload_python_package : Optional[List[os.PathLike]] = None,
 ):
     select_confs_config = deepcopy(select_confs_config)
     collect_data_config = deepcopy(collect_data_config)

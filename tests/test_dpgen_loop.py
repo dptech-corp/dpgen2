@@ -188,9 +188,10 @@ class TestLoop(unittest.TestCase):
         self.potcar = Path('potcar')
         self.potcar.write_text('bar')
         self.vasp_inputs = VaspInputs(
-            0.16, True,
+            0.16,
             self.incar,
             {'foo': 'potcar'},
+            True,
         )
 
         self.scheduler = ExplorationScheduler()        
@@ -466,9 +467,10 @@ class TestLoopRestart(unittest.TestCase):
         self.potcar = Path('potcar')
         self.potcar.write_text('bar')
         self.vasp_inputs = VaspInputs(
-            0.16, True,
+            0.16,
             self.incar,
             {'foo': self.potcar},
+            True,
         )
 
         self.scheduler_0 = ExplorationScheduler()        

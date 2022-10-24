@@ -24,7 +24,7 @@ default_watching_keys = [
 
 def update_finished_steps(
         wf,
-        finished_keys : List[str] = None,
+        finished_keys : Optional[List[str]] = None,
         download : Optional[bool] = False,
         watching_keys : Optional[List[str]] = None,
         prefix : Optional[str] = None,
@@ -51,7 +51,7 @@ def watch(
         workflow_id,
         wf_config : Optional[Dict] = {},
         watching_keys : Optional[List] = default_watching_keys,
-        frequency : Optional[float] = 600.,
+        frequency : float = 600.,
         download : Optional[bool] = False,
         prefix : Optional[str] = None,
 ):

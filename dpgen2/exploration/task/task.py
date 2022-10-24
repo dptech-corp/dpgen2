@@ -122,7 +122,8 @@ class FooTask(ExplorationTask):
 class FooTaskGroup(ExplorationTaskGroup):
     def __init__(self, numb_task):
         super().__init__()
-        self.tlist = []
+        # TODO: confirm the following is correct
+        self.tlist = ExplorationTaskGroup()
         for ii in range(numb_task):
             self.tlist.add_task( 
                 FooTask(f'conf.{ii}', f'this is conf.{ii}',

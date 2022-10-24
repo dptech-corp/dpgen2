@@ -3,6 +3,7 @@ import numpy as np
 from collections import Counter
 from typing import (
     List,
+    Optional,
     Tuple,
 )
 from pathlib import Path
@@ -25,8 +26,8 @@ class ConfSelectorLammpsFrames(ConfSelector):
     def __init__(
             self,
             trust_level,
-            max_numb_sel : int = None,
-            conf_filters : ConfFilters = None,
+            max_numb_sel : Optional[int] = None,
+            conf_filters : Optional[ConfFilters] = None,
     ):
         self.trust_level = trust_level
         self.max_numb_sel = max_numb_sel
@@ -38,7 +39,7 @@ class ConfSelectorLammpsFrames(ConfSelector):
             trajs : List[Path],
             model_devis : List[Path],
             traj_fmt : str = 'lammps/dump',
-            type_map : List[str] = None,
+            type_map : Optional[List[str]] = None,
     ) -> Tuple[List[ Path ], ExplorationReport]:
         """Select configurations
 
@@ -136,6 +137,6 @@ class ConfSelectorLammpsFrames(ConfSelector):
     @staticmethod
     def _load_model_devi(
             fname : Path,
-    ) -> Tuple[np.array, np.array] : 
+    ) -> Tuple[np.ndarray, np.ndarray] : 
         dd = np.loadtxt(fname)
         return dd[:,4], dd[:,1]

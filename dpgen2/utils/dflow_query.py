@@ -6,7 +6,7 @@ from typing import (
 
 def get_subkey(
         key : str, 
-        idx : Optional[int] = -1, 
+        idx : int = -1, 
 ):
     return key.split('--')[idx]
 

@@ -1,6 +1,6 @@
 import dpdata
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Set
+from typing import Optional, Tuple, List, Set
 from pathlib import Path
 from . import (
     ConfFilters,
@@ -17,7 +17,7 @@ class ConfSelector(ABC):
             trajs : List[Path],
             model_devis : List[Path],
             traj_fmt : str = 'deepmd/npy',
-            type_map : List[str] = None,
+            type_map : Optional[List[str]] = None,
     ) -> Tuple[List[ Path ], ExplorationReport]:
         pass
 

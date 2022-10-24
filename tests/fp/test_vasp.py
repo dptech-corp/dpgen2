@@ -35,7 +35,7 @@ class TestVASPInputs(unittest.TestCase):
     def test_vasp_input_incar_potcar(self):
         iincar = 'template.incar'
         ipotcar = {'H' : 'POTCAR_H', 'O' : 'POTCAR_O'}
-        vi = VaspInputs(0.16, True, iincar, ipotcar)
+        vi = VaspInputs(0.16, iincar, ipotcar, True)
         self.assertEqual(vi.incar_template, 'foo')
         self.assertEqual(vi.potcars['O'], 'bar O\n')
         self.assertEqual(vi.potcars['H'], 'bar H\n')
@@ -67,7 +67,7 @@ Cartesian
         Path('POSCAR').write_text(poscar)
         iincar = 'template.incar'
         ipotcar = {'H' : 'POTCAR_H', 'O' : 'POTCAR_O'}
-        vi = VaspInputs(0.1, True, iincar, ipotcar)
+        vi = VaspInputs(0.1, iincar, ipotcar, True)
         ss = dpdata.System('POSCAR')
         kps = vi.make_kpoints(ss['cells'][0])
         self.assertEqual(ref, kps)
@@ -98,7 +98,7 @@ Cartesian
         Path('POSCAR').write_text(poscar)
         iincar = 'template.incar'
         ipotcar = {'H' : 'POTCAR_H', 'O' : 'POTCAR_O'}
-        vi = VaspInputs(0.1, False, iincar, ipotcar)
+        vi = VaspInputs(0.1, iincar, ipotcar, False)
         ss = dpdata.System('POSCAR')
         kps = vi.make_kpoints(ss['cells'][0])
         self.assertEqual(ref, kps)

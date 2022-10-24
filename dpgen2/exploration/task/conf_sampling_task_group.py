@@ -1,6 +1,7 @@
 import itertools, random
 from typing import (
     List,
+    Optional,
 )
 from . import (
     ExplorationTask,
@@ -22,7 +23,7 @@ class ConfSamplingTaskGroup(ExplorationTaskGroup):
     def set_conf(
             self,
             conf_list : List[str],
-            n_sample : int = None,
+            n_sample : Optional[int] = None,
             random_sample : bool = False,
     ):
         """

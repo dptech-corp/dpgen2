@@ -7,9 +7,9 @@ class ConfFilter(ABC):
     @abstractmethod
     def check (
             self,
-            coords : np.array,
-            cell: np.array,
-            atom_types : np.array,
+            coords : np.ndarray,
+            cell: np.ndarray,
+            atom_types : np.ndarray,
             nopbc: bool,
     ) -> bool :
         """Check if the configuration is valid.

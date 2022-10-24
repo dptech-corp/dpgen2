@@ -29,7 +29,7 @@ from dpgen2.utils.step_config import normalize as normalize_step_dict
 from dpgen2.utils.step_config import init_executor
 
 import os
-from typing import Set, List
+from typing import Optional, Set, List
 from pathlib import Path
 from copy import deepcopy
 
@@ -41,7 +41,7 @@ class PrepRunDPTrain(Steps):
             run_train_op : OP,
             prep_config : dict = normalize_step_dict({}),
             run_config : dict = normalize_step_dict({}),
-            upload_python_package : str = None,
+            upload_python_package : Optional[List[os.PathLike]] = None,
     ):
         self._input_parameters = {
             "block_id" : InputParameter(type=str, value=""),
@@ -122,7 +122,7 @@ def _prep_run_dp_train(
         run_train_op : OP,
         prep_config : dict = normalize_step_dict({}),
         run_config : dict = normalize_step_dict({}),
-        upload_python_package : str = None,
+        upload_python_package : Optional[List[os.PathLike]] = None,
 ):
     prep_config = deepcopy(prep_config)
     run_config = deepcopy(run_config)
