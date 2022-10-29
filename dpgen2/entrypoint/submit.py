@@ -184,10 +184,11 @@ def make_conf_list(
         conf_list = []
         for ii in conf_list_fname:
             ss = dpdata.System(ii, type_map=type_map, fmt=fmt)
-            ss.to('lammps/lmp', 'tmp.lmp')
-            conf_list.append(Path('tmp.lmp').read_text())
-        if Path('tmp.lmp').is_file():
-            os.remove('tmp.lmp')
+            if fmt == 'vasp/poscar':
+                ss_str = dpdata.lammps.lmp.from_system_data(ss, 0)
+                conf_list.append(ss_str)
+            else:
+                raise RuntimeError('unknown input format of configration: ', fmt)
     # generate alloy confs
     elif isinstance(conf_list, dict):
         conf_list['type_map'] = type_map
@@ -218,6 +219,10 @@ def make_naive_exploration_scheduler(
     max_numb_iter = config['max_numb_iter'] if old_style else config['explore']['max_numb_iter']
     fatal_at_max = config.get('fatal_at_max', True) if old_style else config['explore']['fatal_at_max']
     scheduler = ExplorationScheduler()
+    
+    sys_configs_lmp = []
+    for sys_config in sys_configs:
+        sys_configs_lmp.append(make_conf_list(sys_config, type_map))
 
     for job_ in model_devi_jobs:
         if not isinstance(job_, list):
@@ -236,7 +241,7 @@ def make_naive_exploration_scheduler(
                 sys_idx = jj.pop('conf_idx')
             conf_list = []        
             for ii in sys_idx:
-                conf_list += make_conf_list(sys_configs[ii], type_map)
+                conf_list.extend(sys_configs_lmp[ii])
             # make task group
             tgroup = make_task_group_from_config(numb_models, mass_map, jj)
             # add the list to task group
