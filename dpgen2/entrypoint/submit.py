@@ -184,11 +184,8 @@ def make_conf_list(
         conf_list = []
         for ii in conf_list_fname:
             ss = dpdata.System(ii, type_map=type_map, fmt=fmt)
-            if fmt == 'vasp/poscar':
-                ss_str = dpdata.lammps.lmp.from_system_data(ss, 0)
-                conf_list.append(ss_str)
-            else:
-                raise RuntimeError('unknown input format of configration: ', fmt)
+            ss_str = dpdata.lammps.lmp.from_system_data(ss, 0)
+            conf_list.append(ss_str)
     # generate alloy confs
     elif isinstance(conf_list, dict):
         conf_list['type_map'] = type_map
