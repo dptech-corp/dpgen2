@@ -238,7 +238,7 @@ def make_naive_exploration_scheduler(
                 sys_idx = jj.pop('conf_idx')
             conf_list = []        
             for ii in sys_idx:
-                conf_list.extend(sys_configs_lmp[ii])
+                conf_list += sys_configs_lmp[ii]
             # make task group
             tgroup = make_task_group_from_config(numb_models, mass_map, jj)
             # add the list to task group
