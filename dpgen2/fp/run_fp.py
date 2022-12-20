@@ -99,8 +99,8 @@ class RunFp(OP, ABC):
 
         Returns
         -------
-        arguments: List[dargs.Arguments]
-            List of dargs.Arguments defines the arguments of `run_task` method.
+        arguments: List[dargs.Argument]
+            List of dargs.Argument defines the arguments of `run_task` method.
         """
         pass
 
