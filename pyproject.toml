@@ -44,6 +44,9 @@ docs = [
      'sphinx-argparse',
      "dargs>=0.3.1",
 ]
+test = [
+     'fakegaussian>=0.0.3',
+]
 
 [tool.setuptools.packages.find]
 include = ["dpgen2*"]
