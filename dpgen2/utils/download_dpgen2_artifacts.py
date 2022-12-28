@@ -2,11 +2,17 @@ import logging
 import numpy as np
 from pathlib import Path
 
+from dflow import (
+    Workflow,
+)
 from dpgen2.utils.dflow_query import(
     get_iteration,
     get_subkey,
 )
 from dflow import Workflow,download_artifact
+from typing import (
+    Optional
+)
 
 
 class DownloadDefinition():
@@ -61,9 +67,10 @@ op_download_setting = {
     
 
 def download_dpgen2_artifacts(
-        wf,
-        key,
-        prefix = None,
+        wf : Workflow,
+        key : str,
+        prefix : Optional[str] = None,
+        chk_pnt : bool = False,
 ):
     """
     download the artifacts of a step.
@@ -96,6 +103,31 @@ def download_dpgen2_artifacts(
         raise RuntimeError(f'key {key} does not match any step')
     step = step[0]
 
+    # download inputs
+    if len(input_def) == 0 or (chk_pnt and (mypath/subkey/'inputs'/'done').is_file()):
+        pass
+    else:
+        _dload_input_lower(step, mypath, key, subkey, input_def)
+        if chk_pnt:
+            (mypath/subkey/'inputs'/'done').touch()
+    # download outputs
+    if len(output_def) == 0 or (chk_pnt and (mypath/subkey/'outputs'/'done').is_file()):
+        pass
+    else:
+        _dload_output_lower(step, mypath, key, subkey, output_def)
+        if chk_pnt:
+            (mypath/subkey/'outputs'/'done').touch()
+
+    return
+
+
+def _dload_input_lower(
+        step,
+        mypath,
+        key,
+        subkey,
+        input_def,
+):
     for kk in input_def.keys():
         pref = mypath / subkey / 'inputs'
         ksuff = input_def[kk]
@@ -111,6 +143,14 @@ def download_dpgen2_artifacts(
             # NotImplementedError to be compatible with old versions of dflow
             logging.warning(f'cannot download input artifact  {kk}  of  {key}, it may be empty')
 
+
+def _dload_output_lower(
+        step,
+        mypath,
+        key,
+        subkey,
+        output_def,
+):
     for kk in output_def.keys():
         pref = mypath / subkey / 'outputs'
         ksuff = output_def[kk]
@@ -125,5 +165,3 @@ def download_dpgen2_artifacts(
         except (NotImplementedError, FileNotFoundError):
             # NotImplementedError to be compatible with old versions of dflow
             logging.warning(f'cannot download input artifact  {kk}  of  {key}, it may be empty')
-
-    return
