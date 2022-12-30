@@ -4,9 +4,7 @@ from typing import (
     List,
     Optional,
 )
-from distutils.version import (
-    LooseVersion,
-)
+from packaging.version import Version
 from dpgen2.constants import (
     lmp_traj_name,
 )
@@ -46,7 +44,7 @@ def make_lmp_input(
         deepmd_version = '2.0', 
         trj_seperate_files = True,
 ) :
-    if (ele_temp_f is not None or ele_temp_a is not None) and LooseVersion(deepmd_version) < LooseVersion('1'):
+    if (ele_temp_f is not None or ele_temp_a is not None) and Version(deepmd_version) < Version('1'):
         raise RuntimeError('the electron temperature is only supported by deepmd-kit >= 1.0.0, please upgrade your deepmd-kit')
     if ele_temp_f is not None and ele_temp_a is not None:
         raise RuntimeError('the frame style ele_temp and atom style ele_temp should not be set at the same time')
@@ -85,7 +83,7 @@ def make_lmp_input(
     graph_list = ""
     for ii in graphs :
         graph_list += ii + " "
-    if LooseVersion(deepmd_version) < LooseVersion('1'):
+    if Version(deepmd_version) < Version('1'):
         # 0.x
         ret+= "pair_style      deepmd %s ${THERMO_FREQ} model_devi.out\n" % graph_list
     else:
