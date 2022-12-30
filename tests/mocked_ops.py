@@ -621,10 +621,35 @@ class MockedCollectDataRestart(CollectData):
 
 
 class MockedExplorationReport(ExplorationReport):
-    def __init__(self):
+    def __init__(
+            self,
+            conv_accuracy = 0.9
+    ):
+        self.conv_accuracy = conv_accuracy
         self.failed = .1
         self.candidate = .1
         self.accurate = .8
+
+    def clear(self):
+        raise NotImplementedError
+
+    def record(self, mdf, mdv):
+        raise NotImplementedError
+
+    def print(self):
+        raise NotImplementedError
+
+    def print_header(self):
+        raise NotImplementedError
+
+    def converged(self):
+        return self.accurate >= self.conv_accuracy
+
+    def no_candidate(self):
+        return self.candidate_ratio() == 0.0
+
+    def get_candidate_ids(self, max_nframes):
+        raise NotImplementedError
 
     def failed_ratio (
             self, 
@@ -692,10 +717,12 @@ class MockedStage2(ExplorationStage):
 
 class MockedConfSelector(ConfSelector):
     def __init__(
-            self,
+            self,            
             trust_level: TrustLevel = TrustLevel(0.1, 0.2),
+            conv_accuracy: float = 0.9,
     ):
         self.trust_level = trust_level
+        self.conv_accuracy = conv_accuracy
 
     def select (
             self,
@@ -724,7 +751,7 @@ class MockedConfSelector(ConfSelector):
             fname = Path('conf.1')
             fname.write_text('conf of conf.1')
             confs.append(fname)
-        report = MockedExplorationReport()
+        report = MockedExplorationReport(conv_accuracy=self.conv_accuracy)
         return confs, report
 
 class MockedSelectConfs(SelectConfs):
@@ -758,5 +785,8 @@ class MockedConstTrustLevelStageScheduler(ConvergenceCheckStageScheduler):
             conv_accuracy : float = 0.9,
             max_numb_iter : int = None,
     ):
-        self.selector = MockedConfSelector(trust_level)
-        super().__init__(stage, self.selector, conv_accuracy, max_numb_iter)
+        self.selector = MockedConfSelector(
+            trust_level, 
+            conv_accuracy=conv_accuracy,
+        )
+        super().__init__(stage, self.selector, max_numb_iter=max_numb_iter)

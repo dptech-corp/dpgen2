@@ -61,8 +61,14 @@ from dpgen2.exploration.task import (
     make_task_group_from_config,
 )
 from dpgen2.exploration.selector import (
-    ConfSelectorLammpsFrames,
+    ConfSelectorFrames,
     TrustLevel,
+)
+from dpgen2.exploration.render import (
+    TrajRenderLammps,
+)
+from dpgen2.exploration.report import (
+    ExplorationReportTrustLevels,
 )
 from dpgen2.constants import (
     default_image,
@@ -234,17 +240,19 @@ def make_naive_exploration_scheduler(
             level_v_lo=config.get('model_devi_v_trust_lo') if old_style else config['explore']['v_trust_lo'],
             level_v_hi=config.get('model_devi_v_trust_hi') if old_style else config['explore']['v_trust_hi'],
         )
+        # report
+        report = ExplorationReportTrustLevels(trust_level, conv_accuracy)
+        render = TrajRenderLammps(nopbc=output_nopbc)
         # selector
-        selector = ConfSelectorLammpsFrames(
-            trust_level,
+        selector = ConfSelectorFrames(
+            render,
+            report,
             fp_task_max,
-            nopbc=output_nopbc,
         )
         # stage_scheduler
         stage_scheduler = ConvergenceCheckStageScheduler(
             stage,
             selector,
-            conv_accuracy = conv_accuracy,
             max_numb_iter = max_numb_iter,
             fatal_at_max = fatal_at_max,
         )
