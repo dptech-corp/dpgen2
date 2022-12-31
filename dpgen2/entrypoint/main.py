@@ -31,13 +31,14 @@ from .watch import (
     watch,
     default_watching_keys,
 )
+from .workflow import (
+    workflow_subcommands,
+    add_subparser_workflow_subcommand,
+    execute_workflow_subcommand,
+)
 from dpgen2 import (
     __version__
 )
-
-#####################################
-# logging
-logging.basicConfig(level=logging.INFO)
 
 
 def main_parser() -> argparse.ArgumentParser:
@@ -182,8 +183,13 @@ def main_parser() -> argparse.ArgumentParser:
         help="if specified, download regardless whether check points exist."
     )
 
+    # workflow subcommands
+    for cmd in workflow_subcommands:
+        add_subparser_workflow_subcommand(subparsers, cmd)
+
     # --version
     parser.add_argument(
+        "-v",
         '--version', 
         action='version', 
         version='DPGEN v%s' % __version__,
@@ -211,6 +217,10 @@ def parse_args(args: Optional[List[str]] = None):
     
 
 def main():
+    #####################################
+    # logging
+    logging.basicConfig(level=logging.INFO)
+
     args = parse_args()
     dict_args = vars(args)
 
@@ -268,6 +278,11 @@ def main():
             prefix=args.prefix,
             chk_pnt=args.no_check_point,
         )
+    elif args.command in workflow_subcommands:
+        with open(args.CONFIG) as fp:
+            config = json.load(fp)
+        wfid = args.ID
+        execute_workflow_subcommand(args.command, wfid, config)
     elif args.command is None:
         pass
     else:
