@@ -1,4 +1,4 @@
-import glob, dpdata, os, pickle
+import glob, dpdata, os, pickle, logging, copy
 from pathlib import Path
 from dflow import (
     InputParameter,
@@ -82,6 +82,7 @@ from dpgen2.utils import (
     workflow_config_from_dict,
     matched_step_key,
     bohrium_config_from_dict,
+    get_subkey,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
 from dpgen2.entrypoint.common import (
@@ -388,10 +389,76 @@ def workflow_concurrent_learning(
     return dpgen_step
 
 
+def get_scheduler_ids(
+        reuse_step,
+):
+    scheduler_ids = []
+    for idx,ii in enumerate(reuse_step):
+        if get_subkey(ii.key, 1) == "scheduler":
+            scheduler_ids.append(idx)
+    scheduler_keys = [reuse_step[ii].key for ii in scheduler_ids]
+    assert(sorted(scheduler_keys) == scheduler_keys),\
+        "The scheduler keys are not properly sorted"
+
+    if len(scheduler_ids) == 0:
+        logging.warning("No scheduler found in the workflow, "
+                        "does not do any replacement."
+        )
+    return scheduler_ids
+
+def update_reuse_step_scheduler(
+        reuse_step,
+        scheduler_new,
+):
+    scheduler_ids = get_scheduler_ids(reuse_step)
+    if len(scheduler_ids) == 0:
+        return reuse_step
+
+    # do replacement
+    reuse_step[scheduler_ids[-1]].modify_output_parameter(
+        "exploration_scheduler", scheduler_new)
+
+    return reuse_step
+
+def copy_scheduler_plans(
+        scheduler_new,
+        scheduler_old,
+):
+    if len(scheduler_old.stage_schedulers) == 0:
+        return scheduler_new
+    if len(scheduler_new.stage_schedulers) < len(scheduler_old.stage_schedulers):
+        raise RuntimeError(
+            'The new scheduler has less stages than the old scheduler, '
+            'scheduler copy is not supported.'
+        )
+    # the scheduler_old is planned. minic the init call of the scheduler
+    if scheduler_old.get_iteration() > -1:
+        scheduler_new.plan_next_iteration()
+    for ii in range(len(scheduler_old.stage_schedulers)):
+        old_stage = scheduler_old.stage_schedulers[ii]
+        old_reports = old_stage.get_reports()
+        if old_stage.next_iteration() > 0:
+            if ii != scheduler_new.get_stage():
+                raise RuntimeError(
+                    f'The stage {scheduler_new.get_stage()} of the new '
+                    f'scheduler does not match'
+                    f'the stage {ii} of the old scheduler. '
+                    f'scheduler, which should not happen'
+                )
+            for report in old_reports:
+                scheduler_new.plan_next_iteration(report)
+            if old_stage.complete() and \
+               (not scheduler_new.stage_schedulers[ii].complete()):
+                scheduler_new.force_stage_complete()
+        else:
+            break
+    return scheduler_new
+
 def submit_concurrent_learning(
         wf_config,
-        reuse_step = None,
-        old_style = False,
+        reuse_step : Optional[List[Step]] = None,
+        old_style : bool = False,
+        replace_scheduler: bool = False,
 ):
     # normalize args
     wf_config = normalize_args(wf_config)
@@ -401,6 +468,21 @@ def submit_concurrent_learning(
     context = global_config_workflow(wf_config, do_lebesgue=do_lebesgue)
     
     dpgen_step = workflow_concurrent_learning(wf_config, old_style=old_style)
+    
+    if reuse_step is not None and replace_scheduler:
+        scheduler_new = copy.deepcopy(dpgen_step.inputs.parameters['exploration_scheduler'].value)
+        idx_old = get_scheduler_ids(reuse_step)[-1]
+        scheduler_old = reuse_step[idx_old].inputs.parameters['exploration_scheduler'].value
+        scheduler_new = copy_scheduler_plans(scheduler_new, scheduler_old)
+        exploration_report = reuse_step[idx_old].inputs.parameters['exploration_report'].value
+        # plan next
+        # hack! trajs is set to None...
+        conv, lmp_task_grp, selector = scheduler_new.plan_next_iteration(exploration_report, trajs=None)
+        # update output of the scheduler step
+        reuse_step[idx_old].modify_output_parameter("converged", conv,)
+        reuse_step[idx_old].modify_output_parameter("exploration_scheduler", scheduler_new,)
+        reuse_step[idx_old].modify_output_parameter("lmp_task_grp", lmp_task_grp,)
+        reuse_step[idx_old].modify_output_parameter("conf_selector", selector,)
 
     wf = Workflow(name="dpgen", context=context)
     wf.add(dpgen_step)
@@ -449,6 +531,7 @@ def resubmit_concurrent_learning(
         list_steps = False,
         reuse = None,
         old_style = False,
+        replace_scheduler = False,
 ):
     wf_config = normalize_args(wf_config)
 
@@ -474,6 +557,7 @@ def resubmit_concurrent_learning(
         wf_config, 
         reuse_step=reuse_step,
         old_style=old_style,
+        replace_scheduler=replace_scheduler,
     )
 
     return wf
