@@ -134,8 +134,8 @@
 		"concentration" : [[1.0, 0.0], [0.5, 0.5], [0.0, 1.0]]
 	    }
 	],
-	"_comment" : "Stage is of type List[List[dict]]. "
-	"_comment" : "The outer list gives stages, the inner list gives the task groups of the stage, and dict describes the task group."
+	"_comment" : "Stage is of type List[List[dict]]. ",
+	"_comment" : "The outer list gives stages, the inner list gives the task groups of the stage, and dict describes the task group.",
 	"stages":	[
 	    [
 		{
