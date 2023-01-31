@@ -84,6 +84,7 @@ from dpgen2.utils import (
     workflow_config_from_dict,
     matched_step_key,
     bohrium_config_from_dict,
+    BinaryFileInput,
     get_subkey,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
@@ -126,7 +127,7 @@ def make_concurrent_learning_op(
     cl_step_config: dict = default_config,
     upload_python_packages: Optional[List[os.PathLike]] = None,
 ):
-    if train_style == "dp":
+    if train_style in ("dp", "dp-dist"):
         prep_run_train_op = PrepRunDPTrain(
             "prep-run-dp-train",
             PrepDPTrain,
@@ -358,11 +359,21 @@ def workflow_concurrent_learning(
         else config["step_configs"]["cl_step_config"]
     )
     upload_python_packages = config.get("upload_python_packages", None)
-    init_models_paths = (
-        config.get("training_iter0_model_path", None)
-        if old_style
-        else config["train"].get("init_models_paths", None)
-    )
+
+    if train_style == "dp":
+        init_models_paths = (
+            config.get("training_iter0_model_path", None)
+            if old_style
+            else config["train"].get("init_models_paths", None)
+        )
+    elif train_style == "dp-dist" and not old_style:
+        init_models_paths = [config["train"].get("student_model_path", None)]
+        config["train"]["numb_models"] = 1
+    else:
+        raise RuntimeError(
+            f"unknown params, train_style: {train_style}, old_style: {old_style}"
+        )
+
     if upload_python_packages is not None and isinstance(upload_python_packages, str):
         upload_python_packages = [upload_python_packages]
     if upload_python_packages is not None:
@@ -403,6 +414,14 @@ def workflow_concurrent_learning(
     lmp_config = (
         config.get("lmp_config", {}) if old_style else config["explore"]["config"]
     )
+    if "teacher_model_path" in lmp_config:
+        assert os.path.exists(
+            lmp_config["teacher_model_path"]
+        ), f"No such file: {lmp_config['teacher_model_path']}"
+        lmp_config["teacher_model_path"] = BinaryFileInput(
+            lmp_config["teacher_model_path"], "pb"
+        )
+
     fp_config = config.get("fp_config", {}) if old_style else {}
     if old_style:
         potcar_names = config["fp_pp_files"]
@@ -420,6 +439,16 @@ def workflow_concurrent_learning(
 
     fp_config["inputs"] = fp_inputs
     fp_config["run"] = config["fp"]["run_config"]
+    if fp_style == "deepmd":
+        assert (
+            "teacher_model_path" in fp_config["run"]
+        ), f"Cannot find 'teacher_model_path' in config['fp']['run_config'] when fp_style == 'deepmd'"
+        assert os.path.exists(
+            fp_config["run"]["teacher_model_path"]
+        ), f"No such file: {fp_config['run']['teacher_model_path']}"
+        fp_config["run"]["teacher_model_path"] = BinaryFileInput(
+            fp_config["run"]["teacher_model_path"], "pb"
+        )
 
     init_data_prefix = (
         config.get("init_data_prefix")

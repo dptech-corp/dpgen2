@@ -17,10 +17,33 @@ from dpgen2.conf import conf_styles
 from dpgen2.exploration.report import conv_styles
 
 
+def dp_dist_train_args():
+    doc_config = "Configuration of training"
+    doc_template_script = "File names of the template training script. It can be a `List[Dict]`, the length of which is the same as `numb_models`. Each template script in the list is used to train a model. Can be a `str`, the models share the same template training script. "
+    dock_student_model_path = "The path of student model"
+
+    return [
+        Argument(
+            "config",
+            dict,
+            RunDPTrain.training_args(),
+            optional=True,
+            default=RunDPTrain.normalize_config({}),
+            doc=doc_config,
+        ),
+        Argument(
+            "template_script", [list, str], optional=False, doc=doc_template_script
+        ),
+        Argument(
+            "student_model_path", str, optional=False, doc=dock_student_model_path
+        ),
+    ]
+
+
 def dp_train_args():
     doc_numb_models = "Number of models trained for evaluating the model deviation"
     doc_config = "Configuration of training"
-    doc_template_script = "File names of the template training script. It can be a `List[Dict]`, the length of which is the same as `numb_models`. Each template script in the list is used to train a model. Can be a `Dict`, the models share the same template training script. "
+    doc_template_script = "File names of the template training script. It can be a `List[Dict]`, the length of which is the same as `numb_models`. Each template script in the list is used to train a model. Can be a `str`, the models share the same template training script. "
     doc_init_models_paths = "the paths to initial models"
 
     return [
@@ -52,6 +75,7 @@ def variant_train():
         "type",
         [
             Argument("dp", dict, dp_train_args()),
+            Argument("dp-dist", dict, dp_dist_train_args()),
         ],
         doc=doc,
     )
