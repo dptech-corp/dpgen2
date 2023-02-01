@@ -6,6 +6,8 @@ from dargs import (
 from dpgen2.constants import default_image
 from dflow.plugins.lebesgue import LebesgueExecutor
 from dflow.plugins.dispatcher import DispatcherExecutor
+from dflow import config
+import os
 
 
 def lebesgue_extra_args():
@@ -160,7 +162,7 @@ def gen_doc(*, make_anchor=True, make_link=True, **kwargs):
 def init_executor(
     executor_dict,
 ):
-    if executor_dict is None:
+    if executor_dict is None or config["mode"] == "debug":
         return None
     etype = executor_dict.pop("type")
     if etype == "lebesgue_v2":

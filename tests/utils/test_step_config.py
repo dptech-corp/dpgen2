@@ -12,6 +12,23 @@ from dpgen2.utils import (
 )
 import dflow
 
+from contextlib import contextmanager
+from pathlib import Path
+from dflow.python import (
+    OPIO,
+)
+from copy import deepcopy
+
+
+@contextmanager
+def dflow_mode(mode: str = "default"):
+    _mode = dflow.config["mode"]
+    dflow.config["mode"] = mode
+    try:
+        yield
+    finally:
+        dflow.config["mode"] = _mode
+
 
 class TestStepConfig(unittest.TestCase):
     def test_success(self):
@@ -85,8 +102,13 @@ class TestStepConfig(unittest.TestCase):
             },
         }
         odict = normalize(idict)
-        ret = init_executor(odict.pop("executor"))
-        self.assertTrue(isinstance(ret, dflow.plugins.lebesgue.LebesgueExecutor))
+        with dflow_mode("debug"):
+            ret = init_executor(deepcopy(odict).pop("executor"))
+            self.assertTrue(ret is None)
+
+        with dflow_mode("default"):
+            ret = init_executor(deepcopy(odict).pop("executor"))
+            self.assertTrue(isinstance(ret, dflow.plugins.lebesgue.LebesgueExecutor))
 
     def test_init_executor_notype(self):
         idict = {
@@ -107,5 +129,12 @@ class TestStepConfig(unittest.TestCase):
         }
         odict = normalize(idict)
         self.assertEqual(odict["executor"], idict["executor"])
-        ret = init_executor(odict.pop("executor"))
-        self.assertTrue(isinstance(ret, dflow.plugins.dispatcher.DispatcherExecutor))
+        with dflow_mode("debug"):
+            ret = init_executor(deepcopy(odict).pop("executor"))
+            self.assertTrue(ret is None)
+
+        with dflow_mode("default"):
+            ret = init_executor(deepcopy(odict).pop("executor"))
+            self.assertTrue(
+                isinstance(ret, dflow.plugins.dispatcher.DispatcherExecutor)
+            )
