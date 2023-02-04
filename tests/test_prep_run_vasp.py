@@ -1,60 +1,72 @@
+import json
 import os
-import numpy as np
+import shutil
+import time
 import unittest
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Set,
+)
 
+import jsonpickle
+import numpy as np
 from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
     InputArtifact,
-    Outputs,
+    InputParameter,
+    Inputs,
     OutputArtifact,
-    Workflow,
+    OutputParameter,
+    Outputs,
+    S3Artifact,
     Step,
     Steps,
-    upload_artifact,
-    download_artifact,
-    S3Artifact,
+    Workflow,
     argo_range,
+    download_artifact,
+    upload_artifact,
 )
 from dflow.python import (
-    PythonOPTemplate,
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
+    OPIOSign,
+    PythonOPTemplate,
 )
 
-import time, shutil, json, jsonpickle
-from typing import Set, List
-from pathlib import Path
-
 try:
-    from context import dpgen2
+    from context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from context import (
-    upload_python_packages,
+    default_host,
+    default_image,
     skip_ut_with_dflow,
     skip_ut_with_dflow_reason,
-    default_image,
-    default_host,
+    upload_python_packages,
 )
-from dpgen2.superop.prep_run_fp import PrepRunFp
 from mocked_ops import (
-    mocked_incar_template,
     MockedPrepVasp,
     MockedRunVasp,
+    mocked_incar_template,
 )
-from dpgen2.fp.vasp import VaspInputs
+
 from dpgen2.constants import (
     fp_task_pattern,
 )
 from dpgen2.fp.vasp import (
+    VaspInputs,
     vasp_conf_name,
     vasp_input_name,
     vasp_pot_name,
+)
+from dpgen2.superop.prep_run_fp import (
+    PrepRunFp,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
 

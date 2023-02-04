@@ -1,20 +1,31 @@
-from utils.context import dpgen2
-import numpy as np
-import unittest, json, shutil, os
+import json
+import os
 import random
+import shutil
 import tempfile
+import unittest
+from pathlib import (
+    Path,
+)
+
+import dflow
 import dpdata
-from pathlib import Path
+import numpy as np
+import pytest
+from dflow import (
+    config,
+    s3_config,
+)
+from dflow.plugins import (
+    bohrium,
+)
+from utils.context import (
+    dpgen2,
+)
 
 from dpgen2.utils import (
     bohrium_config_from_dict,
 )
-import dflow
-from dflow import config, s3_config
-from dflow.plugins import bohrium
-
-
-import pytest
 
 
 @pytest.mark.server(

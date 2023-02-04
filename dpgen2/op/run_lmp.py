@@ -1,34 +1,46 @@
-import os, json
-from pathlib import Path
+import json
+import os
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Optional,
+    Set,
+    Tuple,
+)
+
+from dargs import (
+    Argument,
+    ArgumentEncoder,
+    Variant,
+    dargs,
+)
 from dflow.python import (
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
-    TransientError,
-    FatalError,
     BigParameter,
+    FatalError,
+    OPIOSign,
+    TransientError,
 )
-from typing import Tuple, List, Set, Optional
-from dpgen2.utils.run_command import run_command
-from dpgen2.utils import (
-    set_directory,
-)
+
 from dpgen2.constants import (
     lmp_conf_name,
     lmp_input_name,
     lmp_log_name,
-    lmp_traj_name,
     lmp_model_devi_name,
+    lmp_traj_name,
     model_name_pattern,
 )
-from dargs import (
-    dargs,
-    Argument,
-    Variant,
-    ArgumentEncoder,
+from dpgen2.utils import (
+    BinaryFileInput,
+    set_directory,
 )
-from dpgen2.utils import BinaryFileInput
+from dpgen2.utils.run_command import (
+    run_command,
+)
 
 
 class RunLmp(OP):

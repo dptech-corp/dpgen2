@@ -1,37 +1,48 @@
+import os
+from copy import (
+    deepcopy,
+)
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Optional,
+    Set,
+)
+
 from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
     InputArtifact,
-    Outputs,
+    InputParameter,
+    Inputs,
     OutputArtifact,
-    Workflow,
+    OutputParameter,
+    Outputs,
     Step,
     Steps,
-    upload_artifact,
-    download_artifact,
-    argo_range,
+    Workflow,
     argo_len,
+    argo_range,
     argo_sequence,
+    download_artifact,
+    upload_artifact,
 )
 from dflow.python import (
-    PythonOPTemplate,
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
+    OPIOSign,
+    PythonOPTemplate,
     Slices,
 )
+
 from dpgen2.constants import (
     train_index_pattern,
 )
+from dpgen2.utils.step_config import (
+    init_executor,
+)
 from dpgen2.utils.step_config import normalize as normalize_step_dict
-from dpgen2.utils.step_config import init_executor
-
-import os
-from typing import Optional, Set, List
-from pathlib import Path
-from copy import deepcopy
 
 
 class PrepRunDPTrain(Steps):

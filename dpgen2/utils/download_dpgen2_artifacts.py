@@ -1,16 +1,21 @@
 import logging
-import numpy as np
-from pathlib import Path
+from pathlib import (
+    Path,
+)
+from typing import (
+    Optional,
+)
 
+import numpy as np
 from dflow import (
     Workflow,
+    download_artifact,
 )
+
 from dpgen2.utils.dflow_query import (
     get_iteration,
     get_subkey,
 )
-from dflow import Workflow, download_artifact
-from typing import Optional
 
 
 class DownloadDefinition:

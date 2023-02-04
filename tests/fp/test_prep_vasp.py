@@ -1,30 +1,46 @@
-from .context import dpgen2
-import os, sys, json, glob, shutil, textwrap
+import glob
+import json
+import os
+import shutil
+import sys
+import textwrap
+import unittest
+from pathlib import (
+    Path,
+)
+
 import dpdata
 import numpy as np
-import unittest
-from dpgen2.fp.vasp import VaspInputs, PrepVasp
-from pathlib import Path
+from dflow.python import (
+    OP,
+    OPIO,
+    Artifact,
+    FatalError,
+    OPIOSign,
+    TransientError,
+)
+
 from dpgen2.constants import (
     fp_task_pattern,
 )
 from dpgen2.fp.vasp import (
-    vasp_input_name,
-    vasp_pot_name,
-    vasp_kp_name,
+    PrepVasp,
+    VaspInputs,
     vasp_conf_name,
-)
-from fake_data_set import fake_system, fake_multi_sys
-from dflow.python import (
-    OP,
-    OPIO,
-    OPIOSign,
-    Artifact,
-    TransientError,
-    FatalError,
+    vasp_input_name,
+    vasp_kp_name,
+    vasp_pot_name,
 )
 from dpgen2.utils import (
     dump_object_to_file,
+)
+
+from ..fake_data_set import (
+    fake_multi_sys,
+    fake_system,
+)
+from .context import (
+    dpgen2,
 )
 
 

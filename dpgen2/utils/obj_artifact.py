@@ -1,5 +1,7 @@
 import pickle
-from pathlib import Path
+from pathlib import (
+    Path,
+)
 
 
 def dump_object_to_file(

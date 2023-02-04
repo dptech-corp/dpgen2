@@ -1,17 +1,26 @@
-from .context import dpgen2
-import numpy as np
-import unittest, json, shutil, os
+import json
+import os
 import random
+import shutil
 import tempfile
+import unittest
+from pathlib import (
+    Path,
+)
+
 import dpdata
-from pathlib import Path
+import numpy as np
+
 from dpgen2.conf.alloy_conf import (
-    AlloyConfGenerator,
     AlloyConf,
+    AlloyConfGenerator,
     generate_alloy_conf_file_content,
     normalize,
 )
 
+from .context import (
+    dpgen2,
+)
 
 ofc0 = "\n1 atoms\n2 atom types\n   0.0000000000    2.0000000000 xlo xhi\n   0.0000000000    2.0000000000 ylo yhi\n   0.0000000000    2.0000000000 zlo zhi\n   0.0000000000    0.0000000000    0.0000000000 xy xz yz\n\nAtoms # atomic\n\n     1      1    0.0000000000    0.0000000000    0.0000000000\n"
 ofc1 = "\n1 atoms\n2 atom types\n   0.0000000000    3.0000000000 xlo xhi\n   0.0000000000    3.0000000000 ylo yhi\n   0.0000000000    3.0000000000 zlo zhi\n   0.0000000000    0.0000000000    0.0000000000 xy xz yz\n\nAtoms # atomic\n\n     1      2    0.0000000000    0.0000000000    0.0000000000\n"

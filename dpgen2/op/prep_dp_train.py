@@ -1,11 +1,25 @@
-from dflow.python import OP, OPIO, OPIOSign, Artifact
+import json
+import random
+import sys
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Tuple,
+    Union,
+)
 
-import json, random, sys
-from typing import Tuple, List, Union
-from pathlib import Path
+from dflow.python import (
+    OP,
+    OPIO,
+    Artifact,
+    OPIOSign,
+)
+
 from dpgen2.constants import (
-    train_task_pattern,
     train_script_name,
+    train_task_pattern,
 )
 
 

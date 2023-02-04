@@ -63,3 +63,7 @@ write_to = "dpgen2/_version.py"
 include = [
      "dpgen2",
 ]
+
+[tool.isort]
+profile = "black"
+force_grid_wrap = 1

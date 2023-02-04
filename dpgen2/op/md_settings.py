@@ -1,5 +1,8 @@
 import json
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 
 class MDSettings:

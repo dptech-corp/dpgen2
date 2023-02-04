@@ -1,23 +1,34 @@
-from abc import ABC, abstractmethod
+import json
+import os
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from pathlib import (
+    Path,
+)
+from typing import (
+    Dict,
+    List,
+    Set,
+    Tuple,
+)
+
+import dargs
+import dpdata
 from dflow.python import (
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
-    TransientError,
-    FatalError,
     BigParameter,
+    FatalError,
+    OPIOSign,
+    TransientError,
 )
-import os, json, dpdata
-from pathlib import Path
-from typing import (
-    Tuple,
-    List,
-    Set,
-    Dict,
+
+from dpgen2.utils.chdir import (
+    set_directory,
 )
-from dpgen2.utils.chdir import set_directory
-import dargs
 
 
 class RunFp(OP, ABC):

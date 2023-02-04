@@ -1,49 +1,68 @@
-from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
-    InputArtifact,
-    Outputs,
-    OutputArtifact,
-    Workflow,
-    Step,
-    Steps,
-    upload_artifact,
-    download_artifact,
-    argo_range,
-    argo_len,
-    argo_sequence,
-    if_expression,
-    OPTemplate,
+import os
+import pickle
+from copy import (
+    deepcopy,
 )
-from dflow.python import (
-    PythonOPTemplate,
-    OP,
-    OPIO,
-    OPIOSign,
-    Artifact,
-    Slices,
-    BigParameter,
+from pathlib import (
+    Path,
 )
-import pickle, jsonpickle, os
 from typing import (
     List,
     Optional,
 )
-from pathlib import Path
-from dpgen2.exploration.scheduler import ExplorationScheduler
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.task import ExplorationTaskGroup
-from dpgen2.exploration.selector import ConfSelector
-from dpgen2.superop.block import ConcurrentLearningBlock
+
+import jsonpickle
+from dflow import (
+    InputArtifact,
+    InputParameter,
+    Inputs,
+    OPTemplate,
+    OutputArtifact,
+    OutputParameter,
+    Outputs,
+    Step,
+    Steps,
+    Workflow,
+    argo_len,
+    argo_range,
+    argo_sequence,
+    download_artifact,
+    if_expression,
+    upload_artifact,
+)
+from dflow.python import (
+    OP,
+    OPIO,
+    Artifact,
+    BigParameter,
+    OPIOSign,
+    PythonOPTemplate,
+    Slices,
+)
+
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+from dpgen2.exploration.scheduler import (
+    ExplorationScheduler,
+)
+from dpgen2.exploration.selector import (
+    ConfSelector,
+)
+from dpgen2.exploration.task import (
+    ExplorationTaskGroup,
+)
+from dpgen2.superop.block import (
+    ConcurrentLearningBlock,
+)
 from dpgen2.utils import (
-    load_object_from_file,
     dump_object_to_file,
+    load_object_from_file,
+)
+from dpgen2.utils.step_config import (
+    init_executor,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
-from dpgen2.utils.step_config import init_executor
-
-from copy import deepcopy
 
 
 class SchedulerWrapper(OP):

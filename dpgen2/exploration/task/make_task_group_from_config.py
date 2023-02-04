@@ -4,8 +4,10 @@ from dargs import (
     Variant,
 )
 
-from dpgen2.exploration.task import (
+from dpgen2.exploration.task.lmp_template_task_group import (
     LmpTemplateTaskGroup,
+)
+from dpgen2.exploration.task.npt_task_group import (
     NPTTaskGroup,
 )
 

@@ -1,6 +1,14 @@
+import os
+import shutil
+import unittest
+from pathlib import (
+    Path,
+)
+
 import numpy as np
-import unittest, os, shutil
-from pathlib import Path
+from dargs import (
+    Argument,
+)
 
 from dpgen2.fp.gaussian import (
     GaussianInputs,
@@ -10,7 +18,6 @@ from dpgen2.fp.gaussian import (
     gaussian_input_name,
     gaussian_output_name,
 )
-from dargs import Argument
 
 
 class TestPrepGaussian(unittest.TestCase):

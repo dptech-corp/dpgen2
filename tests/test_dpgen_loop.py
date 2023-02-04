@@ -1,108 +1,135 @@
-import os, textwrap, pickle
-import numpy as np
+import json
+import os
+import pickle
+import shutil
+import textwrap
+import time
 import unittest
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Set,
+)
 
+import jsonpickle
+import numpy as np
 from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
     InputArtifact,
-    Outputs,
+    InputParameter,
+    Inputs,
     OutputArtifact,
-    Workflow,
+    OutputParameter,
+    Outputs,
+    S3Artifact,
     Step,
     Steps,
-    upload_artifact,
-    download_artifact,
-    S3Artifact,
+    Workflow,
     argo_range,
+    download_artifact,
+    upload_artifact,
 )
 from dflow.python import (
-    PythonOPTemplate,
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
+    OPIOSign,
+    PythonOPTemplate,
     upload_packages,
 )
 
-import time, shutil, json, jsonpickle
-
-from typing import Set, List
-from pathlib import Path
-
 try:
-    from context import dpgen2
+    from context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from context import (
-    upload_python_packages,
+    default_host,
+    default_image,
     skip_ut_with_dflow,
     skip_ut_with_dflow_reason,
-    default_image,
-    default_host,
+    upload_python_packages,
 )
 from dflow.python import (
     FatalError,
 )
-from dpgen2.exploration.scheduler import (
-    ExplorationScheduler,
-)
-from dpgen2.op.prep_lmp import PrepLmp
-from dpgen2.superop.prep_run_dp_train import PrepRunDPTrain
-from dpgen2.superop.prep_run_lmp import PrepRunLmp
-from dpgen2.superop.prep_run_fp import PrepRunFp
-from dpgen2.superop.block import ConcurrentLearningBlock
-from dpgen2.exploration.task import ExplorationTask, ExplorationTaskGroup
-from dpgen2.fp.vasp import VaspInputs
-from dpgen2.flow.dpgen_loop import ConcurrentLearning
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
-
-from dpgen2.constants import (
-    train_task_pattern,
-    train_script_name,
-    train_log_name,
-    model_name_pattern,
-    lmp_conf_name,
-    lmp_input_name,
-    lmp_traj_name,
-    lmp_log_name,
-    fp_task_pattern,
-)
-from dpgen2.fp.vasp import (
-    vasp_conf_name,
-    vasp_input_name,
-    vasp_pot_name,
-)
 from mocked_ops import (
-    mocked_template_script,
-    mocked_numb_models,
-    make_mocked_init_models,
-    make_mocked_init_data,
-    mocked_incar_template,
-    mocked_numb_select,
-    MockedPrepDPTrain,
-    MockedRunDPTrain,
-    MockedRunLmp,
-    MockedPrepVasp,
-    MockedRunVasp,
-    MockedRunVaspFail1,
-    MockedRunVaspRestart,
-    MockedSelectConfs,
-    MockedConfSelector,
     MockedCollectData,
     MockedCollectDataFailed,
     MockedCollectDataRestart,
+    MockedConfSelector,
+    MockedConstTrustLevelStageScheduler,
     MockedExplorationReport,
     MockedExplorationTaskGroup,
     MockedExplorationTaskGroup1,
     MockedExplorationTaskGroup2,
+    MockedPrepDPTrain,
+    MockedPrepVasp,
+    MockedRunDPTrain,
+    MockedRunLmp,
+    MockedRunVasp,
+    MockedRunVaspFail1,
+    MockedRunVaspRestart,
+    MockedSelectConfs,
     MockedStage,
     MockedStage1,
     MockedStage2,
-    MockedConstTrustLevelStageScheduler,
+    make_mocked_init_data,
+    make_mocked_init_models,
+    mocked_incar_template,
+    mocked_numb_models,
+    mocked_numb_select,
+    mocked_template_script,
+)
+
+from dpgen2.constants import (
+    fp_task_pattern,
+    lmp_conf_name,
+    lmp_input_name,
+    lmp_log_name,
+    lmp_traj_name,
+    model_name_pattern,
+    train_log_name,
+    train_script_name,
+    train_task_pattern,
+)
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+from dpgen2.exploration.scheduler import (
+    ExplorationScheduler,
+)
+from dpgen2.exploration.task import (
+    ExplorationStage,
+    ExplorationTask,
+    ExplorationTaskGroup,
+)
+from dpgen2.flow.dpgen_loop import (
+    ConcurrentLearning,
+)
+from dpgen2.fp.vasp import (
+    VaspInputs,
+    vasp_conf_name,
+    vasp_input_name,
+    vasp_pot_name,
+)
+from dpgen2.op.prep_lmp import (
+    PrepLmp,
+)
+from dpgen2.superop.block import (
+    ConcurrentLearningBlock,
+)
+from dpgen2.superop.prep_run_dp_train import (
+    PrepRunDPTrain,
+)
+from dpgen2.superop.prep_run_fp import (
+    PrepRunFp,
+)
+from dpgen2.superop.prep_run_lmp import (
+    PrepRunLmp,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
 

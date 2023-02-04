@@ -7,9 +7,9 @@ from collections.abc import (
     Sequence,
 )
 from typing import (
+    Dict,
     List,
     Tuple,
-    Dict,
 )
 
 

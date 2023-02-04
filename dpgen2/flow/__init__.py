@@ -1,1 +1,3 @@
-from .dpgen_loop import ConcurrentLearning
+from .dpgen_loop import (
+    ConcurrentLearning,
+)

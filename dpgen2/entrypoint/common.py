@@ -1,22 +1,26 @@
-import dflow
-from pathlib import Path
 import os
+from pathlib import (
+    Path,
+)
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Union,
+)
+
+import dflow
+
 from dpgen2.utils import (
+    bohrium_config_from_dict,
     dump_object_to_file,
     load_object_from_file,
-    sort_slice_ops,
-    print_keys_in_nice_format,
-    workflow_config_from_dict,
     matched_step_key,
-    bohrium_config_from_dict,
+    print_keys_in_nice_format,
+    sort_slice_ops,
+    workflow_config_from_dict,
 )
 from dpgen2.utils.step_config import normalize as normalize_step_dict
-from typing import (
-    Union,
-    List,
-    Dict,
-    Optional,
-)
 
 
 def global_config_workflow(
@@ -33,7 +37,9 @@ def global_config_workflow(
     # lebesgue context
     lebesgue_context = None
     if do_lebesgue:
-        from dflow.plugins.lebesgue import LebesgueContext
+        from dflow.plugins.lebesgue import (
+            LebesgueContext,
+        )
 
         lb_context_config = wf_config.get("lebesgue_context_config", None)
         if lb_context_config:

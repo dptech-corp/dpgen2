@@ -1,11 +1,26 @@
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Optional,
+    Set,
+    Tuple,
+)
+
 import dpdata
-from abc import ABC, abstractmethod
-from typing import Optional, Tuple, List, Set
-from pathlib import Path
+
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+
 from . import (
     ConfFilters,
 )
-from dpgen2.exploration.report import ExplorationReport
 
 
 class ConfSelector(ABC):

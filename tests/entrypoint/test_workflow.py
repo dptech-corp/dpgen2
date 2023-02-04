@@ -1,9 +1,15 @@
-import unittest, json, shutil, os
+import json
+import os
+import shutil
+import textwrap
+import unittest
+
 import dflow
+import mock
 from dflow import (
     Workflow,
 )
-import mock, textwrap
+
 from dpgen2.entrypoint.workflow import (
     execute_workflow_subcommand,
 )

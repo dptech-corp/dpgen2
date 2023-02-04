@@ -1,17 +1,31 @@
-import unittest, json, shutil, os, json, textwrap
-from .context import dpgen2
-import numpy as np
+import json
+import os
 import random
+import shutil
 import tempfile
+import textwrap
+import unittest
+from pathlib import (
+    Path,
+)
+
 import dpdata
-from pathlib import Path
+import numpy as np
+
 from dpgen2.entrypoint.args import (
     normalize,
+)
+from dpgen2.op import (
+    RunDPTrain,
+    RunLmp,
 )
 from dpgen2.utils import (
     normalize_step_dict,
 )
-from dpgen2.op import RunDPTrain, RunLmp
+
+from .context import (
+    dpgen2,
+)
 
 
 class TestArgs(unittest.TestCase):

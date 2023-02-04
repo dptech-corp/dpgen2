@@ -1,17 +1,25 @@
-import dpdata
-import numpy as np
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from pathlib import (
+    Path,
+)
 from typing import (
+    TYPE_CHECKING,
     List,
     Optional,
     Tuple,
     Union,
 )
-from abc import ABC, abstractmethod
-from pathlib import Path
-from typing import TYPE_CHECKING
+
+import dpdata
+import numpy as np
 
 if TYPE_CHECKING:
-    from dpgen2.exploration.selector import ConfFilters
+    from dpgen2.exploration.selector import (
+        ConfFilters,
+    )
 
 
 class TrajRender(ABC):

@@ -1,23 +1,36 @@
-from utils.context import dpgen2
-import numpy as np
-import unittest, json, shutil, os
-from pathlib import Path
-from dpgen2.constants import default_image
-
-# from dpgen2.utils.step_config import normalize, gen_doc, init_executor
-from dpgen2.utils import (
-    normalize_step_dict as normalize,
-    gen_doc_step_dict as gen_doc,
-    init_executor,
+import json
+import os
+import shutil
+import unittest
+from contextlib import (
+    contextmanager,
 )
-import dflow
+from copy import (
+    deepcopy,
+)
+from pathlib import (
+    Path,
+)
 
-from contextlib import contextmanager
-from pathlib import Path
+import dflow
+import numpy as np
 from dflow.python import (
     OPIO,
 )
-from copy import deepcopy
+from utils.context import (
+    dpgen2,
+)
+
+from dpgen2.constants import (
+    default_image,
+)
+
+# from dpgen2.utils.step_config import normalize, gen_doc, init_executor
+from dpgen2.utils import gen_doc_step_dict as gen_doc
+from dpgen2.utils import (
+    init_executor,
+)
+from dpgen2.utils import normalize_step_dict as normalize
 
 
 @contextmanager

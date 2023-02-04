@@ -1,15 +1,28 @@
 import random
-import dpdata
 import tempfile
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
+
+import dpdata
 import numpy as np
-from pathlib import Path
-from typing import Optional, Union, List, Tuple
 from dargs import (
     Argument,
     Variant,
 )
-from .unit_cells import generate_unit_cell
-from .conf_generator import ConfGenerator
+
+from .conf_generator import (
+    ConfGenerator,
+)
+from .unit_cells import (
+    generate_unit_cell,
+)
 
 
 class AlloyConfGenerator(ConfGenerator):

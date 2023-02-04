@@ -1,10 +1,25 @@
-from .context import dpgen2
-import os, sys, json, glob, shutil, textwrap
+import glob
+import json
+import os
+import shutil
+import sys
+import textwrap
+import unittest
+from pathlib import (
+    Path,
+)
+
 import dpdata
 import numpy as np
-import unittest
-from dpgen2.fp.vasp import make_kspacing_kpoints, VaspInputs
-from pathlib import Path
+
+from dpgen2.fp.vasp import (
+    VaspInputs,
+    make_kspacing_kpoints,
+)
+
+from .context import (
+    dpgen2,
+)
 
 
 class TestVASPInputs(unittest.TestCase):

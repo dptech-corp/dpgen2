@@ -1,46 +1,55 @@
+import json
 import os
-import numpy as np
+import shutil
+import time
 import unittest
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Set,
+)
 
+import jsonpickle
+import numpy as np
 from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
     InputArtifact,
-    Outputs,
+    InputParameter,
+    Inputs,
     OutputArtifact,
-    Workflow,
+    OutputParameter,
+    Outputs,
+    S3Artifact,
     Step,
     Steps,
-    upload_artifact,
-    download_artifact,
-    S3Artifact,
+    Workflow,
     argo_range,
+    download_artifact,
+    upload_artifact,
 )
 from dflow.python import (
-    PythonOPTemplate,
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
+    OPIOSign,
+    PythonOPTemplate,
     upload_packages,
 )
 
-import time, shutil, json, jsonpickle
-from typing import Set, List
-from pathlib import Path
-
 try:
-    from context import dpgen2
+    from context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from context import (
-    upload_python_packages,
+    default_host,
+    default_image,
     skip_ut_with_dflow,
     skip_ut_with_dflow_reason,
-    default_image,
-    default_host,
+    upload_python_packages,
 )
 from mocked_ops import (
     MockedCollectData,

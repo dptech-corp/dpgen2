@@ -1,12 +1,23 @@
-import os
-import dpdata
 import glob
-from pathlib import Path
-from .conf_generator import ConfGenerator
-from typing import Optional, Union, List, Tuple
+import os
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
+
+import dpdata
 from dargs import (
     Argument,
     Variant,
+)
+
+from .conf_generator import (
+    ConfGenerator,
 )
 
 

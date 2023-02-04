@@ -1,8 +1,19 @@
-from utils.context import dpgen2
+import json
+import os
+import shutil
+import unittest
+from pathlib import (
+    Path,
+)
+
 import numpy as np
-import unittest, json, shutil, os
-from pathlib import Path
-from dpgen2.utils.run_command import run_command
+from utils.context import (
+    dpgen2,
+)
+
+from dpgen2.utils.run_command import (
+    run_command,
+)
 
 
 class TestRunCommand(unittest.TestCase):

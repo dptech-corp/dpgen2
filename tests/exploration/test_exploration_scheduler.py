@@ -1,26 +1,48 @@
-import os, textwrap
-import numpy as np
+import os
+import textwrap
 import unittest
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Set,
+)
 
-from typing import Set, List
-from pathlib import Path
+import numpy as np
 
 try:
-    from exploration.context import dpgen2
+    from exploration.context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from dflow.python import (
     FatalError,
 )
+
+from dpgen2.exploration.render import (
+    TrajRenderLammps,
+)
+from dpgen2.exploration.report import (
+    ExplorationReport,
+    ExplorationReportTrustLevels,
+)
 from dpgen2.exploration.scheduler import (
     ConvergenceCheckStageScheduler,
     ExplorationScheduler,
 )
-from dpgen2.exploration.report import ExplorationReport, ExplorationReportTrustLevels
-from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
-from dpgen2.exploration.selector import ConfSelectorFrames
-from dpgen2.exploration.render import TrajRenderLammps
+from dpgen2.exploration.selector import (
+    ConfSelectorFrames,
+)
+from dpgen2.exploration.task import (
+    ExplorationStage,
+    ExplorationTaskGroup,
+)
+
+# isort: off
+import exploration.context
 from mocked_ops import (
     MockedExplorationReport,
     MockedExplorationTaskGroup,
@@ -28,6 +50,8 @@ from mocked_ops import (
     MockedStage,
     MockedStage1,
 )
+
+# isort: on
 
 
 class TestConvergenceCheckStageScheduler(unittest.TestCase):

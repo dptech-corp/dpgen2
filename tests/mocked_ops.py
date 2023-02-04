@@ -1,56 +1,88 @@
 from dflow.python import (
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
-    upload_packages,
     FatalError,
+    OPIOSign,
+    upload_packages,
 )
 
 upload_packages.append(__file__)
 
-import os, json, shutil, re, pickle
-from pathlib import Path
-from typing import Tuple, List
+import json
+import os
+import pickle
+import re
+import shutil
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Tuple,
+)
 
 try:
-    from flow.context import dpgen2
+    from flow.context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from dpgen2.constants import (
-    train_task_pattern,
-    train_script_name,
-    train_log_name,
-    model_name_pattern,
-    lmp_task_pattern,
+    fp_task_pattern,
     lmp_conf_name,
     lmp_input_name,
-    lmp_traj_name,
     lmp_log_name,
     lmp_model_devi_name,
-    fp_task_pattern,
+    lmp_task_pattern,
+    lmp_traj_name,
+    model_name_pattern,
+    train_log_name,
+    train_script_name,
+    train_task_pattern,
+)
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+from dpgen2.exploration.scheduler import (
+    ConvergenceCheckStageScheduler,
+)
+from dpgen2.exploration.selector import (
+    ConfSelector,
+)
+from dpgen2.exploration.task import (
+    ExplorationStage,
+    ExplorationTask,
+    ExplorationTaskGroup,
+)
+from dpgen2.fp import (
+    PrepVasp,
+    RunVasp,
 )
 from dpgen2.fp.vasp import (
+    VaspInputs,
     vasp_conf_name,
     vasp_input_name,
 )
-from dpgen2.op.run_dp_train import RunDPTrain
-from dpgen2.op.prep_dp_train import PrepDPTrain
-from dpgen2.op.prep_lmp import PrepExplorationTaskGroup
-from dpgen2.op.run_lmp import RunLmp
-from dpgen2.fp import PrepVasp, RunVasp
-from dpgen2.op.collect_data import CollectData
-from dpgen2.op.select_confs import SelectConfs
-from dpgen2.exploration.selector import ConfSelector
-from dpgen2.exploration.task import (
-    ExplorationTask,
-    ExplorationTaskGroup,
-    ExplorationStage,
+from dpgen2.op.collect_data import (
+    CollectData,
 )
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.scheduler import ConvergenceCheckStageScheduler
-from dpgen2.fp.vasp import VaspInputs
+from dpgen2.op.prep_dp_train import (
+    PrepDPTrain,
+)
+from dpgen2.op.prep_lmp import (
+    PrepExplorationTaskGroup,
+)
+from dpgen2.op.run_dp_train import (
+    RunDPTrain,
+)
+from dpgen2.op.run_lmp import (
+    RunLmp,
+)
+from dpgen2.op.select_confs import (
+    SelectConfs,
+)
 
 mocked_template_script = {"seed": 1024, "data": []}
 mocked_numb_models = 3
@@ -163,7 +195,9 @@ class MockedRunDPTrain(RunDPTrain):
 
         oscript = Path("input.json")
         if not oscript.exists():
-            from shutil import copyfile
+            from shutil import (
+                copyfile,
+            )
 
             copyfile(script, oscript)
         model = Path("model.pb")
@@ -249,7 +283,9 @@ class MockedRunDPTrainNoneInitModel(RunDPTrain):
 
         oscript = Path("input.json")
         if not oscript.exists():
-            from shutil import copyfile
+            from shutil import (
+                copyfile,
+            )
 
             copyfile(script, oscript)
         model = Path("model.pb")
@@ -385,7 +421,9 @@ class MockedPrepVasp(PrepVasp):
         for ii in range(nconfs):
             task_path = Path(fp_task_pattern % ii)
             task_path.mkdir(exist_ok=True, parents=True)
-            from shutil import copyfile
+            from shutil import (
+                copyfile,
+            )
 
             copyfile(confs[ii], task_path / vasp_conf_name)
             (task_path / vasp_input_name).write_text(incar_temp)

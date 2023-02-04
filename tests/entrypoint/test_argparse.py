@@ -1,4 +1,7 @@
-import unittest, json, shutil, os
+import json
+import os
+import shutil
+import unittest
 
 from dpgen2.entrypoint.main import (
     main_parser,

@@ -1,7 +1,10 @@
+import tempfile
+from pathlib import (
+    Path,
+)
+
 import dpdata
 import numpy as np
-from pathlib import Path
-import tempfile
 
 
 def generate_unit_cell(

@@ -1,14 +1,22 @@
-import sys
-import numpy as np
 import random
-from . import ExplorationReport
+import sys
 from typing import (
     List,
     Optional,
     Tuple,
 )
-from dflow.python import FatalError
-from dargs import Argument
+
+import numpy as np
+from dargs import (
+    Argument,
+)
+from dflow.python import (
+    FatalError,
+)
+
+from . import (
+    ExplorationReport,
+)
 
 
 class ExplorationReportAdaptiveLower(ExplorationReport):

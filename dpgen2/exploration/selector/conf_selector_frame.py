@@ -1,19 +1,30 @@
-import dpdata
 import copy
-import numpy as np
-from collections import Counter
+from collections import (
+    Counter,
+)
+from pathlib import (
+    Path,
+)
 from typing import (
     List,
     Optional,
     Tuple,
 )
-from pathlib import Path
-from . import (
-    ConfSelector,
-    ConfFilters,
+
+import dpdata
+import numpy as np
+
+from dpgen2.exploration.render import (
+    TrajRender,
 )
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.render import TrajRender
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+
+from . import (
+    ConfFilters,
+    ConfSelector,
+)
 
 
 class ConfSelectorFrames(ConfSelector):

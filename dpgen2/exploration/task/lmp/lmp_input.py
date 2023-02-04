@@ -1,16 +1,19 @@
 import random
-import numpy as np
 from typing import (
     List,
     Optional,
 )
-from packaging.version import Version
+
+import dpdata
+import numpy as np
+import scipy.constants as pc
+from packaging.version import (
+    Version,
+)
+
 from dpgen2.constants import (
     lmp_traj_name,
 )
-
-import dpdata
-import scipy.constants as pc
 
 
 def _sample_sphere():

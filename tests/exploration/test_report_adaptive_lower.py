@@ -1,10 +1,21 @@
-from context import dpgen2
-import os, textwrap
-import numpy as np
+import os
+import textwrap
 import unittest
-from collections import Counter
-from dpgen2.exploration.report import ExplorationReportAdaptiveLower
-from dargs import Argument
+from collections import (
+    Counter,
+)
+
+import numpy as np
+from context import (
+    dpgen2,
+)
+from dargs import (
+    Argument,
+)
+
+from dpgen2.exploration.report import (
+    ExplorationReportAdaptiveLower,
+)
 
 
 class TestTrajsExplorationResport(unittest.TestCase):

@@ -1,10 +1,14 @@
-import numpy as np
-from abc import ABC, abstractmethod
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from typing import (
-    Tuple,
     List,
     Optional,
+    Tuple,
 )
+
+import numpy as np
 
 
 class ExplorationReport(ABC):

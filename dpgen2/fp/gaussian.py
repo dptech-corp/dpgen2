@@ -1,24 +1,32 @@
 """Prep and Run Gaussian tasks."""
+from typing import (
+    Any,
+    List,
+    Tuple,
+)
+
+import dpdata
+from dargs import (
+    Argument,
+    dargs,
+)
 from dflow.python import (
     TransientError,
 )
-from typing import (
-    Tuple,
-    List,
-    Any,
-)
-import dpdata
-from dargs import (
-    dargs,
-    Argument,
-)
 
-from .prep_fp import PrepFp
-from .run_fp import RunFp
 from dpgen2.constants import (
     fp_default_out_data_name,
 )
-from dpgen2.utils.run_command import run_command
+from dpgen2.utils.run_command import (
+    run_command,
+)
+
+from .prep_fp import (
+    PrepFp,
+)
+from .run_fp import (
+    RunFp,
+)
 
 # global static variables
 gaussian_input_name = "task.gjf"

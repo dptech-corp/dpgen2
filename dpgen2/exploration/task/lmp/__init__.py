@@ -1,1 +1,3 @@
-from .lmp_input import make_lmp_input
+from .lmp_input import (
+    make_lmp_input,
+)

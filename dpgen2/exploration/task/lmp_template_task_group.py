@@ -1,22 +1,31 @@
-import itertools, random
+import itertools
+import random
+from pathlib import (
+    Path,
+)
 from typing import (
     List,
     Optional,
 )
-from pathlib import Path
-from . import (
-    ExplorationTask,
-    ExplorationTaskGroup,
-    ConfSamplingTaskGroup,
-)
-from .lmp import make_lmp_input
+
 from dpgen2.constants import (
     lmp_conf_name,
-    lmp_traj_name,
     lmp_input_name,
+    lmp_traj_name,
+    model_name_pattern,
     plm_input_name,
     plm_output_name,
-    model_name_pattern,
+)
+
+from .conf_sampling_task_group import (
+    ConfSamplingTaskGroup,
+)
+from .lmp import (
+    make_lmp_input,
+)
+from .task import (
+    ExplorationTask,
+    ExplorationTaskGroup,
 )
 
 

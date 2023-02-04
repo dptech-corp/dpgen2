@@ -1,19 +1,22 @@
-import numpy as np
-import dpdata
-from pathlib import Path
+from pathlib import (
+    Path,
+)
 from typing import (
-    Optional,
-    Tuple,
-    List,
-    Set,
     Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
     Union,
 )
+
+import dpdata
+import numpy as np
 from dargs import (
-    dargs,
     Argument,
-    Variant,
     ArgumentEncoder,
+    Variant,
+    dargs,
 )
 
 

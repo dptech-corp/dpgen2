@@ -12,8 +12,9 @@
 #
 import os
 import sys
-from datetime import date
-
+from datetime import (
+    date,
+)
 
 # -- Project information -----------------------------------------------------
 
@@ -67,7 +68,9 @@ master_doc = "index"
 
 
 def run_apidoc(_):
-    from sphinx.ext.apidoc import main
+    from sphinx.ext.apidoc import (
+        main,
+    )
 
     sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
     cur_dir = os.path.abspath(os.path.dirname(__file__))

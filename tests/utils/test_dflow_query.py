@@ -1,25 +1,55 @@
-import os, textwrap
-import numpy as np
+import os
+import textwrap
 import unittest
+from pathlib import (
+    Path,
+)
+from typing import (
+    List,
+    Set,
+)
 
-from typing import Set, List
-from pathlib import Path
+import numpy as np
 
 try:
-    from exploration.context import dpgen2
+    from exploration.context import (
+        dpgen2,
+    )
 except ModuleNotFoundError:
     # case of upload everything to argo, no context needed
     pass
 from dflow.python import (
     FatalError,
 )
+
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
 from dpgen2.exploration.scheduler import (
     ConvergenceCheckStageScheduler,
     ExplorationScheduler,
 )
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
-from dpgen2.exploration.selector import ConfSelectorFrames
+from dpgen2.exploration.selector import (
+    ConfSelectorFrames,
+)
+from dpgen2.exploration.task import (
+    ExplorationStage,
+    ExplorationTaskGroup,
+)
+from dpgen2.utils.dflow_query import (
+    find_slice_ranges,
+    get_all_schedulers,
+    get_iteration,
+    get_last_iteration,
+    get_last_scheduler,
+    get_subkey,
+    matched_step_key,
+    print_keys_in_nice_format,
+    sort_slice_ops,
+)
+
+# isort: off
+import utils.context
 from mocked_ops import (
     MockedExplorationReport,
     MockedExplorationTaskGroup,
@@ -27,17 +57,8 @@ from mocked_ops import (
     MockedStage,
     MockedStage1,
 )
-from dpgen2.utils.dflow_query import (
-    get_last_scheduler,
-    get_subkey,
-    get_iteration,
-    matched_step_key,
-    get_last_iteration,
-    get_all_schedulers,
-    find_slice_ranges,
-    sort_slice_ops,
-    print_keys_in_nice_format,
-)
+
+# isort: on
 
 dpgen_keys = [
     "init--scheduler",

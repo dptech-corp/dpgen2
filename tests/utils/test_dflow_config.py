@@ -1,16 +1,27 @@
-from utils.context import dpgen2
-import numpy as np
-import unittest, json, shutil, os
+import json
+import os
 import random
+import shutil
 import tempfile
+import unittest
+from pathlib import (
+    Path,
+)
+
 import dpdata
-from pathlib import Path
+import numpy as np
+from dflow import (
+    config,
+    s3_config,
+)
+from utils.context import (
+    dpgen2,
+)
 
 from dpgen2.utils import (
     dflow_config,
     dflow_s3_config,
 )
-from dflow import config, s3_config
 
 
 class TestDflowConfig(unittest.TestCase):

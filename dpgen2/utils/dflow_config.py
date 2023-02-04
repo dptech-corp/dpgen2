@@ -1,5 +1,9 @@
 import copy
-from dflow import config, s3_config
+
+from dflow import (
+    config,
+    s3_config,
+)
 
 
 def workflow_config_from_dict(

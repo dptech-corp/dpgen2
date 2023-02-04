@@ -1,27 +1,35 @@
-from abc import ABC, abstractmethod
+import json
+import os
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from pathlib import (
+    Path,
+)
+from typing import (
+    Any,
+    Dict,
+    List,
+    Set,
+    Tuple,
+    Union,
+)
+
 import dpdata
 from dflow.python import (
     OP,
     OPIO,
-    OPIOSign,
     Artifact,
     BigParameter,
+    OPIOSign,
 )
-import os, json
-from typing import (
-    Tuple,
-    List,
-    Set,
-    Dict,
-    Union,
-    Any,
-)
-from pathlib import Path
-from dpgen2.utils import (
-    set_directory,
-)
+
 from dpgen2.constants import (
     fp_task_pattern,
+)
+from dpgen2.utils import (
+    set_directory,
 )
 
 

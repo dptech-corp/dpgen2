@@ -2,14 +2,24 @@ from abc import (
     ABC,
     abstractmethod,
 )
+from pathlib import (
+    Path,
+)
 from typing import (
     List,
     Tuple,
 )
-from pathlib import Path
-from dpgen2.exploration.report import ExplorationReport
-from dpgen2.exploration.task import ExplorationTaskGroup, ExplorationStage
-from dpgen2.exploration.selector import ConfSelector
+
+from dpgen2.exploration.report import (
+    ExplorationReport,
+)
+from dpgen2.exploration.selector import (
+    ConfSelector,
+)
+from dpgen2.exploration.task import (
+    ExplorationStage,
+    ExplorationTaskGroup,
+)
 
 
 class StageScheduler(ABC):

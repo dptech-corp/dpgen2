@@ -1,16 +1,19 @@
-import itertools, random
+import itertools
+import random
 from typing import (
     List,
     Optional,
 )
-from . import (
-    ExplorationTask,
-    ExplorationTaskGroup,
-)
+
 from dpgen2.constants import (
     lmp_conf_name,
     lmp_input_name,
     model_name_pattern,
+)
+
+from .task import (
+    ExplorationTask,
+    ExplorationTaskGroup,
 )
 
 
