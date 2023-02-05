@@ -67,8 +67,8 @@ class SelectConfs(OP):
 
         Returns
         -------
+        Any
             Output dict with components:
-
             - `report`: (`ExplorationReport`) The report on the exploration.
             - `conf`: (`Artifact(List[Path])`) The selected configurations.
 

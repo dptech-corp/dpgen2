@@ -321,13 +321,13 @@ class ExplorationReportAdaptiveLower(ExplorationReport):
 
         Parameters
         ----------
-        max_nframes    int
-                The maximal number of frames of candidates.
+        max_nframes
+            The maximal number of frames of candidates.
 
         Returns
         -------
         cand_frames   List[Tuple[int,int]]
-                Candidate frames. A list of tuples: [(traj_idx, frame_idx), ...]
+            Candidate frames. A list of tuples: [(traj_idx, frame_idx), ...]
         """
         self.candi_picked = [(ii[0], ii[1]) for ii in self.candi]
         if max_nframes is not None and max_nframes < len(self.candi_picked):

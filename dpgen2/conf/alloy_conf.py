@@ -74,13 +74,13 @@ class AlloyConfGenerator(ConfGenerator):
 
         Parameters
         ----------
-        type_map: List[str]
-                The type map.
+        type_map : List[str]
+            The type map.
 
         Returns
         -------
         confs:  dpdata.MultiSystems
-                The returned configurations in `dpdata.MultiSystems` format
+            The returned configurations in `dpdata.MultiSystems` format
 
         """
         ms = dpdata.MultiSystems(type_map=type_map)
@@ -187,25 +187,25 @@ class AlloyConf:
         Parameters
         ----------
         numb_confs      int
-                        Number of configurations to generate
+            Number of configurations to generate
         concentration   List[List[float]] or List[float] or None
-                        If `List[float]`, the concentrations of each element. The length of
-                        the list should be the same as the `type_map`.
-                        If `List[List[float]]`, a list of concentrations (`List[float]`) is
-                        randomly picked from the List.
-                        If `None`, the elements are assumed to be of equal concentration.
+            If `List[float]`, the concentrations of each element. The length of
+            the list should be the same as the `type_map`.
+            If `List[List[float]]`, a list of concentrations (`List[float]`) is
+            randomly picked from the List.
+            If `None`, the elements are assumed to be of equal concentration.
         cell_pert_frac  float
-                        fraction of cell perturbation
+            fraction of cell perturbation
         atom_pert_dist  float
-                        the atom perturbation distance (unit angstrom).
+            the atom perturbation distance (unit angstrom).
         fmt             str
-                        the format of the returned conf strings.
-                        Should be one of the formats supported by `dpdata`
+            the format of the returned conf strings.
+            Should be one of the formats supported by `dpdata`
 
         Returns
         -------
         conf_list       List[str]
-                        A list of file content of configurations.
+            A list of file content of configurations.
         """
         ret = []
         for ii in range(numb_confs):
@@ -227,22 +227,22 @@ class AlloyConf:
         Parameters
         ----------
         numb_confs      int
-                        Number of configurations to generate
+            Number of configurations to generate
         concentration   List[List[float]] or List[float] or None
-                        If `List[float]`, the concentrations of each element. The length of
-                        the list should be the same as the `type_map`.
-                        If `List[List[float]]`, a list of concentrations (`List[float]`) is
-                        randomly picked from the List.
-                        If `None`, the elements are assumed to be of equal concentration.
+            If `List[float]`, the concentrations of each element. The length of
+            the list should be the same as the `type_map`.
+            If `List[List[float]]`, a list of concentrations (`List[float]`) is
+            randomly picked from the List.
+            If `None`, the elements are assumed to be of equal concentration.
         cell_pert_frac  float
-                        fraction of cell perturbation
+            fraction of cell perturbation
         atom_pert_dist  float
-                        the atom perturbation distance (unit angstrom).
+            the atom perturbation distance (unit angstrom).
 
         Returns
         -------
         conf_list       List[dpdata.System]
-                        A list of generated confs in `dpdata.System`.
+            A list of generated confs in `dpdata.System`.
         """
         ret = [
             self._generate_one_sys(concentration, cell_pert_frac, atom_pert_dist)

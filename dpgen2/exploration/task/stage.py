@@ -43,7 +43,7 @@ class ExplorationStage:
 
         Parameters
         ----------
-        grp: ExplorationTaskGroup
+        grp : ExplorationTaskGroup
             The added exploration task group
 
         """

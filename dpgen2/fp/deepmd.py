@@ -70,7 +70,7 @@ class PrepDeepmd(PrepFp):
         ----------
         conf_frame : dpdata.System
             One frame of configuration in the dpdata format.
-        inputs: str or dict
+        inputs : str or dict
             This parameter is useless in deepmd.
         """
         conf_frame.to("deepmd/npy", deepmd_input_path)
@@ -109,9 +109,9 @@ class RunDeepmd(RunFp):
 
         Parameters
         ----------
-        command: str
+        command : str
             The command of running Deepmd task
-        out: str
+        out : str
             The name of the output data file.
 
         Returns

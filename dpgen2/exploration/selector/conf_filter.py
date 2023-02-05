@@ -25,18 +25,18 @@ class ConfFilter(ABC):
         Parameters
         ----------
         coords : numpy.array
-                The coordinates, numpy array of shape natoms x 3
+            The coordinates, numpy array of shape natoms x 3
         cell : numpy.array
-                The cell tensor. numpy array of shape 3 x 3
+            The cell tensor. numpy array of shape 3 x 3
         atom_types : numpy.array
-                The atom types. numpy array of shape natoms
+            The atom types. numpy array of shape natoms
         nopbc : bool
-                If no periodic boundary condition.
+            If no periodic boundary condition.
 
         Returns
         -------
         valid : bool
-                `True` if the configuration is a valid configuration, else `False`.
+            `True` if the configuration is a valid configuration, else `False`.
 
         """
         pass

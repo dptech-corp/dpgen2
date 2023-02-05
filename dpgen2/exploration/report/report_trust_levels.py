@@ -194,13 +194,13 @@ class ExplorationReportTrustLevels(ExplorationReport):
 
         Parameters
         ----------
-        reports List[ExplorationReportTrustLevels]
-                Historical reports
+        reports
+            Historical reports
 
         Returns
         -------
         converged  bool
-                If the exploration is converged.
+            If the exploration is converged.
         """
         return self.accurate_ratio() >= self.conv_accuracy
 
@@ -246,13 +246,13 @@ class ExplorationReportTrustLevels(ExplorationReport):
 
         Parameters
         ----------
-        max_nframes    int
-                The maximal number of frames of candidates.
+        max_nframes
+            The maximal number of frames of candidates.
 
         Returns
         -------
         cand_frames   List[Tuple[int,int]]
-                Candidate frames. A list of tuples: [(traj_idx, frame_idx), ...]
+            Candidate frames. A list of tuples: [(traj_idx, frame_idx), ...]
         """
         self.traj_cand_picked = []
         for tidx, tt in enumerate(self.traj_cand):

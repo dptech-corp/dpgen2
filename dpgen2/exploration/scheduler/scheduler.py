@@ -52,7 +52,7 @@ class ExplorationScheduler:
 
         Parameters
         ----------
-        stage_scheduler: StageScheduler
+        stage_scheduler : StageScheduler
             The added stage scheduler
 
         """
@@ -119,7 +119,7 @@ class ExplorationScheduler:
         ----------
         report : ExplorationReport
             The exploration report of this iteration.
-        confs: List[Path]
+        trajs : List[Path]
             A list of configurations generated during the exploration. May be used to generate new configurations for the next iteration.
 
         Returns
@@ -197,11 +197,11 @@ class ExplorationScheduler:
         Returns
         -------
         accu    np.ndarray
-                The accurate ratio. length of array the same as # iterations.
+            The accurate ratio. length of array the same as # iterations.
         cand    np.ndarray
-                The candidate ratio. length of array the same as # iterations.
+            The candidate ratio. length of array the same as # iterations.
         fail    np.ndarray
-                The failed ration. length of array the same as # iterations.
+            The failed ration. length of array the same as # iterations.
         """
         stages = self.stage_schedulers
         stag_idx, idx_in_stag, iter_idx = self.get_stage_of_iterations()

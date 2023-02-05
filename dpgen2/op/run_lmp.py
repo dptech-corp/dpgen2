@@ -95,14 +95,14 @@ class RunLmp(OP):
 
         Returns
         -------
+        Any
             Output dict with components:
-
             - `log`: (`Artifact(Path)`) The log file of LAMMPS.
             - `traj`: (`Artifact(Path)`) The output trajectory.
             - `model_devi`: (`Artifact(Path)`) The model deviation. The order of recorded model deviations should be consistent with the order of frames in `traj`.
 
-        Exceptions
-        ----------
+        Raises
+        ------
         TransientError
             On the failure of LAMMPS execution. Handle different failure cases? e.g. loss atoms.
         """

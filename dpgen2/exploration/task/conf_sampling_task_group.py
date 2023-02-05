@@ -36,14 +36,14 @@ class ConfSamplingTaskGroup(ExplorationTaskGroup):
         Parameters
         ----------
         conf_list       str
-                        A list of file contents
+            A list of file contents
         n_sample        int
-                        Number of samples drawn from the conf list each time
-                        `make_task` is called. If set to `None`,
-                        `n_sample` is set to length of the conf_list.
+            Number of samples drawn from the conf list each time
+            `make_task` is called. If set to `None`,
+            `n_sample` is set to length of the conf_list.
         random_sample   bool
-                        If true the confs are randomly sampled, otherwise are
-                        consecutively sampled from the conf_list
+            If true the confs are randomly sampled, otherwise are
+            consecutively sampled from the conf_list
         """
         self.conf_list = conf_list
         if n_sample is None:

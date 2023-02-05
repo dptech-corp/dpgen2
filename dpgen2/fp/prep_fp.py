@@ -75,7 +75,7 @@ class PrepFp(OP, ABC):
         ----------
         conf_frame : dpdata.System
             One frame of configuration in the dpdata format.
-        inputs: Any
+        inputs : Any
             The class object handels all other input files of the task.
             For example, pseudopotential file, k-point file and so on.
         """

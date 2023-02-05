@@ -35,7 +35,7 @@ class StageScheduler(ABC):
         Returns
         -------
         converged  bool
-                   the convergence
+            the convergence
         """
         pass
 
@@ -47,7 +47,7 @@ class StageScheduler(ABC):
         Returns
         -------
         converged  bool
-                   if the stage is complete
+            if the stage is complete
         """
         pass
 
@@ -67,7 +67,7 @@ class StageScheduler(ABC):
         Returns
         -------
         index  int
-                   the index of the next iteration
+            the index of the next iteration
         """
         pass
 
@@ -79,7 +79,7 @@ class StageScheduler(ABC):
         Returns
         -------
         reports  List[ExplorationReport]
-                   the reports
+            the reports
         """
         pass
 
@@ -96,11 +96,11 @@ class StageScheduler(ABC):
 
         Parameters
         ----------
-        hist_reports: List[ExplorationReport]
+        hist_reports : List[ExplorationReport]
             The historical exploration report of the stage. If this is the first iteration of the stage, this list is empty.
         report : ExplorationReport
             The exploration report of this iteration.
-        confs: List[Path]
+        confs : List[Path]
             A list of configurations generated during the exploration. May be used to generate new configurations for the next iteration.
 
         Returns

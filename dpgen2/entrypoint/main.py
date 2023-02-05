@@ -232,7 +232,7 @@ def parse_args(args: Optional[List[str]] = None):
 
     Parameters
     ----------
-    args: List[str]
+    args : List[str]
         list of command line arguments, main purpose is testing default option None
         takes arguments from sys.argv
     """

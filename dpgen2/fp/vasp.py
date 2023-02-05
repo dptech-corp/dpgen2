@@ -66,7 +66,7 @@ class PrepVasp(PrepFp):
         ----------
         conf_frame : dpdata.System
             One frame of configuration in the dpdata format.
-        inputs: VaspInputs
+        vasp_inputs : VaspInputs
             The VaspInputs object handels all other input files of the task.
         """
 
@@ -111,11 +111,11 @@ class RunVasp(RunFp):
 
         Parameters
         ----------
-        command: str
+        command : str
             The command of running vasp task
-        out: str
+        out : str
             The name of the output data file.
-        log: str
+        log : str
             The name of the log file
 
         Returns

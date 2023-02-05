@@ -28,11 +28,11 @@ class ExplorationReport(ABC):
         Parameters
         ----------
         mdf : List[np.ndarray]
-                The force model deviations. mdf[ii][jj] is the force model deviation
-                of the jj-th frame of the ii-th trajectory.
+            The force model deviations. mdf[ii][jj] is the force model deviation
+            of the jj-th frame of the ii-th trajectory.
         mdv : Optional[List[np.ndarray]]
-                The virial model deviations. mdv[ii][jj] is the virial model deviation
-                of the jj-th frame of the ii-th trajectory.
+            The virial model deviations. mdv[ii][jj] is the virial model deviation
+            of the jj-th frame of the ii-th trajectory.
         """
         pass
 
@@ -45,13 +45,13 @@ class ExplorationReport(ABC):
 
         Parameters
         ----------
-        reports List[ExplorationReportTrustLevels]
-                Historical reports
+        reports
+            Historical reports
 
         Returns
         -------
         converged  bool
-                If the exploration is converged.
+            If the exploration is converged.
         """
         pass
 
@@ -68,15 +68,15 @@ class ExplorationReport(ABC):
 
         Parameters
         ----------
-        max_nframes    int
-                The maximal number of frames of candidates.
+        max_nframes
+            The maximal number of frames of candidates.
 
         Returns
         -------
         idx:    List[List[int]]
-                The frame indices of candidate configurations.
-                idx[ii][jj] is the frame index of the jj-th candidate of the
-                ii-th trajectory.
+            The frame indices of candidate configurations.
+            idx[ii][jj] is the frame index of the jj-th candidate of the
+            ii-th trajectory.
         """
         pass
 

@@ -93,15 +93,15 @@ class RunDPTrain(OP):
 
         Returns
         -------
+        Any
             Output dict with components:
-
             - `script`: (`Artifact(Path)`) The training script.
             - `model`: (`Artifact(Path)`) The trained frozen model.
             - `lcurve`: (`Artifact(Path)`) The learning curve file.
             - `log`: (`Artifact(Path)`) The log file of training.
 
-        Exceptions
-        ----------
+        Raises
+        ------
         FatalError
             On the failure of training or freezing. Human intervention needed.
         """

@@ -32,19 +32,19 @@ class VaspInputs:
         Parameters
         ----------
         kspacing : Union[float, List[float]]
-                The kspacing. If it is a number, then three directions use the same
-                ksapcing, otherwise it is a list of three numbers, specifying the
-                kspacing used in the x, y and z dimension.
-        incar: str
-                A template INCAR file.
+            The kspacing. If it is a number, then three directions use the same
+            ksapcing, otherwise it is a list of three numbers, specifying the
+            kspacing used in the x, y and z dimension.
+        incar : str
+            A template INCAR file.
         pp_files : Dict[str,str]
-                The potcar files for the elements. For example
-                {
-                   "H" : "/path/to/POTCAR_H",
-                   "O" : "/path/to/POTCAR_O",
-                }
+            The potcar files for the elements. For example
+            {
+               "H" : "/path/to/POTCAR_H",
+               "O" : "/path/to/POTCAR_O",
+            }
         kgamma : bool
-                K-mesh includes the gamma point
+            K-mesh includes the gamma point
         """
         self.kspacing = kspacing
         self.kgamma = kgamma
