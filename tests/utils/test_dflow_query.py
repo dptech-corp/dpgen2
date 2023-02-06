@@ -122,7 +122,8 @@ class MockedFoo:
 
 
 class MockedBar:
-    def __init__(self, xx):
+    def __init__(self, xx, kk):
+        self.key = kk
         self.outputs = MockedFoo()
         self.outputs.parameters["exploration_scheduler"].value = xx * 10
 
@@ -133,11 +134,11 @@ class MockedBar:
 
 def _get_step(key=None):
     if key == "init--scheduler":
-        return [MockedBar(2)]
+        return [MockedBar(2, key)]
     elif key == "iter-0--scheduler":
-        return [MockedBar(0)]
+        return [MockedBar(0, key)]
     elif key == "iter-1--scheduler":
-        return [MockedBar(1)]
+        return [MockedBar(1, key)]
     else:
         raise RuntimeError("unexpected key")
 
@@ -148,11 +149,28 @@ class MockedWFInfo:
 
 
 class MockedWF:
+    def __init__(
+        self,
+        none_global=True,
+    ):
+        self.none_global = none_global
+
     def query_step(self, key=None):
         return _get_step(key)
 
     def query(self):
         return MockedWFInfo()
+
+    def query_global_outputs(self):
+        # mocked return None: non-global scheduler output
+        if self.none_global:
+            return None
+        else:
+            return MockedFoo()
+
+    def query_step_by_key(self, keys):
+        ret = [_get_step(kk)[0] for kk in keys]
+        return ret
 
 
 class TestDflowQuery(unittest.TestCase):
@@ -176,6 +194,13 @@ class TestDflowQuery(unittest.TestCase):
     def test_get_last_scheduler(self):
         value = get_last_scheduler(
             MockedWF(),
+            ["iter-1--scheduler", "foo", "bar", "iter-0--scheduler", "init--scheduler"],
+        )
+        self.assertEqual(value, 10)
+
+    def test_get_last_scheduler(self):
+        value = get_last_scheduler(
+            MockedWF(none_global=False),
             ["iter-1--scheduler", "foo", "bar", "iter-0--scheduler", "init--scheduler"],
         )
         self.assertEqual(value, 10)
