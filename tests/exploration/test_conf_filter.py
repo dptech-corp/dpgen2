@@ -12,7 +12,7 @@ from dpgen2.exploration.selector import (
     ConfFilters,
 )
 
-from ..fake_data_set import (
+from fake_data_set import (
     fake_system,
 )
 from .context import (

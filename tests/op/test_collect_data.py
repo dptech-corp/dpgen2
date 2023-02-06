@@ -34,7 +34,7 @@ from dpgen2.op.collect_data import (
     CollectData,
 )
 
-from ..fake_data_set import (
+from fake_data_set import (
     fake_multi_sys,
     fake_system,
 )

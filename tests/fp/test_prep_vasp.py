@@ -35,7 +35,7 @@ from dpgen2.utils import (
     dump_object_to_file,
 )
 
-from ..fake_data_set import (
+from fake_data_set import (
     fake_multi_sys,
     fake_system,
 )
