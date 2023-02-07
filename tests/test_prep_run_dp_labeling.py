@@ -84,7 +84,7 @@ class TestRunDeepmd(unittest.TestCase):
 
         shutil.rmtree(deepmd_input_path, ignore_errors=True)
 
-        shutil.rmtree(deepmd_teacher_model, ignore_errors=True)
+        shutil.rmtree(deepmd_temp_path, ignore_errors=True)
 
         shutil.rmtree(deepmd_teacher_model, ignore_errors=True)
 
