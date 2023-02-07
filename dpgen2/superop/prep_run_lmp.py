@@ -140,6 +140,7 @@ def _prep_run_lmp(
     run_template_config = run_config.pop("template_config")
     prep_executor = init_executor(prep_config.pop("executor"))
     run_executor = init_executor(run_config.pop("executor"))
+    template_slice_config = run_config.pop("template_slice_config", {})
 
     prep_lmp = Step(
         "prep-lmp",
@@ -168,6 +169,7 @@ def _prep_run_lmp(
                 input_parameter=["task_name"],
                 input_artifact=["task_path"],
                 output_artifact=["log", "traj", "model_devi", "plm_output"],
+                **template_slice_config,
             ),
             python_packages=upload_python_packages,
             **run_template_config,
@@ -184,7 +186,6 @@ def _prep_run_lmp(
             argo_len(prep_lmp.outputs.parameters["task_names"]),
             format=lmp_index_pattern,
         ),
-        # with_param=argo_range(argo_len(prep_lmp.outputs.parameters["task_names"])),
         key=step_keys["run-lmp"],
         executor=run_executor,
         **run_config,
