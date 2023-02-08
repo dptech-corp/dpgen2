@@ -370,6 +370,14 @@ def workflow_concurrent_learning(
             if old_style
             else config["train"].get("init_models_paths", None)
         )
+        numb_models = (
+            config["numb_models"] if old_style else config["train"]["numb_models"]
+        )
+        if init_models_paths is not None and len(init_models_paths) != numb_models:
+            raise RuntimeError(
+                f"{len(init_models_paths)} init models provided, which does "
+                "not match numb_models={numb_models}"
+            )
     elif train_style == "dp-dist" and not old_style:
         init_models_paths = [config["train"].get("student_model_path", None)]
         config["train"]["numb_models"] = 1
@@ -574,6 +582,7 @@ def submit_concurrent_learning(
     reuse_step: Optional[List[Step]] = None,
     old_style: bool = False,
     replace_scheduler: bool = False,
+    no_submission: bool = False,
 ):
     # normalize args
     wf_config = normalize_args(wf_config)
@@ -622,7 +631,9 @@ def submit_concurrent_learning(
     wf = Workflow(name="dpgen", context=context)
     wf.add(dpgen_step)
 
-    wf.submit(reuse_step=reuse_step)
+    # for debug purpose, we may not really submit the wf
+    if not no_submission:
+        wf.submit(reuse_step=reuse_step)
 
     return wf
 
