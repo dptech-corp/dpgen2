@@ -19,7 +19,25 @@ from dpgen2.utils.dflow_query import (
 )
 from dpgen2.utils.download_dpgen2_artifacts import (
     download_dpgen2_artifacts,
+    download_dpgen2_artifacts_by_def,
 )
+
+
+def download_by_def(
+    workflow_id,
+    wf_config: Dict = {},
+    iterations: Optional[List[int]] = None,
+    step_defs: Optional[List[str]] = None,
+    prefix: Optional[str] = None,
+    chk_pnt: bool = False,
+):
+    wf_config = normalize_args(wf_config)
+
+    global_config_workflow(wf_config)
+
+    wf = Workflow(id=workflow_id)
+
+    download_dpgen2_artifacts_by_def(wf, iterations, step_defs, prefix, chk_pnt)
 
 
 def download(
