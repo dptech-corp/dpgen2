@@ -14,6 +14,7 @@ from dflow.python import (
     OP,
     OPIO,
     Artifact,
+    BigParameter,
     OPIOSign,
 )
 
@@ -46,7 +47,7 @@ class PrepDPTrain(OP):
     def get_output_sign(cls):
         return OPIOSign(
             {
-                "task_names": List[str],
+                "task_names": BigParameter(List[str]),
                 "task_paths": Artifact(List[Path]),
             }
         )

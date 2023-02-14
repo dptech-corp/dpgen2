@@ -21,6 +21,7 @@ from dflow.python import (
     OP,
     OPIO,
     Artifact,
+    BigParameter,
     FatalError,
     OPIOSign,
     TransientError,
@@ -53,7 +54,7 @@ class RunDPTrain(OP):
         return OPIOSign(
             {
                 "config": dict,
-                "task_name": str,
+                "task_name": BigParameter(str),
                 "task_path": Artifact(Path),
                 "init_model": Artifact(Path, optional=True),
                 "init_data": Artifact(List[Path]),

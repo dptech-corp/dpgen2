@@ -47,7 +47,7 @@ class RunFp(OP, ABC):
         return OPIOSign(
             {
                 "config": BigParameter(dict),
-                "task_name": str,
+                "task_name": BigParameter(str),
                 "task_path": Artifact(Path),
             }
         )
